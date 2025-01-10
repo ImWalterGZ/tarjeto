@@ -5,6 +5,12 @@ module.exports = {
   darkMode: "media", // or 'class'
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
+    extend: {
+      fontFamily: {
+        nunito: ["Nunito", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+      },
+    },
     accentColor: ({ theme }) => ({
       ...theme("colors"),
       auto: "auto",
@@ -164,6 +170,7 @@ module.exports = {
       fuchsia: colors.fuchsia,
       pink: colors.pink,
       rose: colors.rose,
+      "red-primary": "#F4262F",
     }),
     columns: {
       auto: "auto",
