@@ -3,8 +3,8 @@ import logo from "../assets/isotipo-red.png";
 
 export default function Navbar() {
   return (
-    <div className="max-w-screen h-16">
-      <nav className="  h-full flex flex-row justify-around items-center ">
+    <div className="max-w-screen h-16 mt-2 -mb-10">
+      <nav className="Z h-full flex flex-row justify-around items-center ">
         <img
           src={logo}
           className="h-9 w-auto object-contain pl-4 "
