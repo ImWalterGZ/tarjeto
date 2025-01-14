@@ -37,6 +37,7 @@ module.exports = {
       auto: "auto",
       square: "1 / 1",
       video: "16 / 9",
+      tarjetero: "3 /2",
     },
     backdropBlur: ({ theme }) => theme("blur"),
     backdropBrightness: ({ theme }) => theme("brightness"),
@@ -171,6 +172,7 @@ module.exports = {
       pink: colors.pink,
       rose: colors.rose,
       "red-primary": "#F4262F",
+      "gray-background": "#f2f2f2",
     }),
     columns: {
       auto: "auto",

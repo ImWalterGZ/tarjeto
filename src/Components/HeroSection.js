@@ -23,7 +23,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="relative w-6/12 flex flex-col">
+          <div className="relative w-6/12 2xl:w-4/12 flex flex-col max-w-screen">
             <img
               src={konga}
               className="absolute bottom-36 left-20 drop-shadow-2xl hover:bottom-40 hover:-translate-x-3 transition-all duration-300 ease-in-out   "
