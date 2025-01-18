@@ -1,6 +1,6 @@
 export default function Perfil({ nombre }) {
   return (
-    <div className="h-1/6">
+    <div className="h-1/6 flex align-middle">
       <div className="flex flex-row w-full items-center gap-6">
         <h2>img</h2>
         <div className="flex flex-col">

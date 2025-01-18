@@ -14,6 +14,7 @@ export default function TarjetasCliente() {
         <Tarjeta />
         <Tarjeta />
         <Tarjeta />
+        <Tarjeta />
         <AnadirLugar />
       </div>
     </>

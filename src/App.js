@@ -5,16 +5,9 @@ import { Routes, Route } from "react-router-dom";
 import About from "./pages/About";
 import AppDashboard from "./pages/ClientDashboard";
 import { useEffect, useState } from "react";
+import NegocioDashboard from "./pages/NegocioDashboard";
 
 function App() {
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((data) => setUsers(data));
-  }, []);
-
   return (
     <div className="App">
       <Routes>
@@ -56,6 +49,7 @@ function App() {
         />
 
         <Route path="/clientDashboard/*" element={<AppDashboard />} />
+        <Route path="/negocioDashboard/*" element={<NegocioDashboard />} />
       </Routes>
     </div>
   );

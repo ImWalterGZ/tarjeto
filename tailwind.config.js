@@ -10,6 +10,12 @@ module.exports = {
         nunito: ["Nunito", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
       },
+      dropShadow: {
+        plata: "0 35px 35px rgba(77, 103, 117, 0.25)",
+        dorado: "0 10px 15px rgba(249, 249, 48, 0.55)",
+        rubi: "0 35px 35px rgba(244, 38, 47, 0.25)",
+        bronce: "0 35px 35px rgba(160, 79, 82, 0.25)",
+      },
     },
     accentColor: ({ theme }) => ({
       ...theme("colors"),
@@ -173,6 +179,8 @@ module.exports = {
       rose: colors.rose,
       "red-primary": "#F4262F",
       "gray-background": "#f2f2f2",
+      "bronce-cd": "#A04F52",
+      "plata-cd": "#90C1DB",
     }),
     columns: {
       auto: "auto",

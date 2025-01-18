@@ -4,18 +4,18 @@ import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
-    <div className="max-w-screen h-16 mt-2 -mb-10">
-      <nav className="Z h-full flex flex-row justify-around items-center ">
+    <div className="h-16 mt-2 -mb-10 max-w-screen">
+      <nav className="flex flex-row items-center justify-around h-full Z ">
         <Link to="/">
           <img
             src={logo}
-            className="h-9 w-auto object-contain pl-4 "
+            className="object-contain w-auto pl-4 h-9 "
             alt="Logo"
           />
         </Link>
 
         <div>
-          <ul className="flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 font-bold text-gray-700 ">
+          <ul className="flex flex-col p-4 mt-4 font-bold text-gray-700 border rounded-lg md:p-0 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 ">
             <li>
               <Link className="block" to="/about">
                 Sobre nosotros
@@ -31,9 +31,16 @@ export default function Navbar() {
         </div>
         <Link
           to="/clientDashboard"
-          className="bg-red-primary w-2/12 h-12 text-center flex items-center justify-center text-white font-extrabold rounded-3xl hover:bg-red-600 transition-colors"
+          className="flex items-center justify-center w-2/12 h-12 font-extrabold text-center text-white transition-colors bg-red-primary rounded-3xl hover:bg-red-600"
         >
           Accede a tarjeto
+        </Link>
+        <Link
+          to="/negocioDashboard"
+          className="flex items-center justify-center w-2/12 h-12 font-extrabold text-center transition-colors bg-neutral-700 text-red-primary rounded-3xl hover:bg-neutral-600"
+        >
+          {" "}
+          Negocio
         </Link>
       </nav>
     </div>

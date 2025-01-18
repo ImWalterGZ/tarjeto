@@ -1,6 +1,6 @@
 export default function Racha() {
   return (
-    <div className="h-1/6 my-2">
+    <div className="h-1/6 mb-2 flex align-middle">
       <div className="w-full  bg-gray-100 px-4 py-3 rounded-xl font-nunito">
         <div className="w-full h-full py-3 px-6 bg-white rounded-md drop-shadow-lg flex flex-row justify-between items-center ">
           <div>
