@@ -181,6 +181,7 @@ module.exports = {
       "gray-background": "#f2f2f2",
       "bronce-cd": "#A04F52",
       "plata-cd": "#90C1DB",
+      "dorado-cd": "#E6DB26",
     }),
     columns: {
       auto: "auto",
