@@ -1,13 +1,13 @@
 export default function Perfil({ nombre }) {
   return (
-    <div className="h-1/6 flex align-middle">
-      <div className="flex flex-row w-full items-center gap-6">
+    <div className="flex align-middle h-1/6">
+      <div className="flex flex-row items-center w-full gap-6">
         <h2>img</h2>
         <div className="flex flex-col">
-          <p className="font-poppins text-red-primary font-medium ">
+          <p className="font-medium font-poppins text-red-primary ">
             Buenas buenas
           </p>
-          <p className="font-nunito text-gray-900 font-bold text-2xl">
+          <p className="text-2xl font-bold text-gray-900 font-nunito">
             Hola {nombre}!
           </p>
         </div>

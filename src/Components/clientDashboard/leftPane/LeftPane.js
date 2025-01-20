@@ -4,7 +4,7 @@ import TarjetasCliente from "./TarjetasCliente";
 
 export default function LeftPane() {
   return (
-    <div className="flex flex-col md:w-6/12 w-full pl-10">
+    <div className="flex flex-col w-full pl-10 md:w-6/12">
       <Perfil nombre="Walter" />
       <Racha />
       <TarjetasCliente />

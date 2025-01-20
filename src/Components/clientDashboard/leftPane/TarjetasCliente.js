@@ -6,8 +6,8 @@ export default function TarjetasCliente() {
   }*/
   return (
     <>
-      <h1 className="text-red-primary font-bold text-2xl">Mis tarjetas</h1>
-      <div className="bg-gray-background h-full w-full py-3 px-3 mt-2 rounded-xl grid lg:grid-cols-2 lg:grid-rows-4 md:grid-cols-2 md:grid-rows-3  gap-x-3 gap-y-4">
+      <h1 className="text-2xl font-bold text-red-primary">Mis tarjetas</h1>
+      <div className="w-full h-full px-3 py-3 mt-2 bg-gray-background rounded-xl grid lg:grid-cols-2 lg:grid-rows-4 md:grid-cols-2 md:grid-rows-3  gap-x-3 gap-y-4">
         <Tarjeta />
         <Tarjeta />
         <Tarjeta />

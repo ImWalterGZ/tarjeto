@@ -1,9 +1,9 @@
 export default function AnadirLugar() {
   return (
-    <div className="bg-white flex flex-col items-center justify-around drop-shadow-md  rounded-xl  ">
+    <div className="flex flex-col items-center justify-around bg-white drop-shadow-md  rounded-xl">
       <div className="flex flex-row">
         <p className="inline">img</p>
-        <p className="text-red-primary font-bold">
+        <p className="font-bold text-red-primary">
           ¡Añade un lugar a tu wallet!
         </p>
       </div>

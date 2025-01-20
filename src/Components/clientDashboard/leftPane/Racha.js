@@ -1,21 +1,21 @@
 export default function Racha() {
   return (
-    <div className="h-1/6 mb-2 flex align-middle">
-      <div className="w-full  bg-gray-100 px-4 py-3 rounded-xl font-nunito">
-        <div className="w-full h-full py-3 px-6 bg-white rounded-md drop-shadow-lg flex flex-row justify-between items-center ">
+    <div className="flex mb-2 align-middle h-1/6">
+      <div className="w-full px-4 py-3 bg-gray-100  rounded-xl font-nunito">
+        <div className="flex flex-row items-center justify-between w-full h-full px-6 py-3 bg-white rounded-md drop-shadow-lg ">
           <div>
-            <h3 className="text-red-primary font-extrabold text-3xl">
+            <h3 className="text-3xl font-extrabold text-red-primary">
               Semana <br />
               Power
             </h3>
           </div>
           <div className="flex flex-col">
             <h4>Semana</h4>
-            <p className="text-red-primary font-extrabold text-2xl">15</p>
+            <p className="text-2xl font-extrabold text-red-primary">15</p>
           </div>
           <div className="flex flex-col">
             <h4>Has visitado</h4>
-            <p className="text-red-primary font-extrabold  text-2xl">3</p>
+            <p className="text-2xl font-extrabold text-red-primary ">3</p>
             <h4>Esta semana</h4>
           </div>
           <div className="flex flex-col">

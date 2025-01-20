@@ -1,8 +1,8 @@
 import logo from "../../../assets/placeHolder/logo.png";
 export default function PromocionesCards() {
   return (
-    <div className="flex items-center px-4 align-middle transition-all bg-white border shadow-md outline-none py rounded-xl hover:shadow-xl hover:outline-red-primary hover:outline-2 hover:shadow-red-400">
-      <div className="flex flex-row items-center gap-3 align-middle ">
+    <div className="flex items-center px-4 align-middle bg-white border shadow-md outline-none transition-all py rounded-xl hover:shadow-xl hover:outline-red-primary hover:outline-2 hover:shadow-red-400">
+      <div className="flex flex-row items-center align-middle gap-3 ">
         <div>
           <img src={logo} alt="" />
         </div>

@@ -30,11 +30,11 @@ export default function NavBoton({ texto }) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-5/6 h-12 ">
+    <div className="flex flex-col items-center justify-center h-12 w-6/6 ">
       <div className="flex flex-col items-center px-4 py-1 bg-white bg-opacity-25 rounded-3xl ">
         {SVG()}
       </div>
-      <p className="text-white">{texto}</p>
+      <p className="text-white ">{texto}</p>
     </div>
   );
 }
