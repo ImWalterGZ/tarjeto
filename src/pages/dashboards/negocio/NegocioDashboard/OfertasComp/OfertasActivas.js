@@ -1,4 +1,4 @@
-import Container from "../../../../Components/Cards/Container";
+import Container from "../../../../../Components/Cards/Container";
 import OfertasActivasCards from "./OfertasActivasCards";
 export default function OfertasActivas() {
   return (

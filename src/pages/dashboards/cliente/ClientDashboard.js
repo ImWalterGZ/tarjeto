@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/isotipo-white.png";
+import logo from "../../../assets/isotipo-white.png";
 import RightPane from "./cli-dash-comp/rightPane/RightPane";
 import LeftPane from "./cli-dash-comp/leftPane/LeftPane";
 import NavbarDashboard from "./cli-dash-comp/NavbarDash/NavbarDashboard";

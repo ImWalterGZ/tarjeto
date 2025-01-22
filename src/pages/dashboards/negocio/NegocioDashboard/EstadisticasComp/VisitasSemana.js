@@ -1,4 +1,4 @@
-import Container from "../../../../Components/Cards/Container";
+import Container from "../../../../../Components/Cards/Container";
 
 export default function VisitasSemana() {
   const tarjetaStyle = "bg-white rounded-lg shadow-lg w-1/2 h-full p-4 ";
