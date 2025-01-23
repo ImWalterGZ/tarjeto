@@ -22,36 +22,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Cliente",
     },
-    categoriaFavorita: {
-      type: Array,
-    },
-    tarjetas: [
-      {
-        negocio_id: {
-          type: String,
-          require: true,
-        },
-        nivel: {
-          type: Number,
-          default: 0,
-        },
-        visitas: {
-          type: Number,
-          default: 0,
-        },
-        ultimaVisita: {
-          type: Date,
-          require: true,
-        },
-      },
-    ],
     verificado: {
       type: Boolean,
       default: false,
     },
     notificaciones: {
-      push: { type: Boolean, default: true },
-      email: { type: Boolean, default: true },
+      email: {
+        type: Boolean,
+        default: true,
+      },
+      push: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    ulitmaConexion: {
+      type: Date,
+    },
+    creadoEn: {
+      type: Date,
+    },
+    actualizadoEn: {
+      type: Date,
     },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
