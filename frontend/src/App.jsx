@@ -1,18 +1,20 @@
-import FLoatingShape from "./components/FLoatingShape";
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
+import VerifyEmail from "./pages/Verify-email";
 
 function App() {
   return (
     <div
-      className="min-h-screen bg-gradient-to-br
-     from-red-400  to-red-primary flex items-center justify-center relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center relative
+      overflow-hidden"
     >
-      <FLoatingShape
-        color="bg-gray-500"
-        size="w-64 h-64"
-        top="-5%"
-        left="10%"
-        delay={0}
-      />
+      <Routes>
+        <Route path="/" element={"Home"} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="verify-email" element={<VerifyEmail />} />
+      </Routes>
     </div>
   );
 }

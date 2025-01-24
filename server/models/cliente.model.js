@@ -69,10 +69,6 @@ const clienteSchema = new mongoose.Schema({
       },
     ],
   },
-  notificaciones: {
-    push: { type: Boolean, default: true },
-    email: { type: Boolean, default: true },
-  },
   valorCliente: {
     ltv: Number,
     churnRisk: Number,
