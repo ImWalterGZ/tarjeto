@@ -1,17 +1,27 @@
-import { User, Lock, Mail } from "lucide-react";
+import { User, Lock, Mail, Loader } from "lucide-react";
 import Input from "../components/signUp/Input";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PasswordStrength from "../components/PasswordStrength";
+import { useAuthStore } from "../store/authStore";
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [nombre, setNombre] = useState("");
+  const { signup, error, cargando } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
+
+    try {
+      await signup(email, contrasena, nombre);
+      navigate("/verify-email");
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className="bg-red-primary w-screen h-screen  p-5">
@@ -49,6 +59,9 @@ const SignUpPage = () => {
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}
                 />
+                {error && (
+                  <p className="text-red-primary font-semibold ">{error}</p>
+                )}
                 <PasswordStrength contrasena={contrasena} />
                 <motion.button
                   className="mt-5 w-full py-5 px-4 bg-red-primary text-white  font-bold rounded-full
@@ -57,8 +70,13 @@ const SignUpPage = () => {
                   whileHover={{ scale: 1.06 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
+                  disabled={cargando}
                 >
-                  Ir a tarjeto
+                  {cargando ? (
+                    <Loader className="animate-spin mx-auto size24" />
+                  ) : (
+                    "Registrarte"
+                  )}
                 </motion.button>
               </form>
             </div>

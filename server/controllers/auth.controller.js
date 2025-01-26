@@ -19,7 +19,7 @@ export const login = async (req, res) => {
     if (!usuario) {
       return res
         .status(400)
-        .json({ succes: false, message: "Invalid credentials" });
+        .json({ success: false, message: "Invalid credentials" });
     }
     const contrasenaEsValida = await bcrypt.compare(
       contrasena,
@@ -40,7 +40,7 @@ export const login = async (req, res) => {
       message: "Log exitoso",
       user: {
         ...usuario._doc,
-        password: undefined,
+        contrasena: undefined,
       },
     });
   } catch (error) {
@@ -77,7 +77,7 @@ export const signup = async (req, res) => {
     // JWT
     generateTokenAndSetCookie(res, user._id);
 
-    sendVerificationEmail(user.email, verificationToken);
+    await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       success: true,
@@ -142,7 +142,7 @@ export const verifyEmail = async (req, res) => {
     await sendWelcomeEmail(user.email, user.nombre);
     res.status(200).json({
       success: true,
-      message: `Email verificado correctamente, ${user.name}`,
+      message: `Email verificado correctamente, ${user.nombre}`,
       user: {
         ...user._doc,
         password: undefined,
