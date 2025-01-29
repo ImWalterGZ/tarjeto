@@ -1,0 +1,19 @@
+import mongoose from "mongoose";
+
+const nexoSchema = new mongoose.Schema({
+  nexoId: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  establecimientoID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Negocio.establecimientos",
+    required: true,
+  },
+  fechaRegistro: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+});
+
+export const Nexo = mongoose.model("Nexo", nexoSchema);

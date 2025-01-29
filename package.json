@@ -4,18 +4,28 @@
   "private": true,
   "dependencies": {
     "@flaticon/flaticon-uicons": "^3.3.1",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "cra-template": "1.2.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mailtrap": "^3.4.0",
+    "mongoose": "^8.9.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^3.0.1",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "nodemon server/index.js"
   },
   "eslintConfig": {
     "extends": [
@@ -36,6 +46,20 @@
     ]
   },
   "devDependencies": {
+    "nodemon": "^3.1.9",
     "tailwindcss": "^3.4.17"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "tailwind.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ImWalterGZ/tarjeto.git"
+  },
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ImWalterGZ/tarjeto/issues"
+  },
+  "homepage": "https://github.com/ImWalterGZ/tarjeto#readme"
 }
