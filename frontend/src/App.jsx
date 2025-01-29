@@ -2,9 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import EmailVerificacion from "./pages/Verify-email";
+import Landing from "./pages/Landing";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
-
+import NegocioDashboard from "./pages/dashboards/negocio/NegocioDashboard";
+import ClientDashboard from "./pages/dashboards/cliente/ClientDashboard";
 function App() {
   const { revisandoAuth, revisarAuth } = useAuthStore();
 
@@ -14,10 +16,12 @@ function App() {
       overflow-hidden"
     >
       <Routes>
-        <Route path="/" element={"Home"} />
+        <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="verify-email" element={<EmailVerificacion />} />
+        <Route path="negocio-dashboard" element={<NegocioDashboard />} />
+        <Route path="cliente-dashboard" element={<ClientDashboard />} />
       </Routes>
       <Toaster />
     </div>
