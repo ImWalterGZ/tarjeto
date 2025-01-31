@@ -1,7 +1,7 @@
 import React from "react";
 import Fidelity from "../../assets/Fidelity.png";
 
-const BodyPage = () => {
+const LandingComp1 = () => {
     return (
       <div className="flex items-center justify-center p-6 bg-white">
         <div className="flex items-center gap-12">
@@ -36,4 +36,4 @@ const BodyPage = () => {
     );
 };
 
-export default BodyPage;
+export default LandingComp1;
