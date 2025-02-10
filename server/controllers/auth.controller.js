@@ -15,39 +15,50 @@ export const login = async (req, res) => {
   const { email, contrasena } = req.body;
 
   try {
+    console.log("Intento de login para:", email);
     const usuario = await User.findOne({ email });
+    
     if (!usuario) {
+      console.log("Usuario no encontrado:", email);
       return res
         .status(400)
-        .json({ success: false, message: "Invalid credentials" });
+        .json({ success: false, message: "Credenciales inválidas" });
     }
+
+    console.log("Verificando contraseña para usuario:", usuario.email);
     const contrasenaEsValida = await bcrypt.compare(
       contrasena,
       usuario.contrasena
     );
+
     if (!contrasenaEsValida) {
+      console.log("Contraseña inválida para usuario:", email);
       return res
         .status(400)
-        .json({ success: false, message: "Contrasena invalida" });
+        .json({ success: false, message: "Contraseña inválida" });
     }
-    generateTokenAndSetCookie(res, usuario._id);
-    usuario.ultimaConexion = new Date();
 
+    const token = generateTokenAndSetCookie(res, usuario._id);
+    console.log("Token generado para usuario:", email);
+    
+    usuario.ultimaConexion = new Date();
     await usuario.save();
 
+    console.log("Login exitoso para usuario:", email);
     res.status(200).json({
       success: true,
-      message: "Log exitoso",
+      message: "Login exitoso",
       user: {
         ...usuario._doc,
         contrasena: undefined,
       },
     });
   } catch (error) {
-    console.log("Ocurrió un error en la funcion login");
+    console.error("Error en login:", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 export const signup = async (req, res) => {
   const { email, contrasena, nombre } = req.body;
 
@@ -125,10 +136,12 @@ export const forgotPassword = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   const { code } = req.body;
   try {
+    console.log("Verificando código:", code);
     const user = await User.findOne({
       verificationToken: code,
       verificationTokenExpiresAt: { $gt: Date.now() },
     });
+    console.log("Usuario encontrado en verifyEmail:", user);
     if (!user) {
       return res
         .status(400)
@@ -139,10 +152,15 @@ export const verifyEmail = async (req, res) => {
     user.verificationTokenExpiresAt = undefined;
     await user.save();
 
+    // Generar token JWT y establecer cookie
+    const token = generateTokenAndSetCookie(res, user._id);
+    console.log("Token generado:", token);
+
     await sendWelcomeEmail(user.email, user.nombre);
     res.status(200).json({
       success: true,
       message: `Email verificado correctamente, ${user.nombre}`,
+      token,
       user: {
         ...user._doc,
         password: undefined,
@@ -153,10 +171,12 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 export const logout = async (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ sucess: true, message: "loggeado fuera con exito" });
 };
+
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -192,7 +212,9 @@ export const resetPassword = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    const usuario = await User.findOne(req.userId);
+    console.log("ID de usuario en checkAuth:", req.userId);
+    const usuario = await User.findOne({ _id: req.userId });
+    console.log("Usuario encontrado en checkAuth:", usuario);
     if (!usuario) {
       return res
         .status(400)
@@ -206,7 +228,7 @@ export const checkAuth = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error con checkAuth ", error);
-    res.status(400).json({ success: false, message: ("pues ", error.message) });
+    console.log("Error con checkAuth:", error);
+    res.status(400).json({ success: false, message: error.message });
   }
 };

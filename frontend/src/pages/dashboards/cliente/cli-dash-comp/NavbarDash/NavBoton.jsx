@@ -10,32 +10,40 @@ import {
 
 const negocio = ["Home", "Ofertas", "Estadísticas", "Mi negocio", "Ajustes"];
 
-export default function NavBoton({ texto }) {
+export default function NavBoton({ texto, active }) {
   const SVG = () => {
+    const commonClasses = "w-6 h-6";
+    
     switch (texto) {
       case "Home":
-        return <Home className="w-6 h-6 fill-white" />;
+        return <Home className={commonClasses} />;
       case "Ofertas":
-        return <Tag className="w-6 h-6 fill-current" />;
+        return <Tag className={commonClasses} />;
       case "Logros":
-        return <Award className="w-6 h-6 fill-current" />;
+        return <Award className={commonClasses} />;
       case "Lugares":
-        return <MapPin className="w-6 h-6 fill-current" />;
+        return <MapPin className={commonClasses} />;
       case "Ajustes":
-        return <Settings className="w-6 h-6 fill-current" />;
+        return <Settings className={commonClasses} />;
       case "Estadísticas":
-        return <BarChart2 className="w-6 h-6 fill-current" />;
+        return <BarChart2 className={commonClasses} />;
       case "Mi negocio":
-        return <Store className="w-6 h-6 fill-current" />;
+        return <Store className={commonClasses} />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="nav-boton">
+    <div className={`
+      flex flex-col items-center justify-center cursor-pointer transition-all duration-200
+      p-3 rounded-xl text
+      
+    `}>
       <SVG />
-      <span>{texto}</span>
+      <span className={`mt-1 text-xs text-center ${active ? 'text-white' : 'text-gray-300'}`}>
+        {texto}
+      </span>
     </div>
   );
 }
