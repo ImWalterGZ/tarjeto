@@ -1,29 +1,45 @@
 import { motion } from "framer-motion";
 import { Loader, Lock, Mail } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/signUp/Input";
+import { useAuthStore } from "../store/authStore";
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
-  const [isLoading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  
+  const { login, error, cargando } = useAuthStore();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    
+    try {
+      const cred = await login(email, contrasena);
+      if (cred.tipoUsuario === "cliente") {
+      navigate("/cliente-dashboard");
+    } else {
+      navigate("/negocio-dashboard");
+    } 
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error al iniciar sesión");
+    }
   };
+
   return (
-    <div className="bg-red-primary w-screen h-screen  p-5">
+    <div className="bg-red-primary w-screen h-screen p-5">
       <div className="bg-white w-full h-full rounded-xl justify-center flex items-center">
         <div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className={`max-w-lg w-full rounded-2xl p-4 bg-[#F2F2F2]  overflow-hidden`}
+            className={`max-w-lg w-full rounded-2xl p-4 bg-[#F2F2F2] overflow-hidden`}
           >
             <div className="px-14 py-8 bg-white rounded-t-2xl">
-              <h2 className="text-2xl font-bold mb-6  text-center bg-red-primary text-transparent bg-clip-text">
+              <h2 className="text-2xl font-bold mb-6 text-center bg-red-primary text-transparent bg-clip-text">
                 ¡Bienvenido de vuelta!
               </h2>
               <form onSubmit={handleLogin}>
@@ -41,6 +57,9 @@ const LoginPage = () => {
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}
                 />
+                {error && (
+                  <p className="text-red-primary font-semibold mt-2">{error}</p>
+                )}
                 <div className="flex justify-center items-center mb-6 -mt-3">
                   <Link
                     to="/forgot-password"
@@ -50,18 +69,18 @@ const LoginPage = () => {
                   </Link>
                 </div>
                 <motion.button
-                  className="mt-5 w-full py-4 px-4 bg-red-primary text-white  font-bold rounded-full
+                  className="mt-5 w-full py-4 px-4 bg-red-primary text-white font-bold rounded-full
                     shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2
-                     focus:ring-red-primary focus:ring-offset-2 focus:ring-offset-white transition duration-200 focus:shadow-2xl"
+                    focus:ring-red-primary focus:ring-offset-2 focus:ring-offset-white transition duration-200 focus:shadow-2xl"
                   whileHover={{ scale: 1.06 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  onClick={() => setLoading(!isLoading)}
+                  disabled={cargando}
                 >
-                  {isLoading ? (
-                    <Loader className="size-6 animate-spin mx-auto " />
+                  {cargando ? (
+                    <Loader className="size-6 animate-spin mx-auto" />
                   ) : (
-                    "Ir a tarjeto"
+                    "Iniciar sesión"
                   )}
                 </motion.button>
               </form>

@@ -51,7 +51,7 @@ function EmailVerificacion() {
     const verCode = code.join("");
     await verifyEmail(verCode);
     if (!error) {
-      navigate("/success");
+      navigate("/");
     }
   };
 

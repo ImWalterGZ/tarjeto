@@ -7,8 +7,14 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import NegocioDashboard from "./pages/dashboards/negocio/NegocioDashboard";
 import ClientDashboard from "./pages/dashboards/cliente/ClientDashboard";
+import { useEffect } from "react";
+
 function App() {
   const { revisandoAuth, revisarAuth } = useAuthStore();
+
+  useEffect(() => {
+    revisarAuth();
+  }, []);
 
   return (
     <div

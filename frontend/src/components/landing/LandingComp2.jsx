@@ -12,6 +12,7 @@ const StepsSection = () => {
       {/* Contenedor de pasos */}
       <div className="flex flex-col md:flex-row justify-center gap-6">
         {/* Tarjeta 1 */}
+
         <div className="p-3 bg-gray-100 rounded-xl">
           <div className="flex flex-col items-center bg-white border shadow-xl rounded-xl p-6 w-80 text-center 
                           transition-all hover:border-9 hover:border-red-500">
@@ -42,13 +43,16 @@ const StepsSection = () => {
             <p className="font-semibold text-gray-800">Gana puntos y disfruta</p>
             <p className="text-gray-600 text-sm">Acumula puntos y gana recompensas.</p>
           </div>
+
         </div>
       </div>
 
       {/* Texto final */}
       <p className="mt-8 text-gray-700 text-lg max-w-2xl mx-auto">
         Con Tarjeto, las visitas repetidas no son solo parte de tu rutina,{" "}
-        <strong className="text-black">¡también son parte de tu recompensa!</strong>
+        <strong className="text-black">
+          ¡también son parte de tu recompensa!
+        </strong>
       </p>
     </div>
   );
