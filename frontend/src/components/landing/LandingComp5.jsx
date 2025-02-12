@@ -5,8 +5,8 @@ const promotions = [
     business: "Joyería Perlita Zuriaga",
     description: "Recibe 10% de descuento al acumular 5 visitas.",
     tag: "Para todos los usuarios",
-    tagColor: "bg-red-600", // Color rojo
-    borderColor: "border-red-600", // Borde rojo
+    tagColor: "bg-red-600",
+    borderColor: "border-red-600",
     image: "/images/joyeria.png",
     position: "top-8 left-0",
     zIndex: "z-30",
@@ -15,8 +15,8 @@ const promotions = [
     business: "Papelería Estudiante Estrella",
     description: "Descuento de $100 en compras mayores a $500 después de 8 visitas.",
     tag: "Solo usuarios PLATA o superior",
-    tagColor: "bg-slate-500", // Color plata
-    borderColor: "border-slate-500", // Borde plata
+    tagColor: "bg-slate-500",
+    borderColor: "border-slate-500",
     image: "/images/papeleria.png",
     position: "top-36 left-64",
     zIndex: "z-20",
@@ -25,8 +25,8 @@ const promotions = [
     business: "Mantel Rojo",
     description: "1 taco gratis por cada 10 visitas registradas.",
     tag: "Solo usuarios ORO",
-    tagColor: "bg-yellow-500", // Color oro
-    borderColor: "border-yellow-500", // Borde oro
+    tagColor: "bg-yellow-500",
+    borderColor: "border-yellow-500",
     image: "/images/mantelrojo.png",
     position: "top-64 left-0",
     zIndex: "z-10",
@@ -43,10 +43,10 @@ const PromotionsSection = () => {
         {promotions.map((promo, index) => (
           <div
             key={index}
-            className={`absolute w-96 p-4 rounded-lg bg-white flex items-center gap-4 transition-all transform 
-              border-2 shadow-md shadow-gray-300
-              ${hoveredIndex === index ? promo.borderColor : "border-transparent"}
-              ${promo.position} ${promo.zIndex}`}
+            className={`absolute w-96 p-4 rounded-lg bg-white flex items-center gap-4 transition-all duration-300 
+              border-2 shadow-md shadow-gray-300 transform
+              ${hoveredIndex === index ? `-translate-y-2 ${promo.borderColor} z-40` : "border-transparent"}
+              ${promo.position} ${hoveredIndex !== index ? promo.zIndex : ""}`}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
@@ -72,7 +72,7 @@ const PromotionsSection = () => {
           Descubre las mejores promociones activas en los negocios afiliados a Tarjeto.
           <span className="font-bold"> ¿Qué esperas para aprovecharlas?</span>
         </p>
-        <button className="mt-6 bg-red-500 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+        <button className="mt-6 bg-red-500 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
           Ver las promociones activas
         </button>
       </div>
