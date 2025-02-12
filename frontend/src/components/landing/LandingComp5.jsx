@@ -5,27 +5,30 @@ const promotions = [
     business: "Joyería Perlita Zuriaga",
     description: "Recibe 10% de descuento al acumular 5 visitas.",
     tag: "Para todos los usuarios",
-    tagColor: "bg-red-600",
+    tagColor: "bg-red-600", // Color rojo
+    borderColor: "border-red-600", // Borde rojo
     image: "/images/joyeria.png",
-    position: "top-8 left-0", // Ajusta estos valores para mover la promoción
+    position: "top-8 left-0",
     zIndex: "z-30",
   },
   {
     business: "Papelería Estudiante Estrella",
     description: "Descuento de $100 en compras mayores a $500 después de 8 visitas.",
     tag: "Solo usuarios PLATA o superior",
-    tagColor: "bg-slate-400", // Color PLATA
+    tagColor: "bg-slate-500", // Color plata
+    borderColor: "border-slate-500", // Borde plata
     image: "/images/papeleria.png",
-    position: "top-36 left-64", // Ahora está más a la izquierda
+    position: "top-36 left-64",
     zIndex: "z-20",
   },
   {
     business: "Mantel Rojo",
     description: "1 taco gratis por cada 10 visitas registradas.",
     tag: "Solo usuarios ORO",
-    tagColor: "bg-yellow-500", // Color ORO
+    tagColor: "bg-yellow-500", // Color oro
+    borderColor: "border-yellow-500", // Borde oro
     image: "/images/mantelrojo.png",
-    position: "top-64 left-0", // Puedes ajustar más a la izquierda o derecha
+    position: "top-64 left-0",
     zIndex: "z-10",
   },
 ];
@@ -40,9 +43,10 @@ const PromotionsSection = () => {
         {promotions.map((promo, index) => (
           <div
             key={index}
-            className={`absolute w-96 p-4 rounded-lg shadow-md bg-white flex items-center gap-4 transition-all transform border-2
-              ${hoveredIndex === index ? "border-red-500 shadow-red-500 shadow-lg scale-105 z-40" : promo.zIndex}
-              ${promo.position}`}
+            className={`absolute w-96 p-4 rounded-lg bg-white flex items-center gap-4 transition-all transform 
+              border-2 shadow-md shadow-gray-300
+              ${hoveredIndex === index ? promo.borderColor : "border-transparent"}
+              ${promo.position} ${promo.zIndex}`}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
@@ -60,7 +64,7 @@ const PromotionsSection = () => {
       </div>
 
       {/* Sección de texto a la derecha */}
-      <div className="md:w-2/5 text-right pl-10">
+      <div className="md:w-2/5 text-left pl-10">
         <h2 className="text-5xl font-bold text-gray-800 leading-tight">
           Las promos que la <span className="text-red-500">están rompiendo</span> ahora.
         </h2>
