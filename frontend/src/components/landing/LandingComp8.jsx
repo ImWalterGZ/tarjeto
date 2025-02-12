@@ -31,8 +31,8 @@ const businesses = [
     link: "/perlita",
   },
   {
-    name: "Café del Bosque",
-    address: "Av Mirador 2300, Campestre-Lomas, 31213 Chihuahua, Chih.",
+    name: "Cafennio",
+    address: "Av. Mirador 2303, Campestre-Lomas, 31205 Chihuahua, Chih.",
     image: Caffenio,
     link: "/cafe",
   },
@@ -40,7 +40,7 @@ const businesses = [
 
 const Carousel = () => {
   return (
-    <div className="overflow-hidden w-full max-w-5xl mx-auto mt-20 px-4">
+    <div className="overflow-hidden w-full max-w-5xl mx-auto mt-20 px-4 relative">
       {/* Texto principal */}
       <div className="text-center">
         <h2 className="text-4xl font-bold text-gray-800">
@@ -55,35 +55,39 @@ const Carousel = () => {
       </div>
 
       {/* Carrusel */}
-      <div className="overflow-hidden w-full max-w-5xl mx-auto mt-10">
-        <div className="relative">
-          <div
-            className="flex"
-            style={{
-              animation: "carousel 50s linear infinite", // Duración de 6 segundos
-              display: "flex",
-              width: `${businesses.length * 4}%`, // Total ancho basado en el 4% por cada cuadro
-            }}
-          >
-            {/* Duplicamos los elementos para crear el efecto infinito */}
-            {[...businesses, ...businesses].map((business, i) => (
-              <div key={i} className="min-w-[150%] flex flex-col items-center p-4">
-                <a href={business.link} className="w-full">
-                  <div className="bg-white rounded-lg shadow-md p-4 w-full">
-                    <img
-                      src={business.image}
-                      alt={business.name}
-                      className="w-full h-32 object-cover rounded-md"
-                    />
-                    <h3 className="text-xs font-semibold text-red-600 mt-2">
-                      {business.name}
-                    </h3>
-                    <p className="text-gray-600 text-xs">{business.address}</p>
-                  </div>
-                </a>
-              </div>
-            ))}
-          </div>
+      <div className="overflow-hidden w-full max-w-5xl mx-auto mt-10 relative">
+        {/* Desenfoque a los lados */}
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <div className="absolute inset-y-0 left-0 w-1/12 bg-gradient-to-r from-white  to-transparent " />
+          <div className="absolute inset-y-0 right-0 w-1/12 bg-gradient-to-l from-white to-transparent" />
+        </div>
+
+        <div
+          className="flex"
+          style={{
+            animation: "carousel 50s linear infinite", // Duración de 50 segundos
+            display: "flex",
+            width: `${businesses.length * 4}%`, // Total ancho basado en el 4% por cada cuadro
+          }}
+        >
+          {/* Duplicamos los elementos para crear el efecto infinito */}
+          {[...businesses, ...businesses].map((business, i) => (
+            <div key={i} className="min-w-[150%] flex flex-col items-center p-4">
+              <a href={business.link} className="w-full">
+                <div className="bg-white rounded-lg shadow-md p-4 w-full h-56">
+                  <img
+                    src={business.image}
+                    alt={business.name}
+                    className="w-full h-32 object-cover rounded-md"
+                  />
+                  <h3 className="text-xs font-semibold text-red-600 mt-2">
+                    {business.name}
+                  </h3>
+                  <p className="text-gray-600 text-xs">{business.address}</p>
+                </div>
+              </a>
+            </div>
+          ))}
         </div>
       </div>
 
