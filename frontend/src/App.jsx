@@ -9,6 +9,11 @@ import NegocioDashboard from "./pages/dashboards/negocio/NegocioDashboard";
 import ClientDashboard from "./pages/dashboards/cliente/ClientDashboard";
 import { useEffect } from "react";
 
+// Vamos a redireccionar al usuario loggeado hacia donde pertenece
+const RedireccionarUsuarioAutentificado = ({ children }) => {
+  const { Autentificado, usuario } = useAuthStore();
+};
+
 function App() {
   const { revisandoAuth, revisarAuth } = useAuthStore();
 

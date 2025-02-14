@@ -7,7 +7,6 @@ import LandingComp4 from "../components/landing/LandingComp4";
 import LandingComp5 from "../components/landing/LandingComp5";
 import LandingComp6 from "../components/landing/LandingComp6";
 
-
 export default function Landing() {
   return (
     <div>
@@ -19,8 +18,6 @@ export default function Landing() {
       <LandingComp4 />
       <LandingComp5 />
       <LandingComp6 />
-
-
     </div>
   );
 }
