@@ -41,7 +41,7 @@ const TestimonialsSection = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-red-700 p-1.5 rounded-xl" // Marco gris oscuro
+              className="bg-red-700 p-1.5 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg hover:bg-red-600" // Hover effects
             >
               <div className="bg-white rounded-lg p-6 text-center shadow-md">
                 <img
