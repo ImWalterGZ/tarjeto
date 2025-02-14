@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import Coca from "../../assets/Landing/coca.png";
+import Joyeria from "../../assets/Landing/joyeria.png";
+import Estrella from "../../assets/Landing/estrella.png";
 
 const promotions = [
   {
@@ -7,7 +10,7 @@ const promotions = [
     tag: "Para todos los usuarios",
     tagColor: "bg-red-600",
     borderColor: "border-red-600",
-    image: "/images/joyeria.png",
+    image: Joyeria,
     position: "top-8 left-0",
     zIndex: "z-30",
   },
@@ -17,7 +20,7 @@ const promotions = [
     tag: "Solo usuarios PLATA o superior",
     tagColor: "bg-slate-500",
     borderColor: "border-slate-500",
-    image: "/images/papeleria.png",
+    image: Estrella,
     position: "top-36 left-64",
     zIndex: "z-20",
   },
@@ -27,7 +30,7 @@ const promotions = [
     tag: "Solo usuarios ORO",
     tagColor: "bg-yellow-500",
     borderColor: "border-yellow-500",
-    image: "/images/mantelrojo.png",
+    image: Coca,
     position: "top-64 left-0",
     zIndex: "z-10",
   },
