@@ -12,7 +12,6 @@ import LandingComp9 from "../components/landing/LandingComp9";
 import LandingComp10 from "../components/landing/LandingComp10";
 import Footer from "../components/landing/Footer";
 
-
 export default function Landing() {
   return (
     <div>

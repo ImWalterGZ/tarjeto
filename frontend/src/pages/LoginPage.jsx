@@ -10,19 +10,19 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
   const navigate = useNavigate();
-  
+
   const { login, error, cargando } = useAuthStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     try {
       const cred = await login(email, contrasena);
       if (cred.tipoUsuario === "cliente") {
-      navigate("/cliente-dashboard");
-    } else {
-      navigate("/negocio-dashboard");
-    } 
+        navigate("/cliente-dashboard");
+      } else {
+        navigate("/negocio-dashboard");
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al iniciar sesión");
     }
@@ -57,9 +57,7 @@ const LoginPage = () => {
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}
                 />
-                {error && (
-                  <p className="text-red-primary font-semibold mt-2">{error}</p>
-                )}
+
                 <div className="flex justify-center items-center mb-6 -mt-3">
                   <Link
                     to="/forgot-password"

@@ -59,9 +59,7 @@ const SignUpPage = () => {
                   value={contrasena}
                   onChange={(e) => setContrasena(e.target.value)}
                 />
-                {error && (
-                  <p className="text-red-primary font-semibold ">{error}</p>
-                )}
+
                 <PasswordStrength contrasena={contrasena} />
                 <motion.button
                   className="mt-5 w-full py-5 px-4 bg-red-primary text-white  font-bold rounded-full

@@ -1,7 +1,13 @@
+import mongoose, { mongo } from "mongoose";
+
 const negocioSchema = new mongoose.Schema({
   usuarioID: {
     type: String,
-    require: true,
+    required: true,
+  },
+  negocioID: {
+    type: String,
+    required: true,
   },
   informacionGeneral: {
     nombreComercial: String,
@@ -13,7 +19,7 @@ const negocioSchema = new mongoose.Schema({
     },
     categoria: {
       type: Array,
-      require: true,
+      required: true,
     },
     sitioWeb: String,
     redesSociales: {
@@ -28,7 +34,7 @@ const negocioSchema = new mongoose.Schema({
     {
       establecimientoID: {
         type: String,
-        required: true,
+        requiredd: true,
       },
       nombre: String,
       ubicacion: {
@@ -79,4 +85,4 @@ const negocioSchema = new mongoose.Schema({
 
   // Métricas de rendimiento
 });
-export const negocio = mongoose.model("Negocio", negocioSchema);
+export const Negocio = mongoose.model("Negocio", negocioSchema);

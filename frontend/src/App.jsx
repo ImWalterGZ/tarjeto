@@ -7,7 +7,18 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import NegocioDashboard from "./pages/dashboards/negocio/NegocioDashboard";
 import ClientDashboard from "./pages/dashboards/cliente/ClientDashboard";
+import SetupProfile from "./pages/SetUpProfile";
 import { useEffect } from "react";
+
+const RedireccionarUsuarioAutentificado = ({ children }) => {
+  const { usuario, autentificado, cargando } = useAuthStore();
+
+  if (cargando) return <div>Cargando...</div>;
+  if (!autentificado) return <Navigate to="/login" />;
+  if (usuario.tipoUsuario === "Cliente") return <ClientDashboard />;
+  if (usuario.tipoUsuario === "Negocio") return <NegocioDashboard />;
+  return children;
+};
 
 function App() {
   const { revisandoAuth, revisarAuth } = useAuthStore();
@@ -28,6 +39,7 @@ function App() {
         <Route path="verify-email" element={<EmailVerificacion />} />
         <Route path="negocio-dashboard" element={<NegocioDashboard />} />
         <Route path="cliente-dashboard" element={<ClientDashboard />} />
+        <Route path="setup-profile" element={<SetupProfile />} />
       </Routes>
       <Toaster />
     </div>

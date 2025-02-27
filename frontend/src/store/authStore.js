@@ -31,6 +31,7 @@ export const useAuthStore = create((set) => ({
       const response = await axios.post(`${API_URL}/login`, {
         email,
         contrasena,
+        
       });
       
       console.log("Respuesta de login:", response.data);
@@ -41,6 +42,7 @@ export const useAuthStore = create((set) => ({
 
       set({
         usuario: response.data.user,
+        tipoUsuario: response.data.user.tipoUsuario,
         autentificado: true,
         cargando: false,
       });
@@ -49,6 +51,7 @@ export const useAuthStore = create((set) => ({
       console.error("Error en login:", error);
       set({
         error: error.response?.data?.message || error.message || "Error al iniciar sesión",
+        tipoUsuario: null,
         cargando: false,
         autentificado: false,
         usuario: null

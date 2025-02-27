@@ -7,13 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "host": "vite --host"
   },
   "dependencies": {
-    "@flaticon/flaticon-uicons": "^3.3.1",
     "axios": "^1.7.9",
     "framer-motion": "^12.0.1",
     "lucide-react": "^0.474.0",
+    "@flaticon/flaticon-uicons": "^3.3.1",
+    "@mui/icons-material": "^6.4.4",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.1",
