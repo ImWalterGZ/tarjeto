@@ -3,11 +3,11 @@ import mongoose, { mongo } from "mongoose";
 const clienteSchema = new mongoose.Schema({
   usuarioID: {
     type: String,
-    require: true,
+    required: true,
   },
   clienteID: {
     type: String,
-    require: true,
+    required: true,
   },
   datosPersonales: {
     edad: Number,
@@ -31,7 +31,7 @@ const clienteSchema = new mongoose.Schema({
     {
       negocio_id: {
         type: String,
-        require: true,
+        required: true,
       },
       nivel: {
         type: Number,
@@ -43,15 +43,15 @@ const clienteSchema = new mongoose.Schema({
       },
       ultimaVisita: {
         type: Date,
-        require: true,
+        required: true,
       },
     },
   ],
   logros: [
     {
       logroId: {
-        rype: String,
-        require: true,
+        type: String,
+        required: true,
       },
       fechaObtencion: Date,
       categoria: String,

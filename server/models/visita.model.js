@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const visitaSchema = new mongoose.Schema({
+  clienteID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Usuario",
+    required: true,
+  },
   negocioID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Negocio",

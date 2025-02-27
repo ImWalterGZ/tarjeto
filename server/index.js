@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./db/connectDB.js";
 
 import authRoutes from "./routes/auth.route.js";
-
+import visitasRoutes from "./routes/visita.route.js";
 dotenv.config();
 
 const app = express();
@@ -20,6 +20,7 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json()); // esto nos permite paresear todas las request a jsons
 app.use(cookieParser()); // Con esto podemos parsear y tratar las cookies
 app.use("/api/auth", authRoutes);
+app.use("/api/visita", visitasRoutes);
 
 app.listen(PORT, () => {
   connectDB();
