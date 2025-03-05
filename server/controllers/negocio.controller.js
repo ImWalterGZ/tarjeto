@@ -8,12 +8,10 @@ export const crearNegocio = async (req, res) => {
     const user = await User.findOne({ userID });
     if (user) {
       console.log("Este usuario ya existe");
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Ya existe un negocio para este userID",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe un negocio para este userID",
+      });
     }
     const negocioID = "NEG-" + Date.now().toString();
 
@@ -42,32 +40,5 @@ export const crearNegocio = async (req, res) => {
       message: "Error al crear el negocio",
       error: error.message,
     });
-  }
-};
-
-export const registrarVisita = async (req, res) => {
-  const { negocioID, establecimientoID, clienteID } = req.body;
-
-  try {
-    console.log("verificando si existe cliente:", clienteID);
-    const cliente = await Cliente.findOne({ clienteID });
-    const negocio = await Negocio.findOne({ negocioID });
-
-    if (!cliente) {
-      console.log("No existe el cliente");
-      return res
-        .status(400)
-        .json({ success: false, message: "No existe el cliente" });
-    }
-    if (!negocio) {
-      console.log("No existe el negocio");
-      return res
-        .status(400)
-        .json({ success: false, message: "No existe el negocio" });
-    }
-
-    console.log(cliente);
-  } catch (error) {
-    console.log("Se cometio un error");
   }
 };
