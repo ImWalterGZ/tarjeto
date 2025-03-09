@@ -48,10 +48,17 @@ function EmailVerificacion() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const verCode = code.join("");
-    await verifyEmail(verCode);
-    if (!error) {
-      navigate("/setup-profile");
+    try {
+      const verCode = code.join("");
+      const response = await verifyEmail(verCode);
+      if (response.success) {
+        toast.success("Email verificado correctamente");
+        navigate("/setup-profile");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Error al verificar el email"
+      );
     }
   };
 
@@ -60,7 +67,7 @@ function EmailVerificacion() {
     if (code.every((digit) => digit !== "")) {
       handleSubmit(new Event("submit"));
     }
-  }, [code]); // Added dependency array
+  }, [code]);
 
   return (
     <div className="bg-red-primary w-screen h-screen relative flex items-center justify-center">

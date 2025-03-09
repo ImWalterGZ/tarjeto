@@ -9,7 +9,7 @@ export default function AnadirLugar() {
       </div>
       <div>
         <form>
-          <label for="codigo">Código</label>
+          <label htmlFor="codigo">Código</label>
           <input type="text"></input>
         </form>
       </div>

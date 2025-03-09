@@ -9,24 +9,34 @@ const negocioSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  informacionGeneral: {
-    nombreComercial: String,
-    razonSocial: String,
-    rfc: String,
-    fechaRegistro: {
-      type: Date,
-      default: Date.now,
-    },
-    categoria: {
-      type: Array,
-      required: true,
-    },
-    sitioWeb: String,
-    redesSociales: {
-      facebook: String,
-      instagram: String,
-      tiktok: String,
-    },
+  fotoPerfil: {
+    type: String,
+    required: true,
+  },
+  nombreComercial: String,
+  razonSocial: String,
+  rfc: String,
+  fechaRegistro: {
+    type: Date,
+    default: Date.now,
+  },
+  categoria: {
+    type: Array,
+    required: true,
+  },
+  sitioWeb: String,
+  redesSociales: {
+    facebook: String,
+    instagram: String,
+    tiktok: String,
+  },
+  color: {
+    type: String,
+    required: true,
+  },
+  gradient: {
+    type: String,
+    required: true,
   },
 
   // Array de establecimientos
@@ -77,6 +87,7 @@ const negocioSchema = new mongoose.Schema({
       },
     },
   ],
+  visitasTotales: Number,
   // Programa de lealtad y tarjetas
 
   // Logros y reconocimientos

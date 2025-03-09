@@ -1,28 +1,63 @@
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import router from "./routes/index.js";
+import { errorHandler } from "./middleware/errorHandler.middleware.js";
+import { corsOptions } from "./config/cors.config.js";
+import { limiter } from "./middleware/rateLimit.middleware.js";
+import connectDB from "./config/db.js";
+import dotenv from "dotenv";
 
-import { connectDB } from "./db/connectDB.js";
-
-import authRoutes from "./routes/auth.route.js";
-import visitasRoutes from "./routes/visita.route.js";
+// Load env vars
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-//Con esta libreria, CORS, evita los problemas de bloqueo de CORS
-// Sirviendo como un acceso de control al servidor, diciendo que las peticiones de
-// Servidor de frontend pueden interactuar con el
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+// Connect to MongoDB
+connectDB()
+  .then(() => {
+    console.log("MongoDB connection established successfully");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
 
-app.use(express.json()); // esto nos permite paresear todas las request a jsons
-app.use(cookieParser()); // Con esto podemos parsear y tratar las cookies
-app.use("/api/auth", authRoutes);
-app.use("/api/visita", visitasRoutes);
+// Middleware
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(express.json());
+app.use(limiter);
 
-app.listen(PORT, () => {
-  connectDB();
-  console.log("server is running on port: ", PORT);
+// Routes
+app.use("/api", router);
+
+// Error handling
+app.use(errorHandler);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+const PORT = process.env.PORT || 5050;
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log("Environment:", process.env.NODE_ENV || "development");
+  console.log("MongoDB URI:", process.env.MONGO_URI || "not set");
+  console.log("Client URL:", process.env.CLIENT_URL || "http://localhost:5173");
+});
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Promise Rejection:", err);
+  server.close(() => process.exit(1));
 });

@@ -10,6 +10,8 @@ import {
   sendWelcomeEmail,
   sendResetSuccessEmail,
 } from "../mailtrap/emails.js";
+import { Negocio } from "../models/negocio.model.js";
+import { Cliente } from "../models/cliente.model.js";
 
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
@@ -17,7 +19,7 @@ export const login = async (req, res) => {
   try {
     console.log("Intento de login para:", email);
     const usuario = await User.findOne({ email });
-    
+
     if (!usuario) {
       console.log("Usuario no encontrado:", email);
       return res
@@ -40,7 +42,7 @@ export const login = async (req, res) => {
 
     const token = generateTokenAndSetCookie(res, usuario._id);
     console.log("Token generado para usuario:", email);
-    
+
     usuario.ultimaConexion = new Date();
     await usuario.save();
 
@@ -163,7 +165,7 @@ export const verifyEmail = async (req, res) => {
       token,
       user: {
         ...user._doc,
-        password: undefined,
+        contrasena: undefined,
       },
     });
   } catch (error) {
@@ -230,5 +232,71 @@ export const checkAuth = async (req, res) => {
   } catch (error) {
     console.log("Error con checkAuth:", error);
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const setupProfile = async (req, res) => {
+  try {
+    const { userType, profileData } = req.body;
+    const userId = req.userId; // From auth middleware
+
+    // Find the user first
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    // Update user type
+    user.tipoUsuario = userType === "business" ? "Negocio" : "Cliente";
+    await user.save();
+
+    // Create corresponding profile based on user type
+    if (userType === "business") {
+      const negocio = new Negocio({
+        usuarioID: userId,
+        negocioID: crypto.randomBytes(12).toString("hex"),
+        informacionGeneral: {
+          nombreComercial: profileData.nombreNegocio,
+          categoria: [profileData.tipoProductos],
+          redesSociales: {
+            facebook: profileData.facebook,
+            instagram: profileData.instagram,
+            tiktok: profileData.tiktok,
+          },
+        },
+        establecimientos: [
+          {
+            establecimientoID: crypto.randomBytes(12).toString("hex"),
+            nombre: profileData.nombreNegocio,
+            ubicacion: {
+              direccion: profileData.direccion,
+            },
+          },
+        ],
+      });
+      await negocio.save();
+    } else {
+      const cliente = new Cliente({
+        usuarioID: userId,
+        clienteID: crypto.randomBytes(12).toString("hex"),
+        datosPersonales: {
+          edad: profileData.edad,
+          genero: profileData.genero,
+        },
+        categoriaFavorita: [profileData.categoriaFavorita],
+      });
+      await cliente.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Perfil configurado exitosamente",
+      userType: user.tipoUsuario,
+    });
+  } catch (error) {
+    console.error("Error en setup profile:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

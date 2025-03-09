@@ -18,10 +18,12 @@ const LoginPage = () => {
 
     try {
       const cred = await login(email, contrasena);
-      if (cred.tipoUsuario === "cliente") {
-        navigate("/cliente-dashboard");
-      } else {
+      if (!cred.user.tipoUsuario) {
+        navigate("/setup-profile");
+      } else if (cred.user.tipoUsuario === "Negocio") {
         navigate("/negocio-dashboard");
+      } else {
+        navigate("/cliente-dashboard");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Error al iniciar sesión");

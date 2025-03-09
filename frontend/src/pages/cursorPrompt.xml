@@ -1,0 +1,139 @@
+<task>
+Create a React.js profile setup process with split-screen design and real-time preview functionality.
+</task>
+
+<core_structure>
+  <layout>
+    - Split screen (70/30 division)
+    - Left panel: Form inputs
+    - Right panel: Live preview
+    - Responsive design
+  </layout>
+
+  <initial_screen>
+    <type_selector>
+      <option value="cliente">Cliente (Individual User)</option>
+      <option value="negocio">Negocio (Business)</option>
+    </type_selector>
+  </initial_screen>
+</core_structure>
+
+<form_definitions>
+  <business_form>
+    <fields>
+      <field name="nombreComercial" type="text" required="true" label="Nombre Comercial"/>
+      <field name="razonSocial" type="text" required="true" label="Razón Social"/>
+      <field name="rfc" type="text" required="true" label="RFC"/>
+      <field name="categoria" type="multiselect" required="true" label="Categorías"/>
+      <field name="sitioWeb" type="url" required="false" label="Sitio Web"/>
+      <field_group name="redesSociales" label="Redes Sociales">
+        <field name="facebook" type="url" required="false" label="Facebook"/>
+        <field name="instagram" type="url" required="false" label="Instagram"/>
+        <field name="tiktok" type="url" required="false" label="TikTok"/>
+      </field_group>
+    </fields>
+  </business_form>
+
+  <client_form>
+    <fields>
+      <field name="edad" type="number" required="true" label="Edad"/>
+      <field name="genero" type="select" required="true" label="Género"/>
+      <field name="ciudad" type="text" required="true" label="Ciudad"/>
+      <field name="codigoPostal" type="text" required="true" label="Código Postal"/>
+      <field name="categoriasFavoritas" type="multiselect" required="true" label="Categorías Favoritas"/>
+    </fields>
+  </client_form>
+</form_definitions>
+
+<preview_components>
+  <business_preview>
+    <card_layout>
+      <top_section>
+        - Business name display
+        - Basic information
+      </top_section>
+      <business_card>
+        <style>
+          - Customizable gradient background
+          - Modern typography
+          - Level indicator
+          - Logo placement
+        </style>
+      </business_card>
+    </card_layout>
+  </business_preview>
+
+  <client_preview>
+    <card_layout>
+      <style>
+        - Arch gradient at top
+        - Clean typography
+        - Achievement badges space
+        - Date information display
+      </style>
+      <content>
+        - User name
+        - Role/description
+        - Badges/achievements
+      </content>
+    </card_layout>
+  </client_preview>
+</preview_components>
+
+<category_component>
+  <display_format>
+    - Grid layout
+    - Individual category cards
+  </display_format>
+  
+  <category_card>
+    <elements>
+      - Red icon
+      - Category name
+      - Description text
+      - Selection indicator
+    </elements>
+  </category_card>
+
+  <categories>
+    <category icon="fast-food">Comida rápida</category>
+    <category icon="taco">Taquería</category>
+    <category icon="fish">Mariscos</category>
+    <category icon="coffee">Cafetería</category>
+    <category icon="bread">Panadería</category>
+    <category icon="cake">Repostería</category>
+    <category icon="mexican">Comida mexicana</category>
+    <category icon="pizza">Pizzería</category>
+    <category icon="buffet">Buffet</category>
+    <category icon="salad">Comida saludable</category>
+  </categories>
+</category_component>
+
+<technical_specifications>
+  <state_management>
+    - Use React hooks (useState, useEffect)
+    - Implement context if needed for global state
+  </state_management>
+
+  <styling>
+    <approach>
+      - CSS modules or styled-components
+      - Responsive design principles
+      - Gradient configuration system
+    </approach>
+  </styling>
+
+  <functionality>
+    - Real-time preview updates
+    - Form validation
+    - Smooth transitions
+    - Responsive behaviors
+  </functionality>
+
+  <component_structure>
+    - Modular design
+    - Reusable components
+    - Clear separation of concerns
+    - Maintainable code structure
+  </component_structure>
+</technical_specifications>

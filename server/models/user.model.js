@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     },
     tipoUsuario: {
       type: String,
-      default: "Cliente",
+      required: false,
     },
     verificado: {
       type: Boolean,

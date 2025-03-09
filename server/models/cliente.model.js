@@ -10,8 +10,13 @@ const clienteSchema = new mongoose.Schema({
     required: true,
   },
   datosPersonales: {
+    nombre: String,
     edad: Number,
     genero: String,
+    fotoPerfil: {
+      type: String, // Aquí almacenaremos la imagen en base64
+      default: null,
+    },
     ubicacion: {
       ciudad: String,
       codigoPostal: String,
