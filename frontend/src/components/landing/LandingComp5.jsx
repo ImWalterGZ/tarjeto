@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import jpz from "../../assets/Landing/jpz.jpg";
+import coca from "../../assets/Landing/cocon.jpg";
+import pape from "../../assets/Landing/papeleria.jpg";
+
 
 const promotions = [
   {
@@ -7,7 +11,7 @@ const promotions = [
     tag: "Para todos los usuarios",
     tagColor: "bg-red-600",
     borderColor: "border-red-600",
-    image: "/images/joyeria.png",
+    image: jpz,
     position: "top-8 left-0",
     zIndex: "z-30",
   },
@@ -17,17 +21,17 @@ const promotions = [
     tag: "Solo usuarios PLATA o superior",
     tagColor: "bg-slate-500",
     borderColor: "border-slate-500",
-    image: "/images/papeleria.png",
+    image: pape,
     position: "top-36 left-64",
     zIndex: "z-20",
   },
   {
-    business: "Mantel Rojo",
+    business: "Coca-Cola",
     description: "1 taco gratis por cada 10 visitas registradas.",
     tag: "Solo usuarios ORO",
     tagColor: "bg-yellow-500",
     borderColor: "border-yellow-500",
-    image: "/images/mantelrojo.png",
+    image: coca,
     position: "top-64 left-0",
     zIndex: "z-10",
   },
