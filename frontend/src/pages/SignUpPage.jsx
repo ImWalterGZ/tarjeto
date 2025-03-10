@@ -48,7 +48,20 @@ const SignUpPage = () => {
 
     try {
       const response = await signup(email, contrasena, nombre);
-      toast.success("¡Registro exitoso! Verifica tu correo electrónico.");
+
+      if (response.emailWarning) {
+        // Registration successful but email had issues
+        toast.success("¡Registro exitoso!", {
+          duration: 4000,
+        });
+        toast.error("Nota: " + response.emailWarning, {
+          duration: 6000,
+        });
+      } else {
+        toast.success("¡Registro exitoso! Verifica tu correo electrónico.");
+      }
+
+      // Navigate to verify-email in both cases
       navigate("/verify-email");
     } catch (error) {
       console.error("Error en registro:", error);
