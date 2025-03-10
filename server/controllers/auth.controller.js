@@ -237,8 +237,47 @@ export const checkAuth = async (req, res) => {
 
 export const setupProfile = async (req, res) => {
   try {
-    const { userType, profileData } = req.body;
+    console.log("=== Backend Setup Profile Debug Logs ===");
+    console.log("1. Raw request body:", req.body);
+    console.log("2. Raw request files:", req.files);
+    console.log("3. Raw profileData from body:", req.body.profileData);
+    console.log("4. Request headers:", req.headers);
+
+    const userType = req.body.userType;
+    let profileData;
+
+    // Parse the profileData if it's a string
+    if (req.body.profileData) {
+      try {
+        console.log("5. Attempting to parse profileData...");
+        profileData = JSON.parse(req.body.profileData);
+        console.log("6. Successfully parsed profileData:", profileData);
+      } catch (error) {
+        console.error("Error parsing profileData:", error);
+        return res.status(400).json({
+          success: false,
+          message: "Error parsing profile data",
+        });
+      }
+    } else {
+      console.log("No profileData found in request body");
+      return res.status(400).json({
+        success: false,
+        message: "No profile data provided",
+      });
+    }
+
+    // Validate profile data structure
+    if (!profileData.datosPersonales) {
+      console.log("Invalid profile data structure: missing datosPersonales");
+      return res.status(400).json({
+        success: false,
+        message: "Invalid profile data structure: missing datosPersonales",
+      });
+    }
+
     const userId = req.userId; // From auth middleware
+    console.log("11. User ID:", userId);
 
     // Find the user first
     const user = await User.findById(userId);
@@ -258,36 +297,61 @@ export const setupProfile = async (req, res) => {
         usuarioID: userId,
         negocioID: crypto.randomBytes(12).toString("hex"),
         informacionGeneral: {
-          nombreComercial: profileData.nombreNegocio,
-          categoria: [profileData.tipoProductos],
-          redesSociales: {
-            facebook: profileData.facebook,
-            instagram: profileData.instagram,
-            tiktok: profileData.tiktok,
-          },
+          nombreComercial: req.body.nombreComercial,
+          categoria: [req.body.categoria],
+          redesSociales: req.body.redesSociales
+            ? JSON.parse(req.body.redesSociales)
+            : {},
         },
         establecimientos: [
           {
             establecimientoID: crypto.randomBytes(12).toString("hex"),
-            nombre: profileData.nombreNegocio,
+            nombre: req.body.nombreComercial,
             ubicacion: {
-              direccion: profileData.direccion,
+              direccion: req.body.direccion || "",
             },
           },
         ],
       });
       await negocio.save();
     } else {
+      // Handle profile photo if uploaded
+      let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
+      if (req.file) {
+        // Convert buffer to base64
+        const base64Image = req.file.buffer.toString("base64");
+        fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+      }
+
       const cliente = new Cliente({
         usuarioID: userId,
         clienteID: crypto.randomBytes(12).toString("hex"),
         datosPersonales: {
-          edad: profileData.edad,
-          genero: profileData.genero,
+          nombre: profileData.datosPersonales.nombre,
+          edad: parseInt(profileData.datosPersonales.edad),
+          genero: profileData.datosPersonales.genero,
+          fotoPerfil: fotoPerfilUrl,
+          ubicacion: {
+            ciudad: profileData.datosPersonales.ubicacion.ciudad,
+            codigoPostal: profileData.datosPersonales.ubicacion.codigoPostal,
+          },
         },
-        categoriaFavorita: [profileData.categoriaFavorita],
+        categoriaFavorita: profileData.categoriaFavorita,
+        engagement: {
+          ultimoLogin: new Date(),
+          sesionesTotal: 1,
+          tiempoPromedioSesion: 0,
+          dispositivosUsados: [],
+        },
+        valorCliente: {
+          ltv: 0,
+          churnRisk: 0,
+          segmento: "nuevo",
+          referidos: [],
+        },
       });
       await cliente.save();
+      console.log("14. Client profile created successfully");
     }
 
     res.status(200).json({
@@ -296,7 +360,11 @@ export const setupProfile = async (req, res) => {
       userType: user.tipoUsuario,
     });
   } catch (error) {
-    console.error("Error en setup profile:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error in setupProfile:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al configurar el perfil",
+      error: error.message,
+    });
   }
 };

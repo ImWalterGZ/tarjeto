@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 import router from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 import { corsOptions } from "./config/cors.config.js";
@@ -12,6 +13,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+
+// Configure multer for handling file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
 
 // Connect to MongoDB
 connectDB()

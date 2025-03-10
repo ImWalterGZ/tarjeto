@@ -177,45 +177,167 @@ function SetUpProfile() {
   };
 
   const handleAnswer = (value, field) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    console.log("handleAnswer called with:", { field, value });
+    console.log("Previous answers state:", answers);
+    setAnswers((prev) => {
+      const newAnswers = {
+        ...prev,
+        [field]: value,
+      };
+      console.log("Updated answers state:", newAnswers);
+      return newAnswers;
+    });
   };
 
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
 
-      const endpoint =
-        userType === "business"
-          ? "/business/setup-profile"
-          : "/client/setup-profile";
-      const response = await apiClient.post(endpoint, {
-        profileData:
-          userType === "user"
-            ? {
-                datosPersonales: {
-                  nombre: answers.nombre,
-                  edad: parseInt(answers.edad),
-                  genero: answers.genero,
-                  fotoPerfil: answers.fotoPerfil,
-                  ubicacion: {
-                    ciudad: answers.ciudad,
-                    codigoPostal: answers.codigoPostal,
-                  },
-                },
-                categoriaFavorita: answers.categoriasFavoritas,
-              }
-            : {
-                nombreComercial: answers.nombreComercial,
-                rfc: answers.rfc,
-                fotoPerfil: answers.fotoPerfil,
-                categoria: answers.categoria,
-                gradient: answers.gradient,
-                sitioWeb: answers.sitioWeb,
-                redesSociales: answers.redesSociales,
-              },
+      // Debug log for answers object
+      console.log("Current answers state:", answers);
+      console.log("Current step:", currentStep);
+      console.log("Total steps:", preguntas.length);
+      console.log("User type:", userType);
+
+      // Validate all required fields
+      const requiredFields =
+        userType === "user"
+          ? [
+              "nombre",
+              "fotoPerfil",
+              "edad",
+              "genero",
+              "ciudad",
+              "codigoPostal",
+              "categoriasFavoritas",
+            ]
+          : ["nombreComercial", "fotoPerfil", "rfc", "categoria", "gradient"];
+
+      // Debug log for required fields validation
+      console.log("Required fields:", requiredFields);
+      console.log("Answers object keys:", Object.keys(answers));
+      console.log("Answers object values:", Object.values(answers));
+
+      const missingFields = requiredFields.filter((field) => {
+        const isMissing = !answers[field];
+        console.log(`Field ${field}:`, {
+          exists: !!answers[field],
+          value: answers[field],
+          isMissing,
+        });
+        return isMissing;
+      });
+
+      if (missingFields.length > 0) {
+        console.error("Missing required fields:", missingFields);
+        toast.error("Por favor completa todos los campos requeridos");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const endpoint = "/setup-profile";
+      const formData = new FormData();
+
+      // Add userType
+      formData.append("userType", userType);
+
+      if (userType === "user") {
+        // Structure the data according to the backend's expected format
+        const profileData = {
+          datosPersonales: {
+            nombre: answers.nombre,
+            edad: parseInt(answers.edad),
+            genero: answers.genero,
+            fotoPerfil: answers.fotoPerfil,
+            ubicacion: {
+              ciudad: answers.ciudad,
+              codigoPostal: answers.codigoPostal,
+            },
+          },
+          categoriaFavorita: answers.categoriasFavoritas,
+        };
+
+        // Log the exact data being sent
+        console.log("Profile data being sent:", profileData);
+        console.log("Profile data stringified:", JSON.stringify(profileData));
+        console.log("datosPersonales exists:", !!profileData.datosPersonales);
+        console.log("datosPersonales content:", profileData.datosPersonales);
+        console.log(
+          "categoriaFavorita content:",
+          profileData.categoriaFavorita
+        );
+
+        // Add the structured data
+        formData.append("profileData", JSON.stringify(profileData));
+
+        // Log FormData contents before sending
+        console.log("FormData contents before sending:");
+        for (let [key, value] of formData.entries()) {
+          console.log(
+            `${key}:`,
+            value instanceof Blob ? `Blob (${value.size} bytes)` : value
+          );
+        }
+
+        // Add profile photo if exists
+        if (answers.fotoPerfil) {
+          const base64Response = await fetch(answers.fotoPerfil);
+          const blob = await base64Response.blob();
+          formData.append("fotoPerfil", blob, "profile.jpg");
+        }
+      } else {
+        // Add business data
+        formData.append("nombreComercial", answers.nombreComercial);
+        formData.append("rfc", answers.rfc);
+        formData.append("categoria", answers.categoria);
+        formData.append("gradient", answers.gradient);
+        formData.append("sitioWeb", answers.sitioWeb || "");
+
+        // Add profile photo if exists
+        if (answers.fotoPerfil) {
+          const base64Response = await fetch(answers.fotoPerfil);
+          const blob = await base64Response.blob();
+          formData.append("fotoPerfil", blob, "profile.jpg");
+        }
+
+        // Add social media if exists
+        if (answers.redesSociales) {
+          formData.append(
+            "redesSociales",
+            JSON.stringify(answers.redesSociales)
+          );
+        }
+      }
+
+      console.log("Form Submission Details:", {
+        endpoint,
+        userType,
+        formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
+          key,
+          value: value instanceof Blob ? `Blob (${value.size} bytes)` : value,
+        })),
+      });
+
+      // Log the full request configuration
+      console.log("Request configuration:", {
+        url: endpoint,
+        method: "post",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        data: formData,
+      });
+
+      const response = await apiClient.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Server Response:", {
+        status: response.status,
+        data: response.data,
+        headers: response.headers,
       });
 
       if (response.data.success) {
@@ -229,6 +351,24 @@ function SetUpProfile() {
         );
       }
     } catch (error) {
+      console.error("Error Details:", {
+        message: error.message,
+        name: error.name,
+        code: error.code,
+        response: {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers,
+        },
+        request: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          method: error.config?.method,
+          headers: error.config?.headers,
+          data: error.config?.data,
+        },
+      });
+
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
