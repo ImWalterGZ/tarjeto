@@ -23,7 +23,4 @@ router.get("/promotions", clienteController.getPromotions);
 router.get("/visits", clienteController.getVisits);
 router.post("/visits", clienteController.registrarVisita);
 
-// Setup profile route
-router.post("/setup-profile", clienteController.setupProfile);
-
 export default router; // This is the important part - the default export

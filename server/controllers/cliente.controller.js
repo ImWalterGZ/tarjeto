@@ -3,7 +3,10 @@ import { Cliente } from "../models/cliente.model.js";
 export const clienteController = {
   setupProfile: async (req, res) => {
     try {
+      console.log("Request body:", req.body);
       const { profileData } = req.body;
+      console.log("Profile data:", profileData);
+      console.log("User ID:", req.userId);
 
       const clienteData = {
         usuarioID: req.userId,
@@ -33,14 +36,20 @@ export const clienteController = {
         },
       };
 
+      console.log("Cliente data to save:", clienteData);
+
       const cliente = new Cliente(clienteData);
+      console.log("Cliente model instance:", cliente);
+
       await cliente.save();
+      console.log("Cliente saved successfully");
 
       res.status(200).json({
         success: true,
         message: "Perfil de cliente creado exitosamente",
       });
     } catch (error) {
+      console.error("Error in setupProfile:", error);
       res.status(500).json({
         success: false,
         message: "Error al crear el perfil",
