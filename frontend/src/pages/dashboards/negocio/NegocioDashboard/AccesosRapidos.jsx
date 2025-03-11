@@ -1,36 +1,59 @@
+import React, { useState } from "react";
 import AccesoItem from "./AccesoItem";
-import { Tag, Ticket, Gift, Calendar } from "lucide-react";
+import { Tag, Ticket, Gift, Calendar, Plus } from "lucide-react";
+import PromoDrawer from "../../../../components/promociones/PromoDrawer";
 
-export default function AccesosRapidos() {
+const AccesosRapidos = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const Accesos = [
     {
-      icono: <Tag className="w-9" />,
-      texto: "Crear Promo",
+      title: "Crear Promoción",
+      description: "Crea una nueva promoción para tu negocio",
+      icon: Plus,
+      onClick: () => setIsDrawerOpen(true),
     },
     {
-      icono: <Ticket className="w-9" />,
-      texto: "Crear Cupon",
+      title: "Crear Promo",
+      description: "Crea una promoción especial",
+      icon: Tag,
+      onClick: () => {},
     },
     {
-      icono: <Gift className="w-9" />,
-      texto: "Crear Premio",
+      title: "Crear Cupón",
+      description: "Crea un cupón de descuento",
+      icon: Ticket,
+      onClick: () => {},
     },
     {
-      icono: <Calendar className="w-9" />,
-      texto: "Crear Evento",
+      title: "Crear Premio",
+      description: "Crea un premio para tus clientes",
+      icon: Gift,
+      onClick: () => {},
+    },
+    {
+      title: "Crear Evento",
+      description: "Crea un evento especial",
+      icon: Calendar,
+      onClick: () => {},
     },
   ];
 
   return (
-    <div className="flex flex-col mb-2 align-middle w-full">
-      <h3 className="font-nunito font-bold text-red-primary text-xl">
-        Accesos Rapidos
-      </h3>
-      <div className="h-32 grid xl:grid-cols-4 md:grid-cols-2 md:grid-rows-2 xl:grid-rows-1 px-4 py-3 gap-3 bg-gray-100 rounded-xl font-nunito text-red-primary font-semibold">
-        {Accesos.map((item, index) => (
-          <AccesoItem key={index} icono={item.icono} texto={item.texto} />
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-gray-900">Accesos Rápidos</h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Accesos.map((acceso, index) => (
+          <AccesoItem key={index} {...acceso} />
         ))}
       </div>
+
+      <PromoDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
-}
+};
+
+export default AccesosRapidos;
