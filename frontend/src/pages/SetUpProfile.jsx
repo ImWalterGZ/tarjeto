@@ -235,10 +235,7 @@ function SetUpProfile() {
         return;
       }
 
-      const endpoint = "/auth/setup-profile";
       const formData = new FormData();
-
-      // Add userType
       formData.append("userType", userType);
 
       if (userType === "user") {
@@ -257,79 +254,41 @@ function SetUpProfile() {
           categoriaFavorita: answers.categoriasFavoritas,
         };
 
-        // Log the exact data being sent
-        console.log("Profile data being sent:", profileData);
-        console.log("Profile data stringified:", JSON.stringify(profileData));
-        console.log("datosPersonales exists:", !!profileData.datosPersonales);
-        console.log("datosPersonales content:", profileData.datosPersonales);
-        console.log(
-          "categoriaFavorita content:",
-          profileData.categoriaFavorita
-        );
-
-        // Add the structured data
         formData.append("profileData", JSON.stringify(profileData));
-
-        // Log FormData contents before sending
-        console.log("FormData contents before sending:");
-        for (let [key, value] of formData.entries()) {
-          console.log(
-            `${key}:`,
-            value instanceof Blob ? `Blob (${value.size} bytes)` : value
-          );
-        }
-
-        // Add profile photo if exists
-        if (answers.fotoPerfil) {
-          const base64Response = await fetch(answers.fotoPerfil);
-          const blob = await base64Response.blob();
-          formData.append("fotoPerfil", blob, "profile.jpg");
-        }
       } else {
-        // Add business data
-        formData.append("nombreComercial", answers.nombreComercial);
-        formData.append("rfc", answers.rfc);
-        formData.append("categoria", answers.categoria);
-        formData.append("gradient", answers.gradient);
-        formData.append("sitioWeb", answers.sitioWeb || "");
+        // Structure business data according to the backend's expected format
+        const profileData = {
+          datosPersonales: {
+            nombreComercial: answers.nombreComercial,
+            rfc: answers.rfc,
+            fotoPerfil: answers.fotoPerfil,
+          },
+          informacionGeneral: {
+            nombreComercial: answers.nombreComercial,
+            categoria: answers.categoria ? [answers.categoria] : [],
+            gradient: answers.gradient,
+            sitioWeb: answers.sitioWeb || "",
+            redesSociales: answers.redesSociales || {
+              facebook: "",
+              instagram: "",
+              tiktok: "",
+            },
+          },
+        };
 
-        // Add profile photo if exists
-        if (answers.fotoPerfil) {
-          const base64Response = await fetch(answers.fotoPerfil);
-          const blob = await base64Response.blob();
-          formData.append("fotoPerfil", blob, "profile.jpg");
-        }
-
-        // Add social media if exists
-        if (answers.redesSociales) {
-          formData.append(
-            "redesSociales",
-            JSON.stringify(answers.redesSociales)
-          );
-        }
+        console.log("Sending business profile data:", profileData);
+        formData.append("profileData", JSON.stringify(profileData));
       }
 
-      console.log("Form Submission Details:", {
-        endpoint,
-        userType,
-        formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
-          key,
-          value: value instanceof Blob ? `Blob (${value.size} bytes)` : value,
-        })),
-      });
-
-      // Log the full request configuration
-      console.log("Request configuration:", {
-        url: endpoint,
-        method: "post",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        data: formData,
-      });
+      // Add profile photo if exists
+      if (answers.fotoPerfil) {
+        const base64Response = await fetch(answers.fotoPerfil);
+        const blob = await base64Response.blob();
+        formData.append("fotoPerfil", blob, "profile.jpg");
+      }
 
       const response = await apiClient.post(
-        "api/auth/setup-profile",
+        "/api/auth/setup-profile",
         formData,
         {
           headers: {

@@ -267,15 +267,6 @@ export const setupProfile = async (req, res) => {
       });
     }
 
-    // Validate profile data structure
-    if (!profileData.datosPersonales) {
-      console.log("Invalid profile data structure: missing datosPersonales");
-      return res.status(400).json({
-        success: false,
-        message: "Invalid profile data structure: missing datosPersonales",
-      });
-    }
-
     const userId = req.userId; // From auth middleware
     console.log("11. User ID:", userId);
 
@@ -293,32 +284,63 @@ export const setupProfile = async (req, res) => {
 
     // Create corresponding profile based on user type
     if (userType === "business") {
-      const negocio = new Negocio({
-        usuarioID: userId,
-        negocioID: crypto.randomBytes(12).toString("hex"),
-        informacionGeneral: {
-          nombreComercial: req.body.nombreComercial,
-          categoria: [req.body.categoria],
-          redesSociales: req.body.redesSociales
-            ? JSON.parse(req.body.redesSociales)
-            : {},
-        },
-        establecimientos: [
-          {
-            establecimientoID: crypto.randomBytes(12).toString("hex"),
-            nombre: req.body.nombreComercial,
-            ubicacion: {
-              direccion: req.body.direccion || "",
-            },
-          },
-        ],
-      });
-      await negocio.save();
-    } else {
       // Handle profile photo if uploaded
       let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
       if (req.file) {
         // Convert buffer to base64
+        const base64Image = req.file.buffer.toString("base64");
+        fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+      }
+
+      const negocio = new Negocio({
+        usuarioID: userId,
+        negocioID: userId, // Use the same ID as the user
+        fotoPerfil: fotoPerfilUrl,
+        nombreComercial: profileData.datosPersonales.nombreComercial,
+        rfc: profileData.datosPersonales.rfc,
+        categoria: profileData.informacionGeneral.categoria,
+        sitioWeb: profileData.informacionGeneral.sitioWeb || "",
+        redesSociales: profileData.informacionGeneral.redesSociales || {
+          facebook: "",
+          instagram: "",
+          tiktok: "",
+        },
+        color: "#EF4444", // Default red color
+        gradient: profileData.informacionGeneral.gradient,
+        establecimientos: [
+          {
+            establecimientoID: crypto.randomBytes(12).toString("hex"),
+            nombre: profileData.datosPersonales.nombreComercial,
+            ubicacion: {
+              direccion: "",
+              ciudad: "",
+              estado: "",
+              codigoPostal: "",
+              coordenadas: {
+                latitude: 0,
+                longitude: 0,
+              },
+              zona: "",
+            },
+            horario: [],
+            metricas: {
+              visitasTotales: 0,
+              visitasPromedioDiarias: 0,
+              horasPico: [],
+              diasMasConcurridos: [],
+            },
+          },
+        ],
+        visitasTotales: 0,
+      });
+
+      console.log("Creating business profile with data:", negocio);
+      await negocio.save();
+      console.log("Business profile created successfully");
+    } else {
+      // Handle client profile setup (existing code)
+      let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
+      if (req.file) {
         const base64Image = req.file.buffer.toString("base64");
         fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
       }
@@ -351,7 +373,6 @@ export const setupProfile = async (req, res) => {
         },
       });
       await cliente.save();
-      console.log("14. Client profile created successfully");
     }
 
     res.status(200).json({
