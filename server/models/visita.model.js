@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const visitaSchema = new mongoose.Schema({
   clienteID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Usuario",
+    ref: "User",
     required: true,
   },
   negocioID: {
@@ -12,8 +12,7 @@ const visitaSchema = new mongoose.Schema({
     required: true,
   },
   establecimientoID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Negocio.establecimientos",
+    type: String,
     required: true,
   },
   fecha: {

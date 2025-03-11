@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const promocion = new mongoose.Schema({
+const promocionSchema = new mongoose.Schema({
   negocioID: {
     type: String,
     require: true,
@@ -82,12 +82,15 @@ const promocion = new mongoose.Schema({
   analitica: {
     vistas: {
       type: Number,
+      default: 0,
     },
     usos: {
       type: Number,
+      default: 0,
     },
     promedioVistaUso: {
       type: Number,
+      default: 0,
     },
     popularidadPorHora: [
       {
@@ -96,21 +99,27 @@ const promocion = new mongoose.Schema({
         },
         usos: {
           type: Number,
+          default: 0,
         },
       },
     ],
   },
   creado: {
     type: Date,
+    default: Date.now,
   },
   ultimaModificacion: {
     type: Date,
+    default: Date.now,
   },
   creadoPor: {
     type: String,
+    require: true,
   },
   activo: {
     type: Boolean,
+    default: true,
   },
 });
-export const Promocion = mongoose.model("Promocione", promocionSchema);
+
+export const Promocion = mongoose.model("Promocion", promocionSchema);

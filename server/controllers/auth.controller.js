@@ -267,15 +267,6 @@ export const setupProfile = async (req, res) => {
       });
     }
 
-    // Validate profile data structure
-    if (!profileData.datosPersonales) {
-      console.log("Invalid profile data structure: missing datosPersonales");
-      return res.status(400).json({
-        success: false,
-        message: "Invalid profile data structure: missing datosPersonales",
-      });
-    }
-
     const userId = req.userId; // From auth middleware
     console.log("11. User ID:", userId);
 
@@ -293,29 +284,7 @@ export const setupProfile = async (req, res) => {
 
     // Create corresponding profile based on user type
     if (userType === "business") {
-      const negocio = new Negocio({
-        usuarioID: userId,
-        negocioID: crypto.randomBytes(12).toString("hex"),
-        informacionGeneral: {
-          nombreComercial: req.body.nombreComercial,
-          categoria: [req.body.categoria],
-          redesSociales: req.body.redesSociales
-            ? JSON.parse(req.body.redesSociales)
-            : {},
-        },
-        establecimientos: [
-          {
-            establecimientoID: crypto.randomBytes(12).toString("hex"),
-            nombre: req.body.nombreComercial,
-            ubicacion: {
-              direccion: req.body.direccion || "",
-            },
-          },
-        ],
-      });
-      await negocio.save();
-    } else {
-      // Handle profile photo if uploaded
+      // Handle profile photo if exists
       let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
       if (req.file) {
         // Convert buffer to base64
@@ -323,9 +292,65 @@ export const setupProfile = async (req, res) => {
         fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
       }
 
+      const negocio = new Negocio({
+        usuarioID: userId, // Reference to User's _id
+        publicID: `NEG${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public business ID
+        fotoPerfil: fotoPerfilUrl,
+        nombreComercial: profileData.datosPersonales.nombreComercial,
+        rfc: profileData.datosPersonales.rfc,
+        categoria: profileData.informacionGeneral.categoria,
+        sitioWeb: profileData.informacionGeneral.sitioWeb || "",
+        redesSociales: profileData.informacionGeneral.redesSociales || {
+          facebook: "",
+          instagram: "",
+          tiktok: "",
+        },
+        color: "#EF4444", // Default red color
+        gradient: profileData.informacionGeneral.gradient,
+        establecimientos: [
+          {
+            establecimientoID: `EST${crypto
+              .randomBytes(8)
+              .toString("hex")
+              .toUpperCase()}`, // Public establishment ID
+            nombre: profileData.establecimiento.nombre,
+            ubicacion: {
+              direccion: profileData.establecimiento.ubicacion.direccion,
+              ciudad: profileData.establecimiento.ubicacion.ciudad,
+              estado: profileData.establecimiento.ubicacion.estado,
+              codigoPostal: profileData.establecimiento.ubicacion.codigoPostal,
+              zona: profileData.establecimiento.ubicacion.zona,
+              coordenadas: {
+                latitude: 0,
+                longitude: 0,
+              },
+            },
+            horario: [],
+            metricas: {
+              visitasTotales: 0,
+              visitasPromedioDiarias: 0,
+              horasPico: [],
+              diasMasConcurridos: [],
+            },
+          },
+        ],
+        visitasTotales: 0,
+      });
+
+      console.log("Creating business profile with data:", negocio);
+      await negocio.save();
+      console.log("Business profile created successfully");
+    } else {
+      // Handle client profile setup
+      let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
+      if (req.file) {
+        const base64Image = req.file.buffer.toString("base64");
+        fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+      }
+
       const cliente = new Cliente({
-        usuarioID: userId,
-        clienteID: crypto.randomBytes(12).toString("hex"),
+        usuarioID: userId, // Reference to User's _id
+        publicID: `CLI${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public client ID
         datosPersonales: {
           nombre: profileData.datosPersonales.nombre,
           edad: parseInt(profileData.datosPersonales.edad),
@@ -351,7 +376,6 @@ export const setupProfile = async (req, res) => {
         },
       });
       await cliente.save();
-      console.log("14. Client profile created successfully");
     }
 
     res.status(200).json({
