@@ -310,17 +310,17 @@ export const setupProfile = async (req, res) => {
         establecimientos: [
           {
             establecimientoID: crypto.randomBytes(12).toString("hex"),
-            nombre: profileData.datosPersonales.nombreComercial,
+            nombre: profileData.establecimiento.nombre,
             ubicacion: {
-              direccion: "",
-              ciudad: "",
-              estado: "",
-              codigoPostal: "",
+              direccion: profileData.establecimiento.ubicacion.direccion,
+              ciudad: profileData.establecimiento.ubicacion.ciudad,
+              estado: profileData.establecimiento.ubicacion.estado,
+              codigoPostal: profileData.establecimiento.ubicacion.codigoPostal,
+              zona: profileData.establecimiento.ubicacion.zona,
               coordenadas: {
                 latitude: 0,
                 longitude: 0,
               },
-              zona: "",
             },
             horario: [],
             metricas: {

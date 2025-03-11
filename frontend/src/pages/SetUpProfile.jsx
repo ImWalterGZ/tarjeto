@@ -93,6 +93,45 @@ function SetUpProfile() {
       opciones: ["Facebook", "Instagram", "TikTok"],
       required: false,
     },
+    {
+      id: 8,
+      pregunta: "Información de tu establecimiento principal",
+      type: "establishment",
+      field: "establecimiento",
+      required: true,
+      fields: [
+        {
+          name: "direccion",
+          label: "Dirección",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "ciudad",
+          label: "Ciudad",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "estado",
+          label: "Estado",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "codigoPostal",
+          label: "Código Postal",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "zona",
+          label: "Zona o Colonia",
+          type: "text",
+          required: true,
+        },
+      ],
+    },
   ];
 
   const preguntasUsuario = [
@@ -211,7 +250,14 @@ function SetUpProfile() {
               "codigoPostal",
               "categoriasFavoritas",
             ]
-          : ["nombreComercial", "fotoPerfil", "rfc", "categoria", "gradient"];
+          : [
+              "nombreComercial",
+              "fotoPerfil",
+              "rfc",
+              "categoria",
+              "gradient",
+              "establecimiento",
+            ];
 
       // Debug log for required fields validation
       console.log("Required fields:", requiredFields);
@@ -272,6 +318,20 @@ function SetUpProfile() {
               facebook: "",
               instagram: "",
               tiktok: "",
+            },
+          },
+          establecimiento: {
+            nombre: answers.nombreComercial,
+            ubicacion: {
+              direccion: answers.establecimiento?.direccion || "",
+              ciudad: answers.establecimiento?.ciudad || "",
+              estado: answers.establecimiento?.estado || "",
+              codigoPostal: answers.establecimiento?.codigoPostal || "",
+              zona: answers.establecimiento?.zona || "",
+              coordenadas: {
+                latitude: 0,
+                longitude: 0,
+              },
             },
           },
         };
@@ -355,6 +415,60 @@ function SetUpProfile() {
     const currentQuestion = preguntas[currentStep];
 
     if (!currentQuestion) return null;
+
+    if (currentQuestion.type === "establishment") {
+      return (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            {currentQuestion.pregunta}
+          </h2>
+          {currentQuestion.fields.map((field) => (
+            <TextField
+              key={field.name}
+              fullWidth
+              label={field.label}
+              type={field.type}
+              value={answers[currentQuestion.field]?.[field.name] || ""}
+              onChange={(e) =>
+                handleAnswer(
+                  {
+                    ...answers[currentQuestion.field],
+                    [field.name]: e.target.value,
+                  },
+                  currentQuestion.field
+                )
+              }
+              required={field.required}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "#F2F2F2",
+                  "& fieldset": {
+                    borderColor: "#616161",
+                    borderWidth: "2px",
+                    borderRadius: "0.5rem",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#EF4444",
+                    borderWidth: "2px",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#EF4444",
+                    borderWidth: "2px",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#616161",
+                  "&.Mui-focused": {
+                    color: "#EF4444",
+                  },
+                },
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
     if (currentQuestion.type === "image") {
       return (
         <div className="flex flex-col items-center justify-center gap-8 w-full">
