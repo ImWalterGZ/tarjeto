@@ -8,18 +8,6 @@ const AccesosRapidos = () => {
 
   const Accesos = [
     {
-      title: "Crear Promoción",
-      description: "Crea una nueva promoción para tu negocio",
-      icon: Plus,
-      onClick: () => setIsDrawerOpen(true),
-    },
-    {
-      title: "Crear Promo",
-      description: "Crea una promoción especial",
-      icon: Tag,
-      onClick: () => {},
-    },
-    {
       title: "Crear Cupón",
       description: "Crea un cupón de descuento",
       icon: Ticket,
@@ -40,14 +28,28 @@ const AccesosRapidos = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       <h2 className="text-xl font-semibold text-gray-900">Accesos Rápidos</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Accesos.map((acceso, index) => (
-          <AccesoItem key={index} {...acceso} />
-        ))}
+      <div className="grid grid-cols-4 grid-rows-1 rounded-xl ">
+        <div className="p-2 h-full w-full rounded-xl">
+          <div className="">
+            <AccesoItem
+              title="Crear Promoción"
+              icon={Plus}
+              onClick={() => setIsDrawerOpen(true)}
+            />
+          </div>
+        </div>
+        <div className="col-span-3 col-start-2 flex flex-col gap-4 justify-center">
+          <div className="flex flex-col gap-4  justify-center bg-gray-background rounded-xl p-2">
+            <div className="flex flex-row gap-2 h-full">
+              {Accesos.map((acceso, index) => (
+                <AccesoItem key={index} {...acceso} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-
       <PromoDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}

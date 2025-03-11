@@ -217,17 +217,31 @@ export const checkAuth = async (req, res) => {
     console.log("ID de usuario en checkAuth:", req.userId);
     const usuario = await User.findOne({ _id: req.userId });
     console.log("Usuario encontrado en checkAuth:", usuario);
+
     if (!usuario) {
       return res
         .status(400)
         .json({ success: false, message: "Usuario no encontrado" });
     }
+
+    // Get profile data based on user type
+    let profileData = null;
+    if (usuario.tipoUsuario === "Cliente") {
+      profileData = await Cliente.findOne({ usuarioID: usuario._id });
+      console.log("Perfil de cliente encontrado:", profileData);
+    } else if (usuario.tipoUsuario === "Negocio") {
+      profileData = await Negocio.findOne({ usuarioID: usuario._id });
+      console.log("Perfil de negocio encontrado:", profileData);
+    }
+
     res.status(200).json({
       success: true,
       usuario: {
         ...usuario._doc,
         contrasena: undefined,
       },
+      profile: profileData,
+      userType: usuario.tipoUsuario,
     });
   } catch (error) {
     console.log("Error con checkAuth:", error);

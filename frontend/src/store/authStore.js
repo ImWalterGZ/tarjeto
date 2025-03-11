@@ -202,39 +202,13 @@ export const useAuthStore = create((set) => ({
       const authResponse = await apiClient.get(API_PATHS.AUTH.CHECK_AUTH);
       console.log("Auth response:", authResponse.data);
 
-      if (authResponse.data.usuario) {
-        // If user is authenticated, fetch client profile
-        try {
-          console.log("Intentando obtener perfil de cliente");
-          console.log("Base URL:", apiClient.defaults.baseURL);
-          const clientResponse = await apiClient.get(API_PATHS.CLIENT.PROFILE);
-          console.log("Respuesta de clientResponse:", clientResponse.data);
-          if (clientResponse.data.success) {
-            set({
-              usuario: authResponse.data.usuario,
-              cliente: clientResponse.data.data,
-              autentificado: true,
-              revisandoAuth: false,
-            });
-          } else {
-            // If no client profile exists yet, just set the user data
-            set({
-              usuario: authResponse.data.usuario,
-              cliente: null,
-              autentificado: true,
-              revisandoAuth: false,
-            });
-          }
-        } catch (clientError) {
-          console.log("Error fetching client profile:", clientError.response);
-          // If client profile fetch fails, still set the user data
-          set({
-            usuario: authResponse.data.usuario,
-            cliente: null,
-            autentificado: true,
-            revisandoAuth: false,
-          });
-        }
+      if (authResponse.data.success) {
+        set({
+          usuario: authResponse.data.usuario,
+          cliente: authResponse.data.profile,
+          autentificado: true,
+          revisandoAuth: false,
+        });
       } else {
         set({
           usuario: null,
