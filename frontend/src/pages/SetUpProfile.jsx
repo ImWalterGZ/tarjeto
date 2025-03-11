@@ -177,14 +177,14 @@ function SetUpProfile() {
   };
 
   const handleAnswer = (value, field) => {
-    console.log("handleAnswer called with:", { field, value });
-    console.log("Previous answers state:", answers);
+    //console.log("handleAnswer called with:", { field, value });
+    //console.log("Previous answers state:", answers);
     setAnswers((prev) => {
       const newAnswers = {
         ...prev,
         [field]: value,
       };
-      console.log("Updated answers state:", newAnswers);
+      //console.log("Updated answers state:", newAnswers);
       return newAnswers;
     });
   };
@@ -194,10 +194,10 @@ function SetUpProfile() {
       setIsSubmitting(true);
 
       // Debug log for answers object
-      console.log("Current answers state:", answers);
-      console.log("Current step:", currentStep);
-      console.log("Total steps:", preguntas.length);
-      console.log("User type:", userType);
+      //console.log("Current answers state:", answers);
+      //console.log("Current step:", currentStep);
+      //console.log("Total steps:", preguntas.length);
+      //console.log("User type:", userType);
 
       // Validate all required fields
       const requiredFields =
@@ -214,22 +214,22 @@ function SetUpProfile() {
           : ["nombreComercial", "fotoPerfil", "rfc", "categoria", "gradient"];
 
       // Debug log for required fields validation
-      console.log("Required fields:", requiredFields);
-      console.log("Answers object keys:", Object.keys(answers));
-      console.log("Answers object values:", Object.values(answers));
+      //console.log("Required fields:", requiredFields);
+      //console.log("Answers object keys:", Object.keys(answers));
+      //console.log("Answers object values:", Object.values(answers));
 
       const missingFields = requiredFields.filter((field) => {
         const isMissing = !answers[field];
-        console.log(`Field ${field}:`, {
-          exists: !!answers[field],
-          value: answers[field],
-          isMissing,
-        });
+        //console.log(`Field ${field}:`, {
+        //  exists: !!answers[field],
+        //  value: answers[field],
+        //  isMissing,
+        //});
         return isMissing;
       });
 
       if (missingFields.length > 0) {
-        console.error("Missing required fields:", missingFields);
+        //console.error("Missing required fields:", missingFields);
         toast.error("Por favor completa todos los campos requeridos");
         setIsSubmitting(false);
         return;
@@ -258,26 +258,26 @@ function SetUpProfile() {
         };
 
         // Log the exact data being sent
-        console.log("Profile data being sent:", profileData);
-        console.log("Profile data stringified:", JSON.stringify(profileData));
-        console.log("datosPersonales exists:", !!profileData.datosPersonales);
-        console.log("datosPersonales content:", profileData.datosPersonales);
-        console.log(
-          "categoriaFavorita content:",
-          profileData.categoriaFavorita
-        );
+        //console.log("Profile data being sent:", profileData);
+        //console.log("Profile data stringified:", JSON.stringify(profileData));
+        //console.log("datosPersonales exists:", !!profileData.datosPersonales);
+        //console.log("datosPersonales content:", profileData.datosPersonales);
+        //console.log(
+        //  "categoriaFavorita content:",
+        //  profileData.categoriaFavorita
+        //);
 
         // Add the structured data
         formData.append("profileData", JSON.stringify(profileData));
 
         // Log FormData contents before sending
-        console.log("FormData contents before sending:");
-        for (let [key, value] of formData.entries()) {
-          console.log(
-            `${key}:`,
-            value instanceof Blob ? `Blob (${value.size} bytes)` : value
-          );
-        }
+        //console.log("FormData contents before sending:");
+        //for (let [key, value] of formData.entries()) {
+        //  console.log(
+        //    `${key}:`,
+        //    value instanceof Blob ? `Blob (${value.size} bytes)` : value
+        //  );
+        //}
 
         // Add profile photo if exists
         if (answers.fotoPerfil) {
@@ -309,24 +309,24 @@ function SetUpProfile() {
         }
       }
 
-      console.log("Form Submission Details:", {
-        endpoint,
-        userType,
-        formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
-          key,
-          value: value instanceof Blob ? `Blob (${value.size} bytes)` : value,
-        })),
-      });
+      //console.log("Form Submission Details:", {
+      //  endpoint,
+      //  userType,
+      //  formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
+      //    key,
+      //      value: value instanceof Blob ? `Blob (${value.size} bytes)` : value,
+      //    })),
+      //});
 
       // Log the full request configuration
-      console.log("Request configuration:", {
-        url: endpoint,
-        method: "post",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        data: formData,
-      });
+      //console.log("Request configuration:", {
+      //  url: endpoint,
+      //  method: "post",
+      //  headers: {
+      //  "Content-Type": "multipart/form-data",
+      //  },
+      //  data: formData,
+      //});
 
       const response = await apiClient.post(endpoint, formData, {
         headers: {
@@ -334,11 +334,11 @@ function SetUpProfile() {
         },
       });
 
-      console.log("Server Response:", {
-        status: response.status,
-        data: response.data,
-        headers: response.headers,
-      });
+      //console.log("Server Response:", {
+      //  status: response.status,
+      //  data: response.data,
+      //  headers: response.headers,
+      //});
 
       if (response.data.success) {
         toast.success("¡Perfil configurado exitosamente!");
@@ -351,30 +351,30 @@ function SetUpProfile() {
         );
       }
     } catch (error) {
-      console.error("Error Details:", {
-        message: error.message,
-        name: error.name,
-        code: error.code,
-        response: {
-          status: error.response?.status,
-          data: error.response?.data,
-          headers: error.response?.headers,
-        },
-        request: {
-          url: error.config?.url,
-          baseURL: error.config?.baseURL,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data,
-        },
-      });
+      //console.error("Error Details:", {
+      //  message: error.message,
+      //  name: error.name,
+      //  code: error.code,
+      //  response: {
+      //    status: error.response?.status,
+      //    data: error.response?.data,
+      //    headers: error.response?.headers,
+      //  },
+      //  request: {
+      //    url: error.config?.url,
+      //    baseURL: error.config?.baseURL,
+      //    method: error.config?.method,
+      //    headers: error.config?.headers,
+      //    data: error.config?.data,
+      //  },
+      //});
 
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
         "Error al configurar el perfil";
       toast.error(errorMessage);
-      console.error("Error al configurar perfil:", errorMessage);
+      //console.error("Error al configurar perfil:", errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -427,9 +427,9 @@ function SetUpProfile() {
                     });
                   };
                   reader.readAsDataURL(compressedFile);
-                  console.log(reader.result);
+                  //  console.log(reader.result);
                 } catch (error) {
-                  console.error("Error compressing image:", error);
+                  //console.error("Error compressing image:", error);
                   toast.error("Error al procesar la imagen", {
                     id: "imageProcessing",
                   });

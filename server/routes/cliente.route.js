@@ -6,12 +6,24 @@ import { clienteController } from "../controllers/cliente.controller.js";
 
 const router = express.Router();
 
-// Add your routes here
-// Example routes:
-// router.get("/profile", verifyToken, clienteController.getProfile);
-// router.put("/profile", verifyToken, clienteController.updateProfile);
-// router.get("/visits", verifyToken, clienteController.getVisits);
+// Apply verifyToken middleware to all client routes
+router.use(verifyToken);
 
-router.post("/setup-profile", verifyToken, clienteController.setupProfile);
+// Profile routes
+router.get("/profile", clienteController.getProfile);
+router.put("/profile", clienteController.updateProfile);
+
+// Cards routes
+router.get("/cards", clienteController.getCards);
+
+// Promotions routes
+router.get("/promotions", clienteController.getPromotions);
+
+// Visits routes
+router.get("/visits", clienteController.getVisits);
+router.post("/visits", clienteController.registrarVisita);
+
+// Setup profile route
+router.post("/setup-profile", clienteController.setupProfile);
 
 export default router; // This is the important part - the default export

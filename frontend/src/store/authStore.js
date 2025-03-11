@@ -3,8 +3,23 @@
 import { create } from "zustand";
 import apiClient from "../config/axios";
 
+// Define API paths to avoid typos and make changes easier
+const API_PATHS = {
+  AUTH: {
+    LOGIN: "/api/auth/login",
+    SIGNUP: "/api/auth/signup",
+    LOGOUT: "/api/auth/logout",
+    CHECK_AUTH: "/api/auth/check-auth",
+    VERIFY_EMAIL: "/api/auth/verify-email",
+  },
+  CLIENT: {
+    PROFILE: "/api/cliente/profile",
+  },
+};
+
 export const useAuthStore = create((set) => ({
   usuario: null,
+  cliente: null,
   autentificado: false,
   error: null,
   cargando: false,
@@ -13,13 +28,12 @@ export const useAuthStore = create((set) => ({
   login: async (email, contrasena) => {
     set({ cargando: true, error: null });
     try {
-      const response = await apiClient.post("/login", {
+      const response = await apiClient.post(API_PATHS.AUTH.LOGIN, {
         email,
         contrasena,
       });
 
       console.log("Respuesta de login:", response.data);
-
       if (!response.data.success) {
         throw new Error(response.data.message || "Error al iniciar sesión");
       }
@@ -48,12 +62,13 @@ export const useAuthStore = create((set) => ({
   signup: async (email, contrasena, nombre) => {
     set({ cargando: true, error: null });
     try {
-      const response = await apiClient.post("/signup", {
+      const response = await apiClient.post(API_PATHS.AUTH.SIGNUP, {
         email,
         contrasena,
         nombre,
       });
 
+      console.log("Respuesta de signup:", response.data);
       if (!response.data || !response.data.success) {
         throw new Error(response.data?.message || "Error al registrarse");
       }
@@ -117,10 +132,11 @@ export const useAuthStore = create((set) => ({
     set({ cargando: true, error: null });
 
     try {
-      const response = await apiClient.post("/verify-email", {
+      const response = await apiClient.post(API_PATHS.AUTH.VERIFY_EMAIL, {
         code: verificationCode,
       });
 
+      console.log("Respuesta de verifyEmail:", response.data);
       if (!response.data.success) {
         throw new Error(response.data?.message || "Error verificando email");
       }
@@ -182,24 +198,56 @@ export const useAuthStore = create((set) => ({
   revisarAuth: async () => {
     set({ revisandoAuth: true, error: null });
     try {
-      const response = await apiClient.get("/check-auth");
+      console.log("Checking auth ID#123");
+      const authResponse = await apiClient.get(API_PATHS.AUTH.CHECK_AUTH);
+      console.log("Auth response:", authResponse.data);
 
-      if (response.data.usuario) {
-        set({
-          usuario: response.data.usuario,
-          autentificado: true,
-          revisandoAuth: false,
-        });
+      if (authResponse.data.usuario) {
+        // If user is authenticated, fetch client profile
+        try {
+          console.log("Intentando obtener perfil de cliente");
+          console.log("Base URL:", apiClient.defaults.baseURL);
+          const clientResponse = await apiClient.get(API_PATHS.CLIENT.PROFILE);
+          console.log("Respuesta de clientResponse:", clientResponse.data);
+          if (clientResponse.data.success) {
+            set({
+              usuario: authResponse.data.usuario,
+              cliente: clientResponse.data.data,
+              autentificado: true,
+              revisandoAuth: false,
+            });
+          } else {
+            // If no client profile exists yet, just set the user data
+            set({
+              usuario: authResponse.data.usuario,
+              cliente: null,
+              autentificado: true,
+              revisandoAuth: false,
+            });
+          }
+        } catch (clientError) {
+          console.log("Error fetching client profile:", clientError.response);
+          // If client profile fetch fails, still set the user data
+          set({
+            usuario: authResponse.data.usuario,
+            cliente: null,
+            autentificado: true,
+            revisandoAuth: false,
+          });
+        }
       } else {
         set({
           usuario: null,
+          cliente: null,
           autentificado: false,
           revisandoAuth: false,
         });
       }
     } catch (error) {
+      console.error("Error checking auth:", error.response);
       set({
         usuario: null,
+        cliente: null,
         error:
           error.response?.data?.message ||
           "Error al verificar la autenticación",
@@ -211,9 +259,10 @@ export const useAuthStore = create((set) => ({
 
   logout: async () => {
     try {
-      await apiClient.post("/logout");
+      await apiClient.post(API_PATHS.AUTH.LOGOUT);
       set({
         usuario: null,
+        cliente: null,
         autentificado: false,
         error: null,
         revisandoAuth: false,
@@ -223,10 +272,34 @@ export const useAuthStore = create((set) => ({
       // Even if the server call fails, we clear the local state
       set({
         usuario: null,
+        cliente: null,
         autentificado: false,
         error: null,
         revisandoAuth: false,
       });
+    }
+  },
+
+  // Add a function to update client profile
+  updateClientProfile: async (profileData) => {
+    try {
+      const response = await apiClient.put(API_PATHS.CLIENT.PROFILE, {
+        profileData,
+      });
+
+      console.log("Respuesta de updateClientProfile:", response.data);
+      if (response.data.success) {
+        set((state) => ({
+          ...state,
+          cliente: response.data.data,
+        }));
+        return response.data;
+      } else {
+        throw new Error(response.data.message || "Error updating profile");
+      }
+    } catch (error) {
+      console.error("Error updating client profile:", error);
+      throw error;
     }
   },
 }));

@@ -8,8 +8,8 @@ const router = express.Router();
 
 // API routes
 router.use("/auth", authRoutes);
-router.use("/business", negocioRoutes);
-router.use("/client", clienteRoutes);
+router.use("/negocio", negocioRoutes);
+router.use("/cliente", clienteRoutes);
 router.use("/nexo", nexoRoutes);
 
 export default router;

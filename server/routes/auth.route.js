@@ -12,6 +12,7 @@ import {
   setupProfile,
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.middleware.js";
+
 const router = express.Router();
 
 const upload = multer({
@@ -21,11 +22,16 @@ const upload = multer({
   },
 });
 
-router.get("/check-auth", verifyToken, checkAuth);
-
+// Public routes (no token required)
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/logout", logout);
+router.post("/verify-email", verifyEmail);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
+
+// Protected routes (token required)
+router.get("/check-auth", verifyToken, checkAuth);
+router.post("/logout", verifyToken, logout);
 router.post(
   "/setup-profile",
   verifyToken,
@@ -33,7 +39,4 @@ router.post(
   setupProfile
 );
 
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
-router.post("/verify-email", verifyEmail);
 export default router;
