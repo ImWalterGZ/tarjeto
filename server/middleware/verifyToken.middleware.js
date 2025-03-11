@@ -11,12 +11,17 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
+    // Set the full user object in the request
+    req.user = {
+      id: decoded.userId,
+      // Add any other user info from the token if needed
+    };
     next();
   } catch (error) {
-    res.status(500).json({
+    console.error("Token verification error:", error);
+    res.status(401).json({
       success: false,
-      message: "error del servidor",
+      message: "Token inválido o expirado",
       error: error.message,
     });
   }
