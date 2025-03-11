@@ -284,7 +284,7 @@ export const setupProfile = async (req, res) => {
 
     // Create corresponding profile based on user type
     if (userType === "business") {
-      // Handle profile photo if uploaded
+      // Handle profile photo if exists
       let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
       if (req.file) {
         // Convert buffer to base64
@@ -293,8 +293,8 @@ export const setupProfile = async (req, res) => {
       }
 
       const negocio = new Negocio({
-        usuarioID: userId,
-        negocioID: userId, // Use the same ID as the user
+        usuarioID: userId, // Reference to User's _id
+        publicID: `NEG${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public business ID
         fotoPerfil: fotoPerfilUrl,
         nombreComercial: profileData.datosPersonales.nombreComercial,
         rfc: profileData.datosPersonales.rfc,
@@ -309,7 +309,10 @@ export const setupProfile = async (req, res) => {
         gradient: profileData.informacionGeneral.gradient,
         establecimientos: [
           {
-            establecimientoID: crypto.randomBytes(12).toString("hex"),
+            establecimientoID: `EST${crypto
+              .randomBytes(8)
+              .toString("hex")
+              .toUpperCase()}`, // Public establishment ID
             nombre: profileData.establecimiento.nombre,
             ubicacion: {
               direccion: profileData.establecimiento.ubicacion.direccion,
@@ -338,7 +341,7 @@ export const setupProfile = async (req, res) => {
       await negocio.save();
       console.log("Business profile created successfully");
     } else {
-      // Handle client profile setup (existing code)
+      // Handle client profile setup
       let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
       if (req.file) {
         const base64Image = req.file.buffer.toString("base64");
@@ -346,8 +349,8 @@ export const setupProfile = async (req, res) => {
       }
 
       const cliente = new Cliente({
-        usuarioID: userId,
-        clienteID: crypto.randomBytes(12).toString("hex"),
+        usuarioID: userId, // Reference to User's _id
+        publicID: `CLI${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public client ID
         datosPersonales: {
           nombre: profileData.datosPersonales.nombre,
           edad: parseInt(profileData.datosPersonales.edad),

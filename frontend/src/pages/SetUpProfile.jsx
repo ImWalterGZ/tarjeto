@@ -285,7 +285,7 @@ function SetUpProfile() {
       formData.append("userType", userType);
 
       if (userType === "user") {
-        // Structure the data according to the backend's expected format
+        // Structure the data according to the backend's expected format for clients
         const profileData = {
           datosPersonales: {
             nombre: answers.nombre,
@@ -328,10 +328,6 @@ function SetUpProfile() {
               estado: answers.establecimiento?.estado || "",
               codigoPostal: answers.establecimiento?.codigoPostal || "",
               zona: answers.establecimiento?.zona || "",
-              coordenadas: {
-                latitude: 0,
-                longitude: 0,
-              },
             },
           },
         };
@@ -340,10 +336,11 @@ function SetUpProfile() {
         formData.append("profileData", JSON.stringify(profileData));
       }
 
-      // Add profile photo if exists
-      if (answers.fotoPerfil) {
-        const base64Response = await fetch(answers.fotoPerfil);
-        const blob = await base64Response.blob();
+      // Add profile photo if exists and it's a base64 string
+      if (answers.fotoPerfil && answers.fotoPerfil.startsWith("data:image")) {
+        // Convert base64 to blob
+        const response = await fetch(answers.fotoPerfil);
+        const blob = await response.blob();
         formData.append("fotoPerfil", blob, "profile.jpg");
       }
 
