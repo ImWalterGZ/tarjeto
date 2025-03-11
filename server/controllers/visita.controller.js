@@ -7,9 +7,9 @@ export const registrarVisita = async (req, res) => {
   const { negocioID, establecimientoID, clienteID } = req.body;
 
   try {
-    // Verify if client and business exist
-    const cliente = await Cliente.findById(clienteID);
-    const negocio = await Negocio.findById(negocioID);
+    // Verify if client and business exist using publicID
+    const cliente = await Cliente.findOne({ publicID: clienteID });
+    const negocio = await Negocio.findOne({ publicID: negocioID });
 
     if (!cliente) {
       return res.status(404).json({
@@ -25,11 +25,23 @@ export const registrarVisita = async (req, res) => {
       });
     }
 
+    // Verify if the establishment exists in the business
+    const establecimientoExists = negocio.establecimientos.some(
+      (est) => est.establecimientoID === establecimientoID
+    );
+
+    if (!establecimientoExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Establecimiento no encontrado para este negocio",
+      });
+    }
+
     // Create visit with current hour
     const currentHour = new Date().getHours();
     const visita = new Visita({
-      clienteID,
-      negocioID,
+      clienteID: cliente._id,
+      negocioID: negocio._id,
       establecimientoID,
       hora: currentHour,
       trafico: 1, // Base traffic value
@@ -37,11 +49,19 @@ export const registrarVisita = async (req, res) => {
 
     await visita.save();
 
+    // Update establishment metrics
+    const establecimiento = negocio.establecimientos.find(
+      (est) => est.establecimientoID === establecimientoID
+    );
+    establecimiento.metricas.visitasTotales += 1;
+    await negocio.save();
+
     res.status(201).json({
       success: true,
       data: visita,
     });
   } catch (error) {
+    console.error("Error registering visit:", error);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -55,7 +75,16 @@ export const getVisitasByNegocio = async (req, res) => {
     const { negocioID } = req.params;
     const { startDate, endDate } = req.query;
 
-    const query = { negocioID };
+    // First find the business by publicID
+    const negocio = await Negocio.findOne({ publicID: negocioID });
+    if (!negocio) {
+      return res.status(404).json({
+        success: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
+    const query = { negocioID: negocio._id };
 
     // Add date range filter if provided
     if (startDate && endDate) {
@@ -66,7 +95,10 @@ export const getVisitasByNegocio = async (req, res) => {
     }
 
     const visitas = await Visita.find(query)
-      .populate("clienteID", "nombre email")
+      .populate({
+        path: "clienteID",
+        select: "publicID datosPersonales.nombre",
+      })
       .sort({ fecha: -1 });
 
     res.status(200).json({
@@ -87,7 +119,16 @@ export const getVisitasByCliente = async (req, res) => {
     const { clienteID } = req.params;
     const { startDate, endDate } = req.query;
 
-    const query = { clienteID };
+    // First find the client by publicID
+    const cliente = await Cliente.findOne({ publicID: clienteID });
+    if (!cliente) {
+      return res.status(404).json({
+        success: false,
+        message: "Cliente no encontrado",
+      });
+    }
+
+    const query = { clienteID: cliente._id };
 
     // Add date range filter if provided
     if (startDate && endDate) {
@@ -98,7 +139,10 @@ export const getVisitasByCliente = async (req, res) => {
     }
 
     const visitas = await Visita.find(query)
-      .populate("negocioID", "nombreComercial")
+      .populate({
+        path: "negocioID",
+        select: "publicID nombreComercial",
+      })
       .sort({ fecha: -1 });
 
     res.status(200).json({
@@ -117,9 +161,19 @@ export const getVisitasByCliente = async (req, res) => {
 export const getVisitasStats = async (req, res) => {
   try {
     const { negocioID } = req.params;
+
+    // First find the business by publicID
+    const negocio = await Negocio.findOne({ publicID: negocioID });
+    if (!negocio) {
+      return res.status(404).json({
+        success: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
     const { startDate, endDate } = req.query;
 
-    const matchStage = { negocioID };
+    const matchStage = { negocioID: negocio._id };
 
     // Add date range if provided
     if (startDate && endDate) {
@@ -180,8 +234,17 @@ export const getTraficoHorario = async (req, res) => {
   try {
     const { negocioID } = req.params;
 
+    // First find the business by publicID
+    const negocio = await Negocio.findOne({ publicID: negocioID });
+    if (!negocio) {
+      return res.status(404).json({
+        success: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
     const traficoHorario = await Visita.aggregate([
-      { $match: { negocioID } },
+      { $match: { negocioID: negocio._id } },
       {
         $group: {
           _id: "$hora",
