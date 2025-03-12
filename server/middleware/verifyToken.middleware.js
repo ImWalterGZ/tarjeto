@@ -11,11 +11,9 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Set the full user object in the request
-    req.user = {
-      id: decoded.userId,
-      // Add any other user info from the token if needed
-    };
+    // Set both userId and user object for compatibility
+    req.userId = decoded.userId;
+    req.user = { id: decoded.userId };
     next();
   } catch (error) {
     console.error("Token verification error:", error);

@@ -1,6 +1,8 @@
 import { Visita } from "../models/visita.model.js";
 import { Cliente } from "../models/cliente.model.js";
 import { Negocio } from "../models/negocio.model.js";
+import { procesarFinTemporadaInterno } from "../services/programaLealtad.service.js";
+import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 
 // Register a new visit
 export const registrarVisita = async (req, res) => {
@@ -55,6 +57,36 @@ export const registrarVisita = async (req, res) => {
     );
     establecimiento.metricas.visitasTotales += 1;
     await negocio.save();
+
+    // Check if business has a loyalty program and if season should end
+    const programa = await ProgramaLealtad.findOne({ negocioID: negocio._id });
+    if (programa) {
+      const fechaFin = new Date(programa.temporadaActual.fechaFin);
+      if (new Date() >= fechaFin) {
+        // Process end of season in background
+        procesarFinTemporadaInterno(programa._id)
+          .then((success) => {
+            if (success) {
+              console.log(
+                `Season processed for program ${programa._id} during visit registration`
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error processing season during visit:", error);
+          });
+      }
+
+      // Update visit count in client's loyalty card
+      const tarjeta = cliente.tarjetas.find(
+        (t) => t.negocio_id.toString() === negocio._id.toString()
+      );
+      if (tarjeta) {
+        tarjeta.visitas += 1;
+        tarjeta.ultimaVisita = new Date();
+        await cliente.save();
+      }
+    }
 
     res.status(201).json({
       success: true,

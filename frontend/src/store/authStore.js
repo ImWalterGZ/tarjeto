@@ -60,6 +60,7 @@ export const useAuthStore = create((set) => ({
   },
 
   signup: async (email, contrasena, nombre) => {
+    console.log("Sending signup data:", { email, contrasena, nombre });
     set({ cargando: true, error: null });
     try {
       const response = await apiClient.post(API_PATHS.AUTH.SIGNUP, {
@@ -73,7 +74,6 @@ export const useAuthStore = create((set) => ({
         throw new Error(response.data?.message || "Error al registrarse");
       }
 
-      // Even if email fails, we should still set the user state if registration was successful
       set({
         usuario: response.data.user,
         autentificado: true,
@@ -81,37 +81,43 @@ export const useAuthStore = create((set) => ({
         cargando: false,
       });
 
-      // If there's a warning about email (but registration succeeded), we can still proceed
-      if (response.data.warning) {
-        console.warn("Warning during signup:", response.data.warning);
-        return {
-          ...response.data,
-          emailWarning: response.data.warning,
-        };
-      }
-
       return response.data;
     } catch (error) {
       console.error("Error en signup:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Error al registrarse";
 
-      // If it's an email sending error but registration succeeded
-      if (error.response?.status === 400 && error.response?.data?.user) {
+      // If the error is about email sending, treat it as success
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message?.includes(
+          "Error sending verification email"
+        )
+      ) {
+        // Create a basic user object with the registration data
+        const basicUser = {
+          email,
+          nombre,
+          verificado: false,
+        };
+
         set({
-          usuario: error.response.data.user,
+          usuario: basicUser,
           autentificado: true,
           error: null,
           cargando: false,
         });
+
         return {
           success: true,
-          user: error.response.data.user,
-          emailWarning: errorMessage,
+          message: "Registro exitoso",
+          user: basicUser,
         };
       }
+
+      // For any other error, handle as normal
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error al registrarse";
 
       set({
         error: errorMessage,

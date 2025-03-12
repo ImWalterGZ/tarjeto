@@ -282,6 +282,9 @@ function SetUpProfile() {
       }
 
       const formData = new FormData();
+
+      // Always set userType first
+      console.log("Setting userType in formData:", userType);
       formData.append("userType", userType);
 
       if (userType === "user") {
@@ -300,6 +303,7 @@ function SetUpProfile() {
           categoriaFavorita: answers.categoriasFavoritas,
         };
 
+        console.log("Sending client profile data:", profileData);
         formData.append("profileData", JSON.stringify(profileData));
       } else {
         // Structure business data according to the backend's expected format
@@ -330,20 +334,73 @@ function SetUpProfile() {
               zona: answers.establecimiento?.zona || "",
             },
           },
+          programaLealtad: {
+            niveles: [
+              {
+                nombre: "Bronce",
+                nivel: 1,
+                visitasRequeridas: 6,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Bronce", activo: true },
+                ],
+              },
+              {
+                nombre: "Plata",
+                nivel: 2,
+                visitasRequeridas: 8,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Plata", activo: true },
+                ],
+              },
+              {
+                nombre: "Oro",
+                nivel: 3,
+                visitasRequeridas: 12,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Oro", activo: true },
+                ],
+              },
+              {
+                nombre: "Rubi",
+                nivel: 4,
+                visitasRequeridas: 15,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Rubi", activo: true },
+                ],
+              },
+            ],
+            temporadaActual: {
+              duracionMeses: 3,
+              activa: true,
+            },
+          },
         };
 
         console.log("Sending business profile data:", profileData);
         formData.append("profileData", JSON.stringify(profileData));
       }
 
+      // Debug logs for request
+      console.log("Final FormData contents:");
+      for (let pair of formData.entries()) {
+        console.log(
+          pair[0] + ": ",
+          typeof pair[1] === "string" ? pair[1] : "[Complex Data]"
+        );
+      }
+
       // Add profile photo if exists and it's a base64 string
       if (answers.fotoPerfil && answers.fotoPerfil.startsWith("data:image")) {
-        // Convert base64 to blob
+        console.log("Adding profile photo to request");
         const response = await fetch(answers.fotoPerfil);
         const blob = await response.blob();
         formData.append("fotoPerfil", blob, "profile.jpg");
       }
 
+      console.log(
+        "Sending request to /api/auth/setup-profile with userType:",
+        userType
+      );
       const response = await apiClient.post(
         "/api/auth/setup-profile",
         formData,
