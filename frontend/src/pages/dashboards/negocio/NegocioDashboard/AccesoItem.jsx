@@ -1,18 +1,17 @@
 import React from "react";
 
-const AccesoItem = ({ title, description, icon: Icon, onClick }) => {
+const AccesoItem = ({ title, icon: Icon, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="w-full h-full bg-white rounded-lg hover:bg-red-50 hover:border-red-200 duration-150 transition-all shadow-sm border border-gray-200 p-4"
+      className=" bg-white rounded-xl h-full w-full  hover:bg-red-50 hover:border-red-primary outline-0 hover:outline-2 hover:outline-red-primary  duration-150 transition-all shadow-lg hover:shadow-md shadow-neutral-200 hover:shadow-red-primary border  border-gray-200 p-2"
     >
       <div className="flex flex-col items-center justify-center gap-2">
         <div className="w-12 h-12 flex items-center justify-center">
-          <Icon className="w-8 h-8 text-red-600" />
+          <Icon className="w-10 h-10 bg-red-primary text-white rounded-full p-2" />
         </div>
         <div className="text-center">
-          <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-          <p className="mt-1 text-xs text-gray-500">{description}</p>
+          <h3 className="text-xs font-semibold text-red-primary">{title}</h3>
         </div>
       </div>
     </button>

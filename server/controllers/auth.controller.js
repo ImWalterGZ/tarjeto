@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 import { User } from "../models/user.model.js";
 import { codigoVerificacion } from "../utils/generarCodigoVerificacion.js";
@@ -12,6 +13,7 @@ import {
 } from "../mailtrap/emails.js";
 import { Negocio } from "../models/negocio.model.js";
 import { Cliente } from "../models/cliente.model.js";
+import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
@@ -217,17 +219,31 @@ export const checkAuth = async (req, res) => {
     console.log("ID de usuario en checkAuth:", req.userId);
     const usuario = await User.findOne({ _id: req.userId });
     console.log("Usuario encontrado en checkAuth:", usuario);
+
     if (!usuario) {
       return res
         .status(400)
         .json({ success: false, message: "Usuario no encontrado" });
     }
+
+    // Get profile data based on user type
+    let profileData = null;
+    if (usuario.tipoUsuario === "Cliente") {
+      profileData = await Cliente.findOne({ usuarioID: usuario._id });
+      console.log("Perfil de cliente encontrado:", profileData);
+    } else if (usuario.tipoUsuario === "Negocio") {
+      profileData = await Negocio.findOne({ usuarioID: usuario._id });
+      console.log("Perfil de negocio encontrado:", profileData);
+    }
+
     res.status(200).json({
       success: true,
       usuario: {
         ...usuario._doc,
         contrasena: undefined,
       },
+      profile: profileData,
+      userType: usuario.tipoUsuario,
     });
   } catch (error) {
     console.log("Error con checkAuth:", error);
@@ -244,23 +260,26 @@ export const setupProfile = async (req, res) => {
     console.log("4. Request headers:", req.headers);
 
     const userType = req.body.userType;
+    console.log("5. User type from request:", userType);
+
     let profileData;
 
     // Parse the profileData if it's a string
     if (req.body.profileData) {
       try {
-        console.log("5. Attempting to parse profileData...");
+        console.log("6. Attempting to parse profileData...");
         profileData = JSON.parse(req.body.profileData);
-        console.log("6. Successfully parsed profileData:", profileData);
+        console.log("7. Successfully parsed profileData:", profileData);
       } catch (error) {
-        console.error("Error parsing profileData:", error);
+        console.error("8. Error parsing profileData:", error);
         return res.status(400).json({
           success: false,
           message: "Error parsing profile data",
+          error: error.message,
         });
       }
     } else {
-      console.log("No profileData found in request body");
+      console.log("8. No profileData found in request body");
       return res.status(400).json({
         success: false,
         message: "No profile data provided",
@@ -268,78 +287,175 @@ export const setupProfile = async (req, res) => {
     }
 
     const userId = req.userId; // From auth middleware
-    console.log("11. User ID:", userId);
+    console.log("9. User ID from auth middleware:", userId);
 
     // Find the user first
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Usuario no encontrado" });
+      console.log("10. User not found with ID:", userId);
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado",
+      });
+    }
+    console.log("10. Found user:", user);
+
+    // Update user type first and ensure it's saved
+    const newUserType = userType === "business" ? "Negocio" : "Cliente";
+    console.log("11. Setting user type to:", newUserType);
+
+    // Check if a profile already exists
+    const existingClientProfile = await Cliente.findOne({ usuarioID: userId });
+    const existingBusinessProfile = await Negocio.findOne({
+      usuarioID: userId,
+    });
+
+    if (existingClientProfile || existingBusinessProfile) {
+      console.log("12. Profile already exists for user");
+      return res.status(400).json({
+        success: false,
+        message: "Ya existe un perfil para este usuario",
+      });
     }
 
-    // Update user type
-    user.tipoUsuario = userType === "business" ? "Negocio" : "Cliente";
+    // Update and save user type
+    user.tipoUsuario = newUserType;
     await user.save();
+    console.log("13. User type updated successfully");
 
     // Create corresponding profile based on user type
     if (userType === "business") {
-      // Handle profile photo if exists
-      let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
-      if (req.file) {
-        // Convert buffer to base64
-        const base64Image = req.file.buffer.toString("base64");
-        fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
-      }
+      console.log("14. Creating business profile");
+      try {
+        // Handle profile photo if exists
+        let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
+        if (req.file) {
+          console.log("15. Processing profile photo from request file");
+          const base64Image = req.file.buffer.toString("base64");
+          fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+        }
 
-      const negocio = new Negocio({
-        usuarioID: userId, // Reference to User's _id
-        publicID: `NEG${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public business ID
-        fotoPerfil: fotoPerfilUrl,
-        nombreComercial: profileData.datosPersonales.nombreComercial,
-        rfc: profileData.datosPersonales.rfc,
-        categoria: profileData.informacionGeneral.categoria,
-        sitioWeb: profileData.informacionGeneral.sitioWeb || "",
-        redesSociales: profileData.informacionGeneral.redesSociales || {
-          facebook: "",
-          instagram: "",
-          tiktok: "",
-        },
-        color: "#EF4444", // Default red color
-        gradient: profileData.informacionGeneral.gradient,
-        establecimientos: [
-          {
-            establecimientoID: `EST${crypto
-              .randomBytes(8)
-              .toString("hex")
-              .toUpperCase()}`, // Public establishment ID
-            nombre: profileData.establecimiento.nombre,
-            ubicacion: {
-              direccion: profileData.establecimiento.ubicacion.direccion,
-              ciudad: profileData.establecimiento.ubicacion.ciudad,
-              estado: profileData.establecimiento.ubicacion.estado,
-              codigoPostal: profileData.establecimiento.ubicacion.codigoPostal,
-              zona: profileData.establecimiento.ubicacion.zona,
-              coordenadas: {
-                latitude: 0,
-                longitude: 0,
+        const negocio = new Negocio({
+          usuarioID: userId,
+          publicID: `NEG${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
+          fotoPerfil: fotoPerfilUrl,
+          nombreComercial: profileData.datosPersonales.nombreComercial,
+          rfc: profileData.datosPersonales.rfc,
+          categoria: profileData.informacionGeneral.categoria,
+          sitioWeb: profileData.informacionGeneral.sitioWeb || "",
+          redesSociales: profileData.informacionGeneral.redesSociales || {
+            facebook: "",
+            instagram: "",
+            tiktok: "",
+          },
+          color: "#EF4444",
+          gradient: profileData.informacionGeneral.gradient,
+          establecimientos: [
+            {
+              establecimientoID: `EST${crypto
+                .randomBytes(8)
+                .toString("hex")
+                .toUpperCase()}`,
+              nombre: profileData.establecimiento.nombre,
+              ubicacion: {
+                direccion: profileData.establecimiento.ubicacion.direccion,
+                ciudad: profileData.establecimiento.ubicacion.ciudad,
+                estado: profileData.establecimiento.ubicacion.estado,
+                codigoPostal:
+                  profileData.establecimiento.ubicacion.codigoPostal,
+                zona: profileData.establecimiento.ubicacion.zona,
+                coordenadas: {
+                  latitude: 0,
+                  longitude: 0,
+                },
+              },
+              horario: [],
+              metricas: {
+                visitasTotales: 0,
+                visitasPromedioDiarias: 0,
+                horasPico: [],
+                diasMasConcurridos: [],
               },
             },
-            horario: [],
-            metricas: {
-              visitasTotales: 0,
-              visitasPromedioDiarias: 0,
-              horasPico: [],
-              diasMasConcurridos: [],
-            },
-          },
-        ],
-        visitasTotales: 0,
-      });
+          ],
+          visitasTotales: 0,
+        });
 
-      console.log("Creating business profile with data:", negocio);
-      await negocio.save();
-      console.log("Business profile created successfully");
+        console.log("16. Attempting to save business profile");
+        await negocio.save();
+        console.log("17. Business profile saved successfully");
+
+        // Create loyalty program
+        console.log("18. Creating loyalty program");
+        try {
+          const fechaInicio = new Date();
+          const fechaFin = new Date();
+          fechaFin.setMonth(
+            fechaFin.getMonth() +
+              profileData.programaLealtad.temporadaActual.duracionMeses
+          );
+
+          const programaLealtad = new ProgramaLealtad({
+            negocioID: negocio._id,
+            niveles: profileData.programaLealtad.niveles,
+            temporadaActual: {
+              fechaInicio,
+              fechaFin,
+              duracionMeses:
+                profileData.programaLealtad.temporadaActual.duracionMeses,
+              activa: profileData.programaLealtad.temporadaActual.activa,
+              estadisticas: {
+                promocionesCanjeadas: 0,
+                clientesAscendidos: {
+                  bronceAPlata: 0,
+                  plataAOro: 0,
+                  oroARubi: 0,
+                },
+                clientesDescendidos: {
+                  plataABronce: 0,
+                  oroAPlata: 0,
+                  rubiAOro: 0,
+                },
+                visitasTotales: 0,
+              },
+            },
+            temporadasAnteriores: [],
+            configuracion: {
+              reglasDescenso: {
+                plataABronce: { visitasMinimas: 6 },
+                oroAPlata: { visitasMinimas: 8 },
+                rubiAOro: { visitasMinimas: 15 },
+              },
+              reglasAscenso: {
+                bronceAPlata: { visitasRequeridas: 6 },
+                plataAOro: { visitasRequeridas: 8 },
+                oroARubi: { visitasRequeridas: 12 },
+              },
+            },
+          });
+
+          console.log("19. Attempting to save loyalty program");
+          await programaLealtad.save();
+          console.log("20. Loyalty program saved successfully");
+
+          // Update business with loyalty program reference
+          console.log("21. Updating business with loyalty program reference");
+          negocio.programaLealtad = programaLealtad._id;
+          await negocio.save();
+          console.log("22. Business updated with loyalty program reference");
+        } catch (error) {
+          console.error("Error creating loyalty program:", error);
+          // Roll back business profile creation
+          await Negocio.findByIdAndDelete(negocio._id);
+          throw new Error("Error creating loyalty program: " + error.message);
+        }
+      } catch (error) {
+        console.error("Error in business profile creation:", error);
+        // Roll back user type update
+        user.tipoUsuario = null;
+        await user.save();
+        throw error;
+      }
     } else {
       // Handle client profile setup
       let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
@@ -349,8 +465,8 @@ export const setupProfile = async (req, res) => {
       }
 
       const cliente = new Cliente({
-        usuarioID: userId, // Reference to User's _id
-        publicID: `CLI${crypto.randomBytes(8).toString("hex").toUpperCase()}`, // Public client ID
+        usuarioID: userId,
+        publicID: `CLI${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
         datosPersonales: {
           nombre: profileData.datosPersonales.nombre,
           edad: parseInt(profileData.datosPersonales.edad),
@@ -384,11 +500,15 @@ export const setupProfile = async (req, res) => {
       userType: user.tipoUsuario,
     });
   } catch (error) {
-    console.error("Error in setupProfile:", error);
+    console.error("Error in setupProfile - Full error:", error);
+    console.error("Error stack trace:", error.stack);
+    console.error("Request body at time of error:", req.body);
+    console.error("User ID at time of error:", req.userId);
     res.status(500).json({
       success: false,
       message: "Error al configurar el perfil",
       error: error.message,
+      details: error.stack,
     });
   }
 };

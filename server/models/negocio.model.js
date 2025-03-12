@@ -91,6 +91,10 @@ const negocioSchema = new mongoose.Schema({
   ],
   visitasTotales: Number,
   // Programa de lealtad y tarjetas
+  programaLealtad: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ProgramaLealtad",
+  },
 
   // Logros y reconocimientos
 

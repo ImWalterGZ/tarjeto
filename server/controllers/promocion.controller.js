@@ -199,3 +199,77 @@ export const updatePromocionAnalytics = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+// Get promotion statistics for a business
+export const getPromocionStats = async (req, res) => {
+  try {
+    const { negocioID } = req.params;
+
+    // First find the business by publicID
+    const negocio = await Negocio.findOne({ publicID: negocioID });
+    if (!negocio) {
+      return res.status(404).json({
+        success: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
+    // Get all promotions for this business
+    const promociones = await Promocion.find({ negocioID: negocio._id });
+
+    // Calculate statistics
+    const stats = {
+      totalPromociones: promociones.length,
+      promocionesActivas: promociones.filter((p) => p.activo).length,
+      promocionesInactivas: promociones.filter((p) => !p.activo).length,
+      estadisticasUso: {
+        totalVistas: promociones.reduce(
+          (sum, p) => sum + (p.analitica?.vistas || 0),
+          0
+        ),
+        totalUsos: promociones.reduce(
+          (sum, p) => sum + (p.analitica?.usos || 0),
+          0
+        ),
+        promedioVistasPorUso: 0,
+      },
+      porNivel: {
+        1: promociones.filter((p) => p.nivelReq === 1).length,
+        2: promociones.filter((p) => p.nivelReq === 2).length,
+        3: promociones.filter((p) => p.nivelReq === 3).length,
+        4: promociones.filter((p) => p.nivelReq === 4).length,
+      },
+      popularidadPorHora: [],
+    };
+
+    // Calculate average views per use
+    if (stats.estadisticasUso.totalUsos > 0) {
+      stats.estadisticasUso.promedioVistasPorUso =
+        stats.estadisticasUso.totalVistas / stats.estadisticasUso.totalUsos;
+    }
+
+    // Aggregate popularity by hour
+    const popularidadPorHora = {};
+    promociones.forEach((promocion) => {
+      if (promocion.analitica?.popularidadPorHora) {
+        promocion.analitica.popularidadPorHora.forEach(({ hora, usos }) => {
+          popularidadPorHora[hora] = (popularidadPorHora[hora] || 0) + usos;
+        });
+      }
+    });
+
+    stats.popularidadPorHora = Object.entries(popularidadPorHora)
+      .map(([hora, usos]) => ({ hora: parseInt(hora), usos }))
+      .sort((a, b) => a.hora - b.hora);
+
+    res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

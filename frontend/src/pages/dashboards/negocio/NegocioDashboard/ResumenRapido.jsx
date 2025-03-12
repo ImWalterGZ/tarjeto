@@ -23,7 +23,7 @@ export default function ResumenRapido({ negocio, usuario }) {
 
         // Fetch visits stats using negocio's publicID
         const visitasResponse = await apiClient.get(
-          `/api/visitas/stats/${negocio.publicID}`,
+          `/api/visita/stats/${negocio.publicID}`,
           {
             params: {
               startDate: startDate.toISOString(),
@@ -33,7 +33,7 @@ export default function ResumenRapido({ negocio, usuario }) {
         );
 
         // Fetch active promotions
-        const promocionesResponse = await apiClient.get("/api/promociones", {
+        const promocionesResponse = await apiClient.get("/api/promocion", {
           params: {
             negocioID: negocio.publicID,
             activo: true,

@@ -11,8 +11,11 @@ const negocio = [
   "Ajustes",
 ];
 
-export default function NavbarDashboard({ estilo }) {
-  const [activeItem, setActiveItem] = useState("Inicio");
+export default function NavbarDashboard({
+  estilo,
+  activeSection,
+  onSectionChange,
+}) {
   let Navbar = [];
 
   switch (estilo) {
@@ -28,13 +31,13 @@ export default function NavbarDashboard({ estilo }) {
 
   return (
     <div className="flex pt-12 justify-center w-24 bg-red-primary h-full">
-      <div className="flex flex-col justify-start  items-center gap-12   w-24  h-5/6">
+      <div className="flex flex-col justify-start items-center gap-12 w-24 h-5/6">
         {Navbar.map((item, index) => (
           <NavBoton
             key={index}
             texto={item}
-            active={item === activeItem}
-            onClick={() => setActiveItem(item)}
+            active={item === activeSection}
+            onClick={() => onSectionChange?.(item)}
           />
         ))}
       </div>

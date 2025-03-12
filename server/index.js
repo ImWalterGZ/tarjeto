@@ -8,6 +8,7 @@ import { corsOptions } from "./config/cors.config.js";
 import { limiter } from "./middleware/rateLimit.middleware.js";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
+import { initializeSeasonProcessor } from "./services/programaLealtad.service.js";
 
 // Load env vars
 dotenv.config();
@@ -26,6 +27,8 @@ const upload = multer({
 connectDB()
   .then(() => {
     console.log("MongoDB connection established successfully");
+    // Initialize season processor after DB connection
+    initializeSeasonProcessor();
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
