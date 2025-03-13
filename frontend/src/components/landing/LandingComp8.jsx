@@ -1,9 +1,9 @@
 import React from "react";
-import Perlita from "../../assets/Landing/perlita.png";
-import Shugu from "../../assets/Landing/shugu.png";
-import Cuichi from "../../assets/Landing/cuichi.png";
-import Obregon from "../../assets/Landing/obregon.png";
-import Caffenio from "../../assets/Landing/caffenio.png";
+import Perlita from "../../assets/landing/perlita.png";
+import Shugu from "../../assets/landing/shugu.png";
+import Cuichi from "../../assets/landing/cuichi.png";
+import Obregon from "../../assets/landing/obregon.png";
+import Caffenio from "../../assets/landing/caffenio.png";
 
 const businesses = [
   {
@@ -14,13 +14,15 @@ const businesses = [
   },
   {
     name: "Taquería Obregón",
-    address: "Perif. de la Juventud 8705, Lomas Universidad, 31123 Chihuahua, Chih.",
+    address:
+      "Perif. de la Juventud 8705, Lomas Universidad, 31123 Chihuahua, Chih.",
     image: Obregon,
     link: "/obregon",
   },
   {
     name: "SHUGU",
-    address: "Periférico de la Juventud 8109-3, Col. Jardines del Saucito, 31123 Chihuahua, Chih.",
+    address:
+      "Periférico de la Juventud 8109-3, Col. Jardines del Saucito, 31123 Chihuahua, Chih.",
     image: Shugu,
     link: "/shugu",
   },
@@ -48,9 +50,12 @@ const Carousel = () => {
           <span className="text-red-600"> ¿El tuyo, cuándo?</span>
         </h2>
         <p className="text-gray-600 mt-10">
-          Desde tu taquería favorita hasta esa tienda de regalos donde encuentras de todo,
-          Tarjeto conecta a los negocios con su gente.
-          <span className="font-semibold"> Únete al movimiento que hace más grande a los pequeños.</span>
+          Desde tu taquería favorita hasta esa tienda de regalos donde
+          encuentras de todo, Tarjeto conecta a los negocios con su gente.
+          <span className="font-semibold">
+            {" "}
+            Únete al movimiento que hace más grande a los pequeños.
+          </span>
         </p>
       </div>
 
@@ -72,7 +77,10 @@ const Carousel = () => {
         >
           {/* Duplicamos los elementos para crear el efecto infinito */}
           {[...businesses, ...businesses].map((business, i) => (
-            <div key={i} className="min-w-[150%] flex flex-col items-center p-4">
+            <div
+              key={i}
+              className="min-w-[150%] flex flex-col items-center p-4"
+            >
               <a href={business.link} className="w-full">
                 <div className="bg-white rounded-lg shadow-md p-4 w-full h-56">
                   <img
@@ -104,7 +112,9 @@ const Carousel = () => {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-${businesses.length * 150}%); /* Movimiento de izquierda a derecha */
+            transform: translateX(
+              -${businesses.length * 150}%
+            ); /* Movimiento de izquierda a derecha */
           }
         }
       `}</style>

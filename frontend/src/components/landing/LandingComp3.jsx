@@ -1,5 +1,5 @@
 import React from "react";
-import Beneficios from "../../assets/Landing/Beneficios.png";
+import Beneficios from "../../assets/landing/Beneficios.png";
 
 const BenefitsSection = () => {
   return (
@@ -19,8 +19,13 @@ const BenefitsSection = () => {
           <li className="relative flex items-start gap-3 mb-4">
             <div className="w-3 h-3 bg-red-500 rounded-full absolute -left-[29px] top-2"></div>
             <div>
-              <span className="text-red-500 font-bold">Recompensas por cada visita</span><br />
-              <span className="text-gray-600 text-sm">Porque cada vez que compras, te lo agradecen.</span>
+              <span className="text-red-500 font-bold">
+                Recompensas por cada visita
+              </span>
+              <br />
+              <span className="text-gray-600 text-sm">
+                Porque cada vez que compras, te lo agradecen.
+              </span>
             </div>
           </li>
 
@@ -28,8 +33,13 @@ const BenefitsSection = () => {
           <li className="relative flex items-start gap-3 mb-4">
             <div className="w-3 h-3 bg-red-500 rounded-full absolute -left-[29px] top-2"></div>
             <div>
-              <span className="text-red-500 font-bold">Promociones personalizadas</span><br />
-              <span className="text-gray-600 text-sm">Cada negocio ofrece algo único para ti.</span>
+              <span className="text-red-500 font-bold">
+                Promociones personalizadas
+              </span>
+              <br />
+              <span className="text-gray-600 text-sm">
+                Cada negocio ofrece algo único para ti.
+              </span>
             </div>
           </li>
 
@@ -37,8 +47,12 @@ const BenefitsSection = () => {
           <li className="relative flex items-start gap-3">
             <div className="w-3 h-3 bg-red-500 rounded-full absolute -left-[29px] top-2"></div>
             <div>
-              <span className="text-red-500 font-bold">Apoya lo local</span><br />
-              <span className="text-gray-600 text-sm">Al gastar tu dinero en negocios locales, contribuyes a la comunidad y la economía de tu zona.</span>
+              <span className="text-red-500 font-bold">Apoya lo local</span>
+              <br />
+              <span className="text-gray-600 text-sm">
+                Al gastar tu dinero en negocios locales, contribuyes a la
+                comunidad y la economía de tu zona.
+              </span>
             </div>
           </li>
         </ul>
@@ -46,9 +60,9 @@ const BenefitsSection = () => {
 
       {/* Imagen a la derecha */}
       <div className="mt-8 md:mt-0 md:w-1/2 flex justify-center">
-        <img 
-          src={Beneficios} 
-          alt="Beneficios" 
+        <img
+          src={Beneficios}
+          alt="Beneficios"
           className="max-w-xs md:max-w-lg"
         />
       </div>
