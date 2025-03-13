@@ -48,7 +48,9 @@ app.use(limiter);
 
 // Routes
 app.use("/api", router);
-
+app.use("/", (req, res) => {
+  res.send("Hello World");
+});
 // Error handling
 app.use(errorHandler);
 
