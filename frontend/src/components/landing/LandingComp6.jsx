@@ -1,7 +1,7 @@
 import React from "react";
-import Maria from "../../assets/Landing/maria.png";
-import Herrera from "../../assets/Landing/herrera.png";
-import Andrea from "../../assets/Landing/andrea.png";
+import Maria from "../../assets/landing/maria.png";
+import Herrera from "../../assets/landing/herrera.png";
+import Andrea from "../../assets/landing/andrea.png";
 
 const testimonials = [
   {
