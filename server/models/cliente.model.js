@@ -2,12 +2,14 @@ import mongoose, { mongo } from "mongoose";
 
 const clienteSchema = new mongoose.Schema({
   usuarioID: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
-  clienteID: {
+  publicID: {
     type: String,
     required: true,
+    unique: true,
   },
   datosPersonales: {
     nombre: String,

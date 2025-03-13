@@ -1,10 +1,23 @@
 import NavBoton from "./NavBoton";
+import { useState } from "react";
 
-const client = ["Home", "Ofertas", "Logros", "Lugares", "Ajustes"];
-const negocio = ["Home", "Ofertas", "Estadísticas", "Mi negocio", "Ajustes"];
+const client = ["Inicio", "Ofertas", "Logros", "Lugares", "Ajustes"];
+const negocio = [
+  "Inicio",
+  "Ofertas",
+  "Estadísticas",
+  "Nexo",
+  "Mi negocio",
+  "Ajustes",
+];
 
-export default function NavbarDashboard({ estilo }) {
+export default function NavbarDashboard({
+  estilo,
+  activeSection,
+  onSectionChange,
+}) {
   let Navbar = [];
+
   switch (estilo) {
     case "cliente":
       Navbar = client;
@@ -17,14 +30,17 @@ export default function NavbarDashboard({ estilo }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 py-6 xl:w-24 lg:w-20">
-      {Navbar.map((item, index) => (
-        <NavBoton 
-          key={index} 
-          texto={item}
-          active={index === 0} // Por defecto, el Home está activo
-        />
-      ))}
+    <div className="flex pt-12 justify-center w-24 bg-red-primary h-full">
+      <div className="flex flex-col justify-start items-center gap-12 w-24 h-5/6">
+        {Navbar.map((item, index) => (
+          <NavBoton
+            key={index}
+            texto={item}
+            active={item === activeSection}
+            onClick={() => onSectionChange?.(item)}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -5,11 +5,12 @@ module.exports = {
   darkMode: "media", // or 'class'
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
+    fontFamily: {
+      sans: ["Nunito", "sans-serif"],
+      nunito: ["Nunito", "sans-serif"],
+      poppins: ["Poppins", "sans-serif"],
+    },
     extend: {
-      fontFamily: {
-        nunito: ["Nunito", "sans-serif"],
-        poppins: ["Poppins", "sans-serif"],
-      },
       dropShadow: {
         plata: "0 35px 35px rgba(77, 103, 117, 0.25)",
         dorado: "0 10px 15px rgba(249, 249, 48, 0.55)",
@@ -322,35 +323,6 @@ module.exports = {
     flexShrink: {
       0: "0",
       DEFAULT: "1",
-    },
-    fontFamily: {
-      sans: [
-        "ui-sans-serif",
-        "system-ui",
-        "sans-serif",
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-        '"Noto Color Emoji"',
-      ],
-      serif: [
-        "ui-serif",
-        "Georgia",
-        "Cambria",
-        '"Times New Roman"',
-        "Times",
-        "serif",
-      ],
-      mono: [
-        "ui-monospace",
-        "SFMono-Regular",
-        "Menlo",
-        "Monaco",
-        "Consolas",
-        '"Liberation Mono"',
-        '"Courier New"',
-        "monospace",
-      ],
     },
     fontSize: {
       xs: ["0.75rem", { lineHeight: "1rem" }],

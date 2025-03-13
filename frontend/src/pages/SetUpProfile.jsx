@@ -93,6 +93,45 @@ function SetUpProfile() {
       opciones: ["Facebook", "Instagram", "TikTok"],
       required: false,
     },
+    {
+      id: 8,
+      pregunta: "Información de tu establecimiento principal",
+      type: "establishment",
+      field: "establecimiento",
+      required: true,
+      fields: [
+        {
+          name: "direccion",
+          label: "Dirección",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "ciudad",
+          label: "Ciudad",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "estado",
+          label: "Estado",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "codigoPostal",
+          label: "Código Postal",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "zona",
+          label: "Zona o Colonia",
+          type: "text",
+          required: true,
+        },
+      ],
+    },
   ];
 
   const preguntasUsuario = [
@@ -211,7 +250,14 @@ function SetUpProfile() {
               "codigoPostal",
               "categoriasFavoritas",
             ]
-          : ["nombreComercial", "fotoPerfil", "rfc", "categoria", "gradient"];
+          : [
+              "nombreComercial",
+              "fotoPerfil",
+              "rfc",
+              "categoria",
+              "gradient",
+              "establecimiento",
+            ];
 
       // Debug log for required fields validation
       console.log("Required fields:", requiredFields);
@@ -235,14 +281,14 @@ function SetUpProfile() {
         return;
       }
 
-      const endpoint = "/setup-profile";
       const formData = new FormData();
 
-      // Add userType
+      // Always set userType first
+      console.log("Setting userType in formData:", userType);
       formData.append("userType", userType);
 
       if (userType === "user") {
-        // Structure the data according to the backend's expected format
+        // Structure the data according to the backend's expected format for clients
         const profileData = {
           datosPersonales: {
             nombre: answers.nombre,
@@ -257,82 +303,113 @@ function SetUpProfile() {
           categoriaFavorita: answers.categoriasFavoritas,
         };
 
-        // Log the exact data being sent
-        console.log("Profile data being sent:", profileData);
-        console.log("Profile data stringified:", JSON.stringify(profileData));
-        console.log("datosPersonales exists:", !!profileData.datosPersonales);
-        console.log("datosPersonales content:", profileData.datosPersonales);
-        console.log(
-          "categoriaFavorita content:",
-          profileData.categoriaFavorita
-        );
-
-        // Add the structured data
+        console.log("Sending client profile data:", profileData);
         formData.append("profileData", JSON.stringify(profileData));
-
-        // Log FormData contents before sending
-        console.log("FormData contents before sending:");
-        for (let [key, value] of formData.entries()) {
-          console.log(
-            `${key}:`,
-            value instanceof Blob ? `Blob (${value.size} bytes)` : value
-          );
-        }
-
-        // Add profile photo if exists
-        if (answers.fotoPerfil) {
-          const base64Response = await fetch(answers.fotoPerfil);
-          const blob = await base64Response.blob();
-          formData.append("fotoPerfil", blob, "profile.jpg");
-        }
       } else {
-        // Add business data
-        formData.append("nombreComercial", answers.nombreComercial);
-        formData.append("rfc", answers.rfc);
-        formData.append("categoria", answers.categoria);
-        formData.append("gradient", answers.gradient);
-        formData.append("sitioWeb", answers.sitioWeb || "");
+        // Structure business data according to the backend's expected format
+        const profileData = {
+          datosPersonales: {
+            nombreComercial: answers.nombreComercial,
+            rfc: answers.rfc,
+            fotoPerfil: answers.fotoPerfil,
+          },
+          informacionGeneral: {
+            nombreComercial: answers.nombreComercial,
+            categoria: answers.categoria ? [answers.categoria] : [],
+            gradient: answers.gradient,
+            sitioWeb: answers.sitioWeb || "",
+            redesSociales: answers.redesSociales || {
+              facebook: "",
+              instagram: "",
+              tiktok: "",
+            },
+          },
+          establecimiento: {
+            nombre: answers.nombreComercial,
+            ubicacion: {
+              direccion: answers.establecimiento?.direccion || "",
+              ciudad: answers.establecimiento?.ciudad || "",
+              estado: answers.establecimiento?.estado || "",
+              codigoPostal: answers.establecimiento?.codigoPostal || "",
+              zona: answers.establecimiento?.zona || "",
+            },
+          },
+          programaLealtad: {
+            niveles: [
+              {
+                nombre: "Bronce",
+                nivel: 1,
+                visitasRequeridas: 6,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Bronce", activo: true },
+                ],
+              },
+              {
+                nombre: "Plata",
+                nivel: 2,
+                visitasRequeridas: 8,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Plata", activo: true },
+                ],
+              },
+              {
+                nombre: "Oro",
+                nivel: 3,
+                visitasRequeridas: 12,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Oro", activo: true },
+                ],
+              },
+              {
+                nombre: "Rubi",
+                nivel: 4,
+                visitasRequeridas: 15,
+                beneficios: [
+                  { descripcion: "Beneficios nivel Rubi", activo: true },
+                ],
+              },
+            ],
+            temporadaActual: {
+              duracionMeses: 3,
+              activa: true,
+            },
+          },
+        };
 
-        // Add profile photo if exists
-        if (answers.fotoPerfil) {
-          const base64Response = await fetch(answers.fotoPerfil);
-          const blob = await base64Response.blob();
-          formData.append("fotoPerfil", blob, "profile.jpg");
-        }
-
-        // Add social media if exists
-        if (answers.redesSociales) {
-          formData.append(
-            "redesSociales",
-            JSON.stringify(answers.redesSociales)
-          );
-        }
+        console.log("Sending business profile data:", profileData);
+        formData.append("profileData", JSON.stringify(profileData));
       }
 
-      console.log("Form Submission Details:", {
-        endpoint,
-        userType,
-        formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
-          key,
-          value: value instanceof Blob ? `Blob (${value.size} bytes)` : value,
-        })),
-      });
+      // Debug logs for request
+      console.log("Final FormData contents:");
+      for (let pair of formData.entries()) {
+        console.log(
+          pair[0] + ": ",
+          typeof pair[1] === "string" ? pair[1] : "[Complex Data]"
+        );
+      }
 
-      // Log the full request configuration
-      console.log("Request configuration:", {
-        url: endpoint,
-        method: "post",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        data: formData,
-      });
+      // Add profile photo if exists and it's a base64 string
+      if (answers.fotoPerfil && answers.fotoPerfil.startsWith("data:image")) {
+        console.log("Adding profile photo to request");
+        const response = await fetch(answers.fotoPerfil);
+        const blob = await response.blob();
+        formData.append("fotoPerfil", blob, "profile.jpg");
+      }
 
-      const response = await apiClient.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      console.log(
+        "Sending request to /api/auth/setup-profile with userType:",
+        userType
+      );
+      const response = await apiClient.post(
+        "/api/auth/setup-profile",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       console.log("Server Response:", {
         status: response.status,
@@ -392,6 +469,60 @@ function SetUpProfile() {
     const currentQuestion = preguntas[currentStep];
 
     if (!currentQuestion) return null;
+
+    if (currentQuestion.type === "establishment") {
+      return (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            {currentQuestion.pregunta}
+          </h2>
+          {currentQuestion.fields.map((field) => (
+            <TextField
+              key={field.name}
+              fullWidth
+              label={field.label}
+              type={field.type}
+              value={answers[currentQuestion.field]?.[field.name] || ""}
+              onChange={(e) =>
+                handleAnswer(
+                  {
+                    ...answers[currentQuestion.field],
+                    [field.name]: e.target.value,
+                  },
+                  currentQuestion.field
+                )
+              }
+              required={field.required}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "#F2F2F2",
+                  "& fieldset": {
+                    borderColor: "#616161",
+                    borderWidth: "2px",
+                    borderRadius: "0.5rem",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#EF4444",
+                    borderWidth: "2px",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#EF4444",
+                    borderWidth: "2px",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#616161",
+                  "&.Mui-focused": {
+                    color: "#EF4444",
+                  },
+                },
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
     if (currentQuestion.type === "image") {
       return (
         <div className="flex flex-col items-center justify-center gap-8 w-full">

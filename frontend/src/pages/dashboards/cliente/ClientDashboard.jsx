@@ -33,7 +33,7 @@ function ClientDashboard() {
   }
 
   return (
-    <div className="flex flex-col w-screen h-screen bg-red-primary font-poppins">
+    <div className="flex flex-col w-screen h-screen bg-red-primary">
       <div className="flex flex-row items-center justify-center px-6 py-2">
         <img src={logo} className="w-32" alt="Logo" />
       </div>

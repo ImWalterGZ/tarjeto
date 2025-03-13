@@ -2,12 +2,14 @@ import mongoose, { mongo } from "mongoose";
 
 const negocioSchema = new mongoose.Schema({
   usuarioID: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
-  negocioID: {
+  publicID: {
     type: String,
     required: true,
+    unique: true,
   },
   fotoPerfil: {
     type: String,
@@ -44,7 +46,7 @@ const negocioSchema = new mongoose.Schema({
     {
       establecimientoID: {
         type: String,
-        requiredd: true,
+        required: true,
       },
       nombre: String,
       ubicacion: {
@@ -89,6 +91,10 @@ const negocioSchema = new mongoose.Schema({
   ],
   visitasTotales: Number,
   // Programa de lealtad y tarjetas
+  programaLealtad: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ProgramaLealtad",
+  },
 
   // Logros y reconocimientos
 

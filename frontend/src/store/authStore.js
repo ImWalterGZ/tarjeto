@@ -3,8 +3,23 @@
 import { create } from "zustand";
 import apiClient from "../config/axios";
 
+// Define API paths to avoid typos and make changes easier
+const API_PATHS = {
+  AUTH: {
+    LOGIN: "/api/auth/login",
+    SIGNUP: "/api/auth/signup",
+    LOGOUT: "/api/auth/logout",
+    CHECK_AUTH: "/api/auth/check-auth",
+    VERIFY_EMAIL: "/api/auth/verify-email",
+  },
+  CLIENT: {
+    PROFILE: "/api/cliente/profile",
+  },
+};
+
 export const useAuthStore = create((set) => ({
   usuario: null,
+  cliente: null,
   autentificado: false,
   error: null,
   cargando: false,
@@ -13,13 +28,12 @@ export const useAuthStore = create((set) => ({
   login: async (email, contrasena) => {
     set({ cargando: true, error: null });
     try {
-      const response = await apiClient.post("/login", {
+      const response = await apiClient.post(API_PATHS.AUTH.LOGIN, {
         email,
         contrasena,
       });
 
       console.log("Respuesta de login:", response.data);
-
       if (!response.data.success) {
         throw new Error(response.data.message || "Error al iniciar sesión");
       }
@@ -46,19 +60,20 @@ export const useAuthStore = create((set) => ({
   },
 
   signup: async (email, contrasena, nombre) => {
+    console.log("Sending signup data:", { email, contrasena, nombre });
     set({ cargando: true, error: null });
     try {
-      const response = await apiClient.post("/signup", {
+      const response = await apiClient.post(API_PATHS.AUTH.SIGNUP, {
         email,
         contrasena,
         nombre,
       });
 
+      console.log("Respuesta de signup:", response.data);
       if (!response.data || !response.data.success) {
         throw new Error(response.data?.message || "Error al registrarse");
       }
 
-      // Even if email fails, we should still set the user state if registration was successful
       set({
         usuario: response.data.user,
         autentificado: true,
@@ -66,37 +81,43 @@ export const useAuthStore = create((set) => ({
         cargando: false,
       });
 
-      // If there's a warning about email (but registration succeeded), we can still proceed
-      if (response.data.warning) {
-        console.warn("Warning during signup:", response.data.warning);
-        return {
-          ...response.data,
-          emailWarning: response.data.warning,
-        };
-      }
-
       return response.data;
     } catch (error) {
       console.error("Error en signup:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Error al registrarse";
 
-      // If it's an email sending error but registration succeeded
-      if (error.response?.status === 400 && error.response?.data?.user) {
+      // If the error is about email sending, treat it as success
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message?.includes(
+          "Error sending verification email"
+        )
+      ) {
+        // Create a basic user object with the registration data
+        const basicUser = {
+          email,
+          nombre,
+          verificado: false,
+        };
+
         set({
-          usuario: error.response.data.user,
+          usuario: basicUser,
           autentificado: true,
           error: null,
           cargando: false,
         });
+
         return {
           success: true,
-          user: error.response.data.user,
-          emailWarning: errorMessage,
+          message: "Registro exitoso",
+          user: basicUser,
         };
       }
+
+      // For any other error, handle as normal
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error al registrarse";
 
       set({
         error: errorMessage,
@@ -117,10 +138,11 @@ export const useAuthStore = create((set) => ({
     set({ cargando: true, error: null });
 
     try {
-      const response = await apiClient.post("/verify-email", {
+      const response = await apiClient.post(API_PATHS.AUTH.VERIFY_EMAIL, {
         code: verificationCode,
       });
 
+      console.log("Respuesta de verifyEmail:", response.data);
       if (!response.data.success) {
         throw new Error(response.data?.message || "Error verificando email");
       }
@@ -182,24 +204,30 @@ export const useAuthStore = create((set) => ({
   revisarAuth: async () => {
     set({ revisandoAuth: true, error: null });
     try {
-      const response = await apiClient.get("/check-auth");
+      console.log("Checking auth ID#123");
+      const authResponse = await apiClient.get(API_PATHS.AUTH.CHECK_AUTH);
+      console.log("Auth response:", authResponse.data);
 
-      if (response.data.usuario) {
+      if (authResponse.data.success) {
         set({
-          usuario: response.data.usuario,
+          usuario: authResponse.data.usuario,
+          cliente: authResponse.data.profile,
           autentificado: true,
           revisandoAuth: false,
         });
       } else {
         set({
           usuario: null,
+          cliente: null,
           autentificado: false,
           revisandoAuth: false,
         });
       }
     } catch (error) {
+      console.error("Error checking auth:", error.response);
       set({
         usuario: null,
+        cliente: null,
         error:
           error.response?.data?.message ||
           "Error al verificar la autenticación",
@@ -211,9 +239,10 @@ export const useAuthStore = create((set) => ({
 
   logout: async () => {
     try {
-      await apiClient.post("/logout");
+      await apiClient.post(API_PATHS.AUTH.LOGOUT);
       set({
         usuario: null,
+        cliente: null,
         autentificado: false,
         error: null,
         revisandoAuth: false,
@@ -223,10 +252,34 @@ export const useAuthStore = create((set) => ({
       // Even if the server call fails, we clear the local state
       set({
         usuario: null,
+        cliente: null,
         autentificado: false,
         error: null,
         revisandoAuth: false,
       });
+    }
+  },
+
+  // Add a function to update client profile
+  updateClientProfile: async (profileData) => {
+    try {
+      const response = await apiClient.put(API_PATHS.CLIENT.PROFILE, {
+        profileData,
+      });
+
+      console.log("Respuesta de updateClientProfile:", response.data);
+      if (response.data.success) {
+        set((state) => ({
+          ...state,
+          cliente: response.data.data,
+        }));
+        return response.data;
+      } else {
+        throw new Error(response.data.message || "Error updating profile");
+      }
+    } catch (error) {
+      console.error("Error updating client profile:", error);
+      throw error;
     }
   },
 }));
