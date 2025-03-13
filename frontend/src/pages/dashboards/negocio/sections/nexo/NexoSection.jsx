@@ -5,7 +5,7 @@ export default function NexoSection({ negocio }) {
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Nexo IoT</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Dispositivos</h2>
       </div>
 
       <div className="flex-1 bg-gray-50 rounded-lg p-8 flex flex-col items-center justify-center gap-4">
