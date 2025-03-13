@@ -37,6 +37,11 @@ connectDB()
 
 // Middleware
 app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  console.log("Request headers:", req.headers);
+  console.log("Origin:", req.headers.origin);
+  next();
+});
 app.use(cookieParser());
 app.use(express.json());
 app.use(limiter);
