@@ -1,5 +1,8 @@
 export const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: [
+    "https://www.tarjeto.app",
+    "https://tarjeto-e5ygjg0c5-imwaltergzs-projects.vercel.app",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
