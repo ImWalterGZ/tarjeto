@@ -27,7 +27,7 @@ const promotions = [
   },
   {
     business: "Coca-Cola",
-    description: "1 taco gratis por cada 10 visitas registradas.",
+    description: "1 Coca-Cola gratis por cada 10 visitas registradas.",
     tag: "Solo usuarios ORO",
     tagColor: "bg-yellow-500",
     borderColor: "border-yellow-500",
@@ -57,9 +57,9 @@ const PromotionsSection = () => {
             {/* Imagen del negocio */}
             <img src={promo.image} alt={promo.business} className="w-14 h-14 rounded-full object-cover" />
             <div>
-              <h3 className="text-gray-800 font-semibold">{promo.business}</h3>
-              <p className="text-gray-600 text-sm">{promo.description}</p>
-              <span className={`text-white text-xs px-3 py-1 rounded-md mt-2 inline-block ${promo.tagColor}`}>
+              <h3 className="text-gray-400 font-semibold">{promo.business}</h3>
+              <p className="text-gray-600 text-m font-semibold">{promo.description}</p>
+              <span className={`text-white text-xs font-semibold px-3 py-1 rounded-md mt-2 inline-block ${promo.tagColor}`}>
                 {promo.tag}
               </span>
             </div>
@@ -72,7 +72,7 @@ const PromotionsSection = () => {
         <h2 className="text-5xl font-bold text-gray-800 leading-tight">
           Las promos que la <span className="text-red-500">están rompiendo</span> ahora.
         </h2>
-        <p className="text-gray-600 mt-6">
+        <p className="text-gray-600 text-2xl font-semibold mt-6">
           Descubre las mejores promociones activas en los negocios afiliados a Tarjeto.
           <span className="font-bold"> ¿Qué esperas para aprovecharlas?</span>
         </p>

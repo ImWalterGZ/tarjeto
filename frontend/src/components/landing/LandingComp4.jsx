@@ -36,12 +36,15 @@ const LoyaltyLevels = () => {
       </h2>
 
       {/* Subtítulo */}
-      <p className="text-center text-gray-700 mt-3 max-w-3xl mx-auto">
+      <p className="text-center text-gray-700 text-xl font-semibold mt-8 max-w-4xl mx-auto">
         Cada visita te lleva más alto. En Tarjeto avanzas de <b className="text-red-800">Bronce</b> a{" "}
         <b className="text-slate-400">Plata</b>, <b className="text-yellow-400">Oro</b>, y{" "}
-        <b className="text-red-600">Rubí</b> según tus visitas y rachas en cada negocio.{" "}
+        <b className="text-red-500">Rubí</b> según tus visitas y rachas en cada negocio.{" "}
         <span className="font-bold text-gray-800">
-          Mientras más subes, mejores recompensas obtienes:
+          Mientras más subes, 
+        </span>{" "}
+        <span className="font-bold text-red-500">
+          mejores recompensas obtienes:
         </span>{" "}
         desde descuentos básicos hasta beneficios VIP.
       </p>
@@ -49,12 +52,12 @@ const LoyaltyLevels = () => {
       {/* Tarjetas de niveles */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-10">
         {levels.map((level, index) => (
-          <div key={index} className="p-3 bg-gray-100 rounded-xl">
+          <div key={index} className="p-3 bg-gray-100 rounded-2xl">
             <div
-              className={`bg-gradient-to-b ${level.color} text-white p-8 rounded-2xl shadow-md text-center flex flex-col items-center justify-center h-80 transition-all transform hover:scale-105 hover:shadow-xl ${level.hoverColor} border-2`}
+              className={`bg-gradient-to-b ${level.color} text-white p-6 rounded-xl shadow-md text-center flex flex-col items-center justify-center h-80 transition-all transform hover:scale-105 hover:shadow-xl ${level.hoverColor} border-2`}
             >
-              <h3 className="text-xl font-bold mb-8">{level.name}</h3>
-              <p className="text-md">{level.description}</p>
+              <h3 className="text-xl font-bold mb-6 -mt-8">{level.name}</h3>
+              <p className="text-m font-semibold">{level.description}</p>
             </div>
           </div>
         ))}

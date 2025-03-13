@@ -12,7 +12,7 @@ export default function HeroSection() {
               <p className="font-extrabold leading-snug text-left text-7xl">
                 Con tarjeto, tus visitas cuentan.
               </p>
-              <p className="block text-2xl font-medium leading-relaxed text-left h-2/6 font-poppins">
+              <p className="block text-2xl font-semibold leading-relaxed text-left h-2/6 font-poppins">
                 Disfruta de descuentos, consigue promociones exclusivas y sube
                 de nivel en los negocios que más te gustan.
               </p>

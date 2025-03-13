@@ -20,7 +20,7 @@ const RegistrationPromo = () => {
           <h1 className="text-4xl font-bold mb-6">
             Ya somos muchos. <span className="text-red-500">Solo faltas tú.</span>
           </h1>
-          <p className="text-gray-600 text-base mb-4">
+          <p className="text-gray-600 text-xl font-semibold mb-4">
             Unirte es fácil, y aprovechar tus compras aún más. Haz que cada peso cuente, <span className='font-semibold'>haz que cada visita valga la pena.</span>
           </p>
           

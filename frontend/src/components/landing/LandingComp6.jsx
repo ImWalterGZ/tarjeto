@@ -16,7 +16,7 @@ const testimonials = [
     role: "cliente frecuente",
     image: Herrera,
     text: "Siempre busco negocios con Tarjeto porque sé que mis visitas valen. Termino ahorrando y descubriendo lugares nuevos.",
-    textColor: "text-gray-800",
+    textColor: "text-red-600",
   },
   {
     name: "Andrea Méndez",
@@ -30,30 +30,30 @@ const testimonials = [
 const TestimonialsSection = () => {
   return (
     <section className="flex justify-center py-12 px-6">
-      <div className="bg-red-600 rounded-2xl max-w-7xl w-full p-20 mt-20">
+      <div className="bg-red-600 rounded-2xl max-w-7xl w-full h-full p-20 mt-20">
         {/* Título */}
-        <h2 className="text-white text-3xl md:text-4xl font-bold text-center mb-6">
+        <h2 className="text-white text-4xl md:text-5xl font-bold text-center mb-12">
           Ellos ya usan Tarjeto. Esto es lo que dicen:
         </h2>
 
         {/* Contenedor de testimonios */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-red-700 p-1.5 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg hover:bg-red-600" // Hover effects
+              className="bg-red-700 p-2 rounded-xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg " // Hover effects
             >
-              <div className="bg-white rounded-lg p-6 text-center shadow-md">
+              <div className="bg-white rounded-lg p-6 text-center shadow-md flex flex-col h-full">
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
-                  className="w-16 h-16 rounded-full mx-auto object-cover mb-4"
+                  className=" w-16 h-16 rounded-full mx-auto object-cover mb-6"
                 />
-                <h3 className={`font-semibold ${testimonial.textColor}`}>
+                <h3 className={`text-xl font-bold ${testimonial.textColor}`}>
                   {testimonial.name},{" "}
                   <span className="font-normal">{testimonial.role}</span>
                 </h3>
-                <p className="text-gray-700 mt-3">{testimonial.text}</p>
+                <p className="text-lg font-semibold mt-6">{testimonial.text}</p>
               </div>
             </div>
           ))}

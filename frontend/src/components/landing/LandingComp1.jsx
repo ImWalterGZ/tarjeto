@@ -20,13 +20,13 @@ const LandingComp1 = () => {
               Tu <span className="text-red-500">app de fidelidad</span> para 
               tus lugares favoritos.
             </h1>
-            <p className="text-gray-500 text-base md:text-2xl">
+            <p className="text-base md:text-2xl">
                 <br />
               <br />Con Tarjeto, cada visita a tu negocio favorito cuenta.{' '}
-              <span className="font-semibold">Registra tus visitas y acumula puntos</span>{' '}
+              <span className="font-bold">Registra tus visitas y acumula puntos</span>{' '}
               que se transforman en descuentos, promociones y ofertas exclusivas. 
               Cada negocio tiene sus propias recompensas, y tú{' '}
-              <span className="text-red-500 font-semibold">
+              <span className="text-red-500 font-bold">
                 las desbloqueas con tu lealtad
               </span>.
             </p>

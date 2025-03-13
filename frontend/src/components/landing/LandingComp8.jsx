@@ -7,7 +7,7 @@ import Caffenio from "../../assets/Landing/caffenio.png";
 
 const businesses = [
   {
-    name: "La Cuichi",
+    name: "Mariscos La Cuichi",
     address: "Barragán 6300, Fraccionamiento, 31124 Chihuahua, Chih.",
     image: Cuichi,
     link: "/cuichi",
@@ -44,10 +44,10 @@ const Carousel = () => {
       {/* Texto principal */}
       <div className="text-center">
         <h2 className="text-4xl font-bold text-gray-800">
-          Más de 100 negocios locales ya están en Tarjeto.
-          <span className="text-red-600"> ¿El tuyo, cuándo?</span>
+          Más de 100 negocios locales ya están en Tarjeto. <br />
+          <span className="text-red-500"> ¿El tuyo, cuándo?</span>
         </h2>
-        <p className="text-gray-600 mt-10">
+        <p className="text-xl font-semibold text-gray-600 mt-10">
           Desde tu taquería favorita hasta esa tienda de regalos donde encuentras de todo,
           Tarjeto conecta a los negocios con su gente.
           <span className="font-semibold"> Únete al movimiento que hace más grande a los pequeños.</span>
@@ -74,16 +74,16 @@ const Carousel = () => {
           {[...businesses, ...businesses].map((business, i) => (
             <div key={i} className="min-w-[150%] flex flex-col items-center p-4">
               <a href={business.link} className="w-full">
-                <div className="bg-white rounded-lg shadow-md p-4 w-full h-56">
+                <div className="bg-white rounded-lg shadow-lg p-4 w-full h-60 flex flex-col justify-between">
                   <img
                     src={business.image}
                     alt={business.name}
-                    className="w-full h-32 object-cover rounded-md"
+                    className="w-full h-28 object-cover rounded-md"
                   />
-                  <h3 className="text-xs font-semibold text-red-600 mt-2">
+                  <h3 className="text-xl font-semibold text-red-600 mt-2 text-center">
                     {business.name}
                   </h3>
-                  <p className="text-gray-600 text-xs">{business.address}</p>
+                  <p className="text-gray-600 text-md mt-4 line-clamp-2 overflow-hidden">{business.address}</p>
                 </div>
               </a>
             </div>
