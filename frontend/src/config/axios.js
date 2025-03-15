@@ -52,9 +52,6 @@ apiClient.interceptors.request.use(
       config.url = `/api${config.url}`;
     }
 
-    // Add the Referer header
-    config.headers.Referer = window.location.origin;
-
     // Add detailed request logging
     console.log("\n=== Axios Request Details ===");
     console.log("1. Request Configuration:");
