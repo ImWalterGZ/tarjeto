@@ -1,9 +1,6 @@
-import negocioLocal from "./landing/negocioLocal.png";
-import clientePic from "./landing/clientePic.jpg";
-
 const IMAGES = {
-  NEGOCIO_LOCAL: negocioLocal,
-  CLIENTE_PIC: clientePic,
+  NEGOCIO_LOCAL: "/images/negocioLocal.png",
+  CLIENTE_PIC: "/images/clientePic.jpg",
 };
 
 export default IMAGES;

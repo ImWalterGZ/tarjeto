@@ -8,7 +8,7 @@ import apiClient from "../config/axios";
 import BusinessPreview from "../components/profile/BusinessPreview";
 import ClientPreview from "../components/profile/ClientPreview";
 import CategorySelector from "../components/profile/CategorySelector";
-import logo from "../assets/isotipo-red.png";
+import logo from "/images/isotipo-red.png";
 import { compressImage } from "../utils/image.compressor";
 import {
   Stepper,
@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import { gradients } from "../components/profile/BusinessPreview";
 import { Undo2 } from "lucide-react";
-import UserAddPhoto from "../assets/userAddPhoto.png";
+import UserAddPhoto from "/images/userAddPhoto.png";
 
 function SetUpProfile() {
   const navigate = useNavigate();

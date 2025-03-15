@@ -1,5 +1,5 @@
 import React from "react";
-import Porcentage from "../../assets/landing/porcentage.png";
+const Porcentage = "/images/porcentage.png";
 
 const RegistrationPromo = () => {
   return (

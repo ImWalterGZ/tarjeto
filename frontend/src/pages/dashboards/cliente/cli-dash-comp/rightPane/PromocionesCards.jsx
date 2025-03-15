@@ -1,4 +1,4 @@
-import logo from "../../../../../assets/placeHolder/logo.png";
+const logo = "/images/placeHolder/logo.png";
 export default function PromocionesCards() {
   return (
     <div className="flex items-center px-4 align-middle bg-white border shadow-md outline-none transition-all py rounded-xl hover:shadow-xl hover:outline-red-primary hover:outline-2 hover:shadow-red-400">

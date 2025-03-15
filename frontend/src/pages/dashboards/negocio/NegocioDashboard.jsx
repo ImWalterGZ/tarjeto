@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "../../../assets/isotipo-white.png";
+import logo from "/images/isotipo-white.png";
 import NavbarDashboard from "../cliente/cli-dash-comp/NavbarDash/NavbarDashboard";
 import { useAuthStore } from "../../../store/authStore";
 import apiClient from "../../../config/axios";

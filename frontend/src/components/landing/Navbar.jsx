@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/isotipo-red.png";
+const logo = "/images/isotipo-red.png";
 
 export default function Navbar() {
   return (

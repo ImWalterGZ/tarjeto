@@ -1,9 +1,9 @@
 import React from "react";
-import Perlita from "../../assets/landing/perlita.png";
-import Shugu from "../../assets/landing/shugu.png";
-import Cuichi from "../../assets/landing/cuichi.png";
-import Obregon from "../../assets/landing/obregon.png";
-import Caffenio from "../../assets/landing/caffenio.png";
+const Perlita = "/images/perlita.png";
+const Shugu = "/images/shugu.png";
+const Cuichi = "/images/cuichi.png";
+const Obregon = "/images/obregon.png";
+const Caffenio = "/images/caffenio.png";
 
 const businesses = [
   {

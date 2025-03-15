@@ -1,5 +1,5 @@
 import React from "react";
-import LocalImage from "../../assets/landing/Local.png";
+const LocalImage = "/images/Local.png";
 
 const features = [
   {

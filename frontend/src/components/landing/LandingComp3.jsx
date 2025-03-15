@@ -1,5 +1,5 @@
 import React from "react";
-import BeneficiosImg from "/src/assets/landing/Beneficios.png";
+const BeneficiosImg = "/images/Beneficios.png";
 
 const BenefitsSection = () => {
   return (

@@ -1,7 +1,10 @@
-import konga from "../../assets/tarjetas/KONGA.png";
-import caffenio from "../../assets/tarjetas/CAFFENIO.png";
-import shugu from "../../assets/tarjetas/SHUGU.png";
+import React from "react";
 import BotoneraHeroSection from "./BotoneraHeroSection";
+
+const konga = "/images/tarjetas/KONGA.png";
+const caffenio = "/images/tarjetas/CAFFENIO.png";
+const shugu = "/images/tarjetas/SHUGU.png";
+
 export default function HeroSection() {
   return (
     <div className="w-screen px-12">

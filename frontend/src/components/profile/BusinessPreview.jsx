@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import logo from "../../assets/isotipo-white.png";
+const logo = "/images/isotipo-white.png";
 import { QrCode, User, MapPin, Globe, Facebook, Instagram } from "lucide-react";
 
 export const gradients = {

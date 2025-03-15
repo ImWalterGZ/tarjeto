@@ -1,9 +1,9 @@
 import React from "react";
-import Facebook from "../../assets/landing/facebook.png";
-import Ig from "../../assets/landing/ig.png";
-import Tiktok from "../../assets/landing/tiktok.png";
-import X from "../../assets/landing/X.png";
-import TarjetoSlogan from "../../assets/landing/tarjeto-slogan.png";
+const Facebook = "/images/facebook.png";
+const Ig = "/images/ig.png";
+const Tiktok = "/images/tiktok.png";
+const X = "/images/X.png";
+const TarjetoSlogan = "/images/tarjeto-slogan.png";
 
 const Footer = () => {
   return (
