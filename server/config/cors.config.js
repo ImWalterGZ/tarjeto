@@ -18,24 +18,24 @@ export const corsOptions = {
     console.log("CORS Debug Info (Detailed):");
     console.log("- NODE_ENV:", process.env.NODE_ENV);
     console.log("- Request origin:", origin);
-    console.log(
-      "- Request headers:",
-      JSON.stringify(arguments[2]?.headers, null, 2)
-    );
+    console.log("- Process env:", {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      // Add any other relevant env variables
+    });
     console.log("- Allowed origins:", allowedOrigins);
-    console.log("- Is origin allowed:", allowedOrigins.includes(origin));
 
     // Allow requests with no origin (like mobile apps, curl requests, or same-origin)
     if (!origin || origin === "null") {
-      const isSameOrigin =
-        arguments[2]?.headers?.host?.includes("api.tarjeto.app");
-      console.log("- No origin or null origin. Is same origin?", isSameOrigin);
+      console.log(
+        "- No origin provided, checking headers for same-origin request"
+      );
       return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {
       console.log("- Origin explicitly allowed:", origin);
-      callback(null, true);
+      callback(null, origin); // Return the origin instead of true
     } else {
       console.log("- Origin blocked:", origin);
       console.log("- Expected one of:", allowedOrigins);

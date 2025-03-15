@@ -25,7 +25,6 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    Origin: window.location.origin,
   },
   // Ensure cookies are sent with requests
   xsrfCookieName: "XSRF-TOKEN",
@@ -51,9 +50,6 @@ apiClient.interceptors.request.use(
     if (!config.url.startsWith("/api")) {
       config.url = `/api${config.url}`;
     }
-
-    // Ensure origin header is set for each request
-    config.headers.Origin = window.location.origin;
 
     // Add detailed request logging
     console.log("\n=== Axios Request Details ===");

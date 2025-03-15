@@ -1,5 +1,5 @@
 import React from "react";
-import Beneficios from "../../assets/landing/Beneficios.png";
+import BeneficiosImg from "/src/assets/landing/Beneficios.png";
 
 const BenefitsSection = () => {
   return (
@@ -61,7 +61,7 @@ const BenefitsSection = () => {
       {/* Imagen a la derecha */}
       <div className="mt-8 md:mt-0 md:w-1/2 flex justify-center">
         <img
-          src={Beneficios}
+          src={BeneficiosImg}
           alt="Beneficios"
           className="max-w-xs md:max-w-lg"
         />
