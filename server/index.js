@@ -47,6 +47,9 @@ app.use("/api", router);
 app.use("/", (req, res) => {
   res.send("Hello World");
 });
+app.get("/api/test", (req, res) => {
+  res.send("Hello World");
+});
 // Error handling
 app.use(errorHandler);
 
