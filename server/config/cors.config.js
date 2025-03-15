@@ -5,6 +5,7 @@ export const corsOptions = {
       "https://tarjeto.app",
       "https://www.tarjeto.app",
       "https://tarjeto.vercel.app",
+      "https://api.tarjeto.app",
     ];
 
     const developmentOrigins = ["http://localhost:5173"];
@@ -14,15 +15,24 @@ export const corsOptions = {
         ? productionOrigins
         : developmentOrigins;
 
+    console.log("CORS Debug Info:");
+    console.log("- NODE_ENV:", process.env.NODE_ENV);
+    console.log("- Request origin:", origin);
+    console.log("- Allowed origins:", allowedOrigins);
+    console.log("- Is origin allowed:", allowedOrigins.includes(origin));
+
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
+      console.log("- No origin provided, allowing request");
       return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {
+      console.log("- Origin allowed:", origin);
       callback(null, true);
     } else {
-      console.log("Blocked by CORS:", origin);
+      console.log("- Origin blocked:", origin);
+      console.log("- Expected one of:", allowedOrigins);
       callback(new Error("Not allowed by CORS"));
     }
   },

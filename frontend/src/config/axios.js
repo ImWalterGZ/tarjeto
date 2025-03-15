@@ -1,6 +1,20 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5050";
+// In Vite, we should use VITE_NODE_ENV or check the URL
+const isProduction =
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1";
+
+const BASE_URL = isProduction
+  ? "https://api.tarjeto.app"
+  : import.meta.env.VITE_API_URL || "http://localhost:5050";
+
+console.log(
+  "Current environment:",
+  isProduction ? "production" : "development"
+);
+console.log("Using API URL:", BASE_URL);
+console.log("Current hostname:", window.location.hostname);
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -41,7 +55,7 @@ apiClient.interceptors.request.use(
       fullURL: config.baseURL + config.url,
       method: config.method,
       headers: config.headers,
-      data: config.data,
+      withCredentials: config.withCredentials,
     });
     return config;
   },
