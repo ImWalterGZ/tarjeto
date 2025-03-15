@@ -1,5 +1,13 @@
 import React from "react";
-import Local from "../../assets/landing/Local.png";
+import LocalImage from "../../assets/landing/Local.png";
+
+const features = [
+  {
+    title: "Local",
+    image: LocalImage,
+    description: "Encuentra negocios cercanos que usan Tarjeto",
+  },
+];
 
 const BenefitsSection = () => {
   return (
@@ -68,7 +76,11 @@ const BenefitsSection = () => {
 
       {/* Imagen a la derecha */}
       <div className="mt-8 md:mt-0 md:w-1/2 justify-center">
-        <img src={Local} alt="Local" className="max-w-xs md:max-w-md" />
+        <img
+          src={features[0].image}
+          alt={features[0].title}
+          className="max-w-xs md:max-w-md"
+        />
       </div>
     </div>
   );
