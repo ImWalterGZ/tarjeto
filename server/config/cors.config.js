@@ -15,32 +15,50 @@ export const corsOptions = {
         ? productionOrigins
         : developmentOrigins;
 
-    console.log("CORS Debug Info (Detailed):");
+    console.log("\n=== CORS Request Debug ===");
+    console.log("1. Environment Info:");
     console.log("- NODE_ENV:", process.env.NODE_ENV);
-    console.log("- Request origin:", origin);
-    console.log("- Process env:", {
-      NODE_ENV: process.env.NODE_ENV,
-      PORT: process.env.PORT,
-      // Add any other relevant env variables
-    });
-    console.log("- Allowed origins:", allowedOrigins);
+    console.log("- PORT:", process.env.PORT);
+    console.log("- HOST:", process.env.HOST);
 
-    // Allow requests with no origin (like mobile apps, curl requests, or same-origin)
-    if (!origin || origin === "null") {
-      console.log(
-        "- No origin provided, checking headers for same-origin request"
-      );
+    console.log("\n2. Request Details:");
+    console.log("- Origin:", origin);
+    console.log("- Type:", typeof origin);
+    console.log("- Headers:", JSON.stringify(arguments[2]?.headers, null, 2));
+    console.log("- URL:", arguments[2]?.url);
+    console.log("- Method:", arguments[2]?.method);
+
+    console.log("\n3. CORS Configuration:");
+    console.log("- Allowed Origins:", allowedOrigins);
+    console.log(
+      "- Is Origin in Allowed List:",
+      allowedOrigins.includes(origin)
+    );
+    console.log("========================\n");
+
+    // During debugging, log the full request object (but clean it first)
+    const debugReq = arguments[2] ? { ...arguments[2] } : null;
+    if (debugReq) {
+      delete debugReq.socket;
+      delete debugReq._readableState;
+      delete debugReq._writableState;
+      console.log("Full Request Object:", JSON.stringify(debugReq, null, 2));
+    }
+
+    // For now, allow the request if it's from our known origins or has no origin
+    if (!origin) {
+      console.log("No origin provided - allowing request");
       return callback(null, true);
     }
 
     if (allowedOrigins.includes(origin)) {
-      console.log("- Origin explicitly allowed:", origin);
-      callback(null, origin); // Return the origin instead of true
-    } else {
-      console.log("- Origin blocked:", origin);
-      console.log("- Expected one of:", allowedOrigins);
-      callback(new Error(`Not allowed by CORS: ${origin}`));
+      console.log("Origin explicitly allowed:", origin);
+      return callback(null, true);
     }
+
+    // During debugging, we'll allow any origin but log it
+    console.log("WARNING: Allowing unknown origin during debugging:", origin);
+    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
