@@ -28,7 +28,6 @@ export default function Landing() {
       <LandingComp9 />
       <LandingComp10 />
       <Footer />
-
     </div>
   );
 }
