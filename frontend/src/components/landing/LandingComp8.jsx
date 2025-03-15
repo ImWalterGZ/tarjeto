@@ -68,9 +68,8 @@ const Carousel = () => {
         </div>
 
         <div
-          className="flex"
+          className="flex animate-carousel"
           style={{
-            animation: "carousel 50s linear infinite", // Duración de 50 segundos
             display: "flex",
             width: `${businesses.length * 4}%`, // Total ancho basado en el 4% por cada cuadro
           }}
@@ -106,18 +105,21 @@ const Carousel = () => {
         </button>
       </div>
 
-      <style jsx>{`
-        @keyframes carousel {
-          0% {
-            transform: translateX(0);
+      <style>
+        {`
+          @keyframes carousel {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-${businesses.length * 150}%);
+            }
           }
-          100% {
-            transform: translateX(
-              -${businesses.length * 150}%
-            ); /* Movimiento de izquierda a derecha */
+          .animate-carousel {
+            animation: carousel 50s linear infinite;
           }
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
