@@ -17,6 +17,9 @@ import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
+  const isMobileClient = req.headers["user-agent"]
+    ?.toLowerCase()
+    .includes("flutter");
 
   try {
     console.log("Intento de login para:", email);
@@ -42,7 +45,7 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Contraseña inválida" });
     }
 
-    const token = generateTokenAndSetCookie(res, usuario._id);
+    const token = generateTokenAndSetCookie(res, usuario._id, isMobileClient);
     console.log("Token generado para usuario:", email);
 
     usuario.ultimaConexion = new Date();
@@ -56,6 +59,7 @@ export const login = async (req, res) => {
         ...usuario._doc,
         contrasena: undefined,
       },
+      token: isMobileClient ? token : undefined,
     });
   } catch (error) {
     console.error("Error en login:", error);

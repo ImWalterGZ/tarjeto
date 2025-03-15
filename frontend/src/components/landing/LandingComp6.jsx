@@ -1,27 +1,24 @@
 import React from "react";
-import Maria from "../../assets/landing/maria.png";
-import Herrera from "../../assets/landing/herrera.png";
-import Andrea from "../../assets/landing/andrea.png";
 
 const testimonials = [
   {
     name: "María López",
     role: "dueña de Pastelería Dulce Hogar",
-    image: Maria,
+    image: new URL("../../assets/landing/maria.png", import.meta.url).href,
     text: "Con Tarjeto, mis clientes regresan más seguido y están felices con sus recompensas. ¡Es una maravilla!",
     textColor: "text-red-600",
   },
   {
     name: "Luis Herrera",
     role: "cliente frecuente",
-    image: Herrera,
+    image: new URL("../../assets/landing/herrera.png", import.meta.url).href,
     text: "Siempre busco negocios con Tarjeto porque sé que mis visitas valen. Termino ahorrando y descubriendo lugares nuevos.",
     textColor: "text-gray-800",
   },
   {
     name: "Andrea Méndez",
     role: "dueña de Boutique La Bella",
-    image: Andrea,
+    image: new URL("../../assets/landing/andrea.png", import.meta.url).href,
     text: "Ahora tengo una forma fácil de conectar con mis clientes más leales. Las visitas aumentaron desde que usamos Tarjeto.",
     textColor: "text-red-600",
   },
