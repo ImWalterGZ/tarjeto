@@ -25,15 +25,15 @@ const upload = multer({
 
 // Public routes (no token required)
 router.options("*", cors(corsOptions));
-router.post("/signup", signup);
-router.post("/login", login);
-router.post("/verify-email", verifyEmail);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password/:token", resetPassword);
+router.post("/signup", cors(corsOptions), signup);
+router.post("/login", cors(corsOptions), login);
+router.post("/verify-email", cors(corsOptions), verifyEmail);
+router.post("/forgot-password", cors(corsOptions), forgotPassword);
+router.post("/reset-password/:token", cors(corsOptions), resetPassword);
 
 // Protected routes (token required)
-router.get("/check-auth", verifyToken, checkAuth);
-router.post("/logout", verifyToken, logout);
+router.get("/check-auth", cors(corsOptions), verifyToken, checkAuth);
+router.post("/logout", cors(corsOptions), verifyToken, logout);
 router.post(
   "/setup-profile",
   verifyToken,
