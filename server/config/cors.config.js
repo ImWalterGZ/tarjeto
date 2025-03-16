@@ -4,6 +4,7 @@ export const corsOptions = {
       "https://www.tarjeto.app",
       "https://tarjeto.app",
       "http://localhost:5173",
+      "https://api.tarjeto.app",
     ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -13,7 +14,7 @@ export const corsOptions = {
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
     "Content-Type",
     "Authorization",
@@ -21,9 +22,22 @@ export const corsOptions = {
     "Accept",
     "Origin",
     "Cookie",
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Origin",
+    "Access-Control-Allow-Methods",
   ],
   exposedHeaders: ["set-cookie"],
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 204,
   preflightContinue: false,
-  maxAge: 86400,
+  maxAge: 86400, // 24 hours
+  handlePreflightRequest: (req, res) => {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": req.headers.origin,
+      "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Max-Age": 86400,
+    });
+    res.end();
+  },
 };

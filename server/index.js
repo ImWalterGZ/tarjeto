@@ -14,8 +14,20 @@ import { initializeSeasonProcessor } from "./services/programaLealtad.service.js
 dotenv.config();
 
 const app = express();
+
+// CORS configuration - must be before any route handlers
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
+// Security middleware
+app.use((req, res, next) => {
+  // Prevent redirects on OPTIONS requests
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
 
 // Configure multer for handling file uploads
 const upload = multer({
