@@ -28,7 +28,11 @@ app.use((req, res, next) => {
 
   // Handle www subdomain redirect
   const host = req.headers.host;
-  if (host?.startsWith("www.")) {
+  if (
+    host?.startsWith("www.") &&
+    req.method !== "OPTIONS" &&
+    !req.originalUrl.startsWith("/api")
+  ) {
     console.log("Removing www from host:", host);
     const newHost = host.replace("www.", "");
     const newUrl = `${req.protocol}://${newHost}${req.originalUrl}`;
