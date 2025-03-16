@@ -9,10 +9,13 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ["zustand"],
+      external: [],
     },
   },
   optimizeDeps: {
     include: ["zustand"],
+  },
+  resolve: {
+    dedupe: ["zustand"],
   },
 });

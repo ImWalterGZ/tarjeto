@@ -69,6 +69,16 @@ app.use((req, res, next) => {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
+// Security headers middleware
+app.use((req, res, next) => {
+  // Remove browsing-topics from Permissions-Policy
+  res.setHeader(
+    "Permissions-Policy",
+    "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+  );
+  next();
+});
+
 // Security middleware
 app.use((req, res, next) => {
   console.log("\n=== CORS Preflight Check ===");
