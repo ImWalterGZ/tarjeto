@@ -6,10 +6,16 @@ export const corsOptions = {
       "http://localhost:5173",
       "https://api.tarjeto.app",
     ];
+
+    console.log("\n=== CORS Origin Check ===");
+    console.log("Request Origin:", origin);
+    console.log("Allowed Origins:", allowedOrigins);
+
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      console.log("Origin allowed:", origin || "no origin");
       callback(null, true);
     } else {
-      console.log(`CORS blocked origin: ${origin}`);
+      console.log("Origin blocked:", origin);
       callback(null, false);
     }
   },

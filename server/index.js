@@ -15,14 +15,65 @@ dotenv.config();
 
 const app = express();
 
+// Request logging middleware - must be first
+app.use((req, res, next) => {
+  console.log("\n=== Incoming Request ===");
+  console.log("Timestamp:", new Date().toISOString());
+  console.log("Method:", req.method);
+  console.log("URL:", req.url);
+  console.log("Original URL:", req.originalUrl);
+  console.log("Headers:", JSON.stringify(req.headers, null, 2));
+  console.log("Query:", req.query);
+  console.log("Body:", req.body);
+  console.log("======================\n");
+
+  // Log response
+  const oldWrite = res.write;
+  const oldEnd = res.end;
+
+  const chunks = [];
+
+  res.write = function (chunk) {
+    chunks.push(chunk);
+    return oldWrite.apply(res, arguments);
+  };
+
+  res.end = function (chunk) {
+    if (chunk) chunks.push(chunk);
+
+    console.log("\n=== Outgoing Response ===");
+    console.log("Status:", res.statusCode);
+    console.log("Headers:", JSON.stringify(res.getHeaders(), null, 2));
+    console.log("======================\n");
+
+    oldEnd.apply(res, arguments);
+  };
+
+  next();
+});
+
 // CORS configuration - must be before any route handlers
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
 // Security middleware
 app.use((req, res, next) => {
+  console.log("\n=== CORS Preflight Check ===");
+  console.log("Is OPTIONS request:", req.method === "OPTIONS");
+  console.log("Origin:", req.headers.origin);
+  console.log(
+    "Access-Control-Request-Method:",
+    req.headers["access-control-request-method"]
+  );
+  console.log(
+    "Access-Control-Request-Headers:",
+    req.headers["access-control-request-headers"]
+  );
+  console.log("========================\n");
+
   // Prevent redirects on OPTIONS requests
   if (req.method === "OPTIONS") {
+    console.log("Handling OPTIONS request - sending 204");
     res.status(204).end();
     return;
   }

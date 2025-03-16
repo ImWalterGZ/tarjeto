@@ -11,6 +11,8 @@ import {
   setupProfile,
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.middleware.js";
+import cors from "cors";
+import { corsOptions } from "../config/cors.config.js";
 
 const router = express.Router();
 
@@ -21,6 +23,9 @@ const upload = multer({
   },
 });
 
+// Handle OPTIONS requests for all routes
+router.options("*", cors(corsOptions));
+
 // Public routes (no token required)
 router.post("/signup", signup);
 router.post("/login", login);
@@ -29,7 +34,18 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 
 // Protected routes (token required)
-router.get("/check-auth", verifyToken, checkAuth);
+router.get(
+  "/check-auth",
+  (req, res, next) => {
+    console.log("Processing check-auth request");
+    console.log("Method:", req.method);
+    console.log("Headers:", req.headers);
+    next();
+  },
+  cors(corsOptions),
+  verifyToken,
+  checkAuth
+);
 router.post("/logout", verifyToken, logout);
 router.post(
   "/setup-profile",
