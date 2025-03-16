@@ -28,8 +28,8 @@ const apiClient = axios.create({
     "Access-Control-Allow-Credentials": "true",
   },
   // Ensure cookies are sent with requests
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
+  // xsrfCookieName: "XSRF-TOKEN",
+  // xsrfHeaderName: "X-XSRF-TOKEN",
 });
 
 // List of auth-related endpoints that need the /auth prefix
