@@ -1,7 +1,24 @@
 import React from "react";
-import { Settings } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
+import { useAuthStore } from "../../../../../store/authStore";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 export default function AjustesSection({ negocio }) {
+  const { logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Sesión cerrada exitosamente");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      toast.error("Error al cerrar sesión");
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex justify-between items-center">
@@ -17,6 +34,14 @@ export default function AjustesSection({ negocio }) {
           Esta sección está en desarrollo. Aquí podrás configurar las
           preferencias de tu cuenta.
         </p>
+
+        <button
+          onClick={handleLogout}
+          className="mt-8 flex items-center gap-2 px-6 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          Cerrar sesión
+        </button>
       </div>
     </div>
   );
