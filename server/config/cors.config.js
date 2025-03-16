@@ -4,12 +4,17 @@ export const corsOptions = {
       "https://www.tarjeto.app",
       "https://tarjeto.app",
       "http://localhost:5173",
-      "https://api.tarjeto.app",
+      "https://www.api.tarjeto.app", // Primary API domain
+      "https://api.tarjeto.app", // Keep this as fallback
     ];
 
     console.log("\n=== CORS Origin Check ===");
     console.log("Request Origin:", origin);
+    console.log("Request Protocol:", origin?.split("://")[0]);
+    console.log("Request Host:", origin?.split("://")[1]);
     console.log("Allowed Origins:", allowedOrigins);
+    console.log("Full Request URL:", this?.req?.url);
+    console.log("Headers:", JSON.stringify(this?.req?.headers, null, 2));
 
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       console.log("Origin allowed:", origin || "no origin");
@@ -31,19 +36,10 @@ export const corsOptions = {
     "Access-Control-Allow-Headers",
     "Access-Control-Allow-Origin",
     "Access-Control-Allow-Methods",
+    "Access-Control-Allow-Credentials",
   ],
   exposedHeaders: ["set-cookie"],
   optionsSuccessStatus: 204,
   preflightContinue: false,
   maxAge: 86400, // 24 hours
-  handlePreflightRequest: (req, res) => {
-    res.writeHead(204, {
-      "Access-Control-Allow-Origin": req.headers.origin,
-      "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Credentials": true,
-      "Access-Control-Max-Age": 86400,
-    });
-    res.end();
-  },
 };

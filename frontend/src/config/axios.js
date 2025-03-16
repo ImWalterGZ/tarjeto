@@ -8,7 +8,7 @@ const isProduction =
 const environment = isProduction ? "production" : "development";
 
 const BASE_URL = isProduction
-  ? "https://api.tarjeto.app"
+  ? "https://www.api.tarjeto.app"
   : import.meta.env.VITE_API_URL || "http://localhost:5050";
 
 console.log("Axios Initialization Details:");

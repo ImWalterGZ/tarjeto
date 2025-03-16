@@ -37,9 +37,23 @@ router.post("/reset-password/:token", resetPassword);
 router.get(
   "/check-auth",
   (req, res, next) => {
-    console.log("Processing check-auth request");
+    console.log("\n=== check-auth request ===");
     console.log("Method:", req.method);
-    console.log("Headers:", req.headers);
+    console.log("Headers:", JSON.stringify(req.headers, null, 2));
+    console.log("Host:", req.headers.host);
+
+    if (req.method === "OPTIONS") {
+      console.log("Handling OPTIONS request in check-auth route");
+      res.header("Access-Control-Allow-Origin", req.headers.origin);
+      res.header("Access-Control-Allow-Methods", "GET,OPTIONS");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Content-Type,Authorization,Access-Control-Allow-Credentials"
+      );
+      res.header("Access-Control-Allow-Credentials", "true");
+      res.status(204).end();
+      return;
+    }
     next();
   },
   cors(corsOptions),

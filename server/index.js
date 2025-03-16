@@ -23,9 +23,18 @@ app.use((req, res, next) => {
   console.log("URL:", req.url);
   console.log("Original URL:", req.originalUrl);
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
-  console.log("Query:", req.query);
-  console.log("Body:", req.body);
+  console.log("Host:", req.headers.host);
   console.log("======================\n");
+
+  // Handle www subdomain redirect
+  const host = req.headers.host;
+  if (host?.startsWith("www.")) {
+    console.log("Removing www from host:", host);
+    const newHost = host.replace("www.", "");
+    const newUrl = `${req.protocol}://${newHost}${req.originalUrl}`;
+    console.log("Redirecting to:", newUrl);
+    return res.redirect(301, newUrl);
+  }
 
   // Log response
   const oldWrite = res.write;
