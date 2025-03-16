@@ -23,6 +23,7 @@ const upload = multer({
 });
 
 // Public routes (no token required)
+router.options("*", cors(corsOptions));
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/verify-email", verifyEmail);
