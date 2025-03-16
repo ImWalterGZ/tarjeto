@@ -13,7 +13,8 @@ Create a configuration file `lib/config/api_config.dart`:
 ```dart
 class ApiConfig {
   static const String baseUrl = 'http://your-api-url';  // Development
-  // static const String baseUrl = 'https://api.tarjeto.app';  // Production
+  // static const String baseUrl = 'https://api.tarjeto.app';  o https://tarjeto.onrender.com // Production
+
 
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json',

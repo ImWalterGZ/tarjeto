@@ -14,8 +14,8 @@ import { initializeSeasonProcessor } from "./services/programaLealtad.service.js
 dotenv.config();
 
 const app = express();
-app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // Configure multer for handling file uploads
 const upload = multer({
