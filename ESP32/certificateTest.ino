@@ -69,7 +69,7 @@ void setup() {
   Serial.print("Local ESP32 IP: ");
   Serial.println(WiFi.localIP());
 
-  client.setCACert(root_ca);  // Use Google Trust Services certificate
+  client.setCACert(root_ca); 
   
   showMenu();
 }
@@ -133,7 +133,7 @@ void handleConnectionCode() {
     }
   }
   
-  Serial.println(); // New line after input
+  Serial.println(); 
   
   if (code.length() != 5) {
     Serial.println("Invalid code format. Please enter a 5-digit number.");
@@ -180,7 +180,7 @@ bool registerNexo(String connectionCode) {
 
     Serial.println("Sending request with payload: " + jsonString);
     Serial.println("To host: " + currentHost + currentPath);
-
+    Serial.println(currentPath);
     // Prepare HTTP request
     String request = String("POST ") + currentPath + " HTTP/1.1\r\n" +
                     "Host: " + currentHost + "\r\n" +
