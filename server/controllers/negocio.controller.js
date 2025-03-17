@@ -1,6 +1,8 @@
 import ResponseHandler from "../utils/responseHandler.utils.js";
 import { Negocio } from "../models/negocio.model.js";
 import crypto from "crypto";
+import { Establecimiento } from "../models/establecimiento.model.js";
+import { Nexo } from "../models/nexo.model.js";
 
 export const negocioController = {
   // Obtener el perfil del negocio
@@ -113,19 +115,53 @@ export const negocioController = {
   // Add new establishment
   addEstablecimiento: async (req, res) => {
     try {
-      const establecimientoData = {
+      // Create new Establecimiento
+      const establecimiento = new Establecimiento({
         establecimientoID: `EST${crypto
           .randomBytes(8)
           .toString("hex")
           .toUpperCase()}`,
-        ...req.body,
-      };
+        nombre: req.body.nombre,
+        ubicacion: req.body.ubicacion,
+        horario: req.body.horario || [],
+        metricas: {
+          visitasTotales: 0,
+          visitasPromedioDiarias: 0,
+          horasPico: [],
+          diasMasConcurridos: [],
+        },
+      });
 
+      await establecimiento.save();
+
+      // Create Nexo document
+      const nexo = new Nexo({
+        establecimientoID: establecimiento._id,
+        fechaRegistro: new Date(),
+      });
+
+      await nexo.save();
+
+      // Update establecimiento with nexo reference
+      establecimiento.nexoID = nexo._id;
+      await establecimiento.save();
+
+      // Add reference to Negocio
       const negocio = await Negocio.findOneAndUpdate(
         { usuarioID: req.user.id },
-        { $push: { establecimientos: establecimientoData } },
+        {
+          $push: {
+            establecimientos: {
+              nexoID: nexo._id,
+              establecimientoID: establecimiento._id,
+            },
+          },
+        },
         { new: true }
-      );
+      ).populate({
+        path: "establecimientos.establecimientoID",
+        model: "Establecimiento",
+      });
 
       if (!negocio) {
         return ResponseHandler.error(res, "Negocio not found", 404);
@@ -133,7 +169,7 @@ export const negocioController = {
 
       return ResponseHandler.success(
         res,
-        negocio.establecimientos[negocio.establecimientos.length - 1],
+        establecimiento,
         "Establishment added successfully"
       );
     } catch (error) {
@@ -147,33 +183,34 @@ export const negocioController = {
       const { id } = req.params;
       const updateData = req.body;
 
-      const negocio = await Negocio.findOneAndUpdate(
-        {
-          usuarioID: req.user.id,
-          "establecimientos.establecimientoID": id,
-        },
-        {
-          $set: {
-            "establecimientos.$": {
-              establecimientoID: id,
-              ...updateData,
-            },
-          },
-        },
-        { new: true }
-      );
+      // Find the negocio first to get the establecimiento reference
+      const negocio = await Negocio.findOne({
+        usuarioID: req.user.id,
+        "establecimientos.establecimientoID": id,
+      });
 
       if (!negocio) {
         return ResponseHandler.error(res, "Establishment not found", 404);
       }
 
-      const updatedEstablecimiento = negocio.establecimientos.find(
-        (est) => est.establecimientoID === id
+      // Update the Establecimiento document
+      const establecimiento = await Establecimiento.findByIdAndUpdate(
+        id,
+        {
+          nombre: updateData.nombre,
+          ubicacion: updateData.ubicacion,
+          horario: updateData.horario,
+        },
+        { new: true }
       );
+
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establishment not found", 404);
+      }
 
       return ResponseHandler.success(
         res,
-        updatedEstablecimiento,
+        establecimiento,
         "Establishment updated successfully"
       );
     } catch (error) {
@@ -186,11 +223,11 @@ export const negocioController = {
     try {
       const { id } = req.params;
 
-      const negocio = await Negocio.findOneAndUpdate(
-        { usuarioID: req.user.id },
-        { $pull: { establecimientos: { establecimientoID: id } } },
-        { new: true }
-      );
+      // Find the negocio first
+      const negocio = await Negocio.findOne({
+        usuarioID: req.user.id,
+        "establecimientos.establecimientoID": id,
+      });
 
       if (!negocio) {
         return ResponseHandler.error(
@@ -199,6 +236,24 @@ export const negocioController = {
           404
         );
       }
+
+      // Find and remove the Establecimiento
+      const establecimiento = await Establecimiento.findById(id);
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establishment not found", 404);
+      }
+
+      // Remove the Nexo document
+      await Nexo.findByIdAndDelete(establecimiento.nexoID);
+
+      // Remove the Establecimiento document
+      await Establecimiento.findByIdAndDelete(id);
+
+      // Remove the reference from Negocio
+      await Negocio.findOneAndUpdate(
+        { usuarioID: req.user.id },
+        { $pull: { establecimientos: { establecimientoID: id } } }
+      );
 
       return ResponseHandler.success(
         res,

@@ -14,6 +14,8 @@ import {
 import { Negocio } from "../models/negocio.model.js";
 import { Cliente } from "../models/cliente.model.js";
 import { ProgramaLealtad } from "../models/programaLealtad.model.js";
+import { Establecimiento } from "../models/establecimiento.model.js";
+import mongoose from "mongoose";
 
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
@@ -339,9 +341,36 @@ export const setupProfile = async (req, res) => {
           fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
         }
 
+        // First create the Establecimiento
+        const establecimiento = new Establecimiento({
+          establecimientoID: new mongoose.Types.ObjectId(),
+          nombre: profileData.establecimiento.nombre,
+          ubicacion: {
+            direccion: profileData.establecimiento.ubicacion.direccion,
+            ciudad: profileData.establecimiento.ubicacion.ciudad,
+            estado: profileData.establecimiento.ubicacion.estado,
+            codigoPostal: profileData.establecimiento.ubicacion.codigoPostal,
+            zona: profileData.establecimiento.ubicacion.zona,
+            coordenadas: {
+              latitude: 0,
+              longitude: 0,
+            },
+          },
+          horario: [],
+          metricas: {
+            visitasTotales: 0,
+            visitasPromedioDiarias: 0,
+            horasPico: [],
+            diasMasConcurridos: [],
+          },
+        });
+
+        console.log("15a. Saving establecimiento");
+        await establecimiento.save();
+
         const negocio = new Negocio({
           usuarioID: userId,
-          publicID: `NEG${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
+          publicID: `NEG${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
           fotoPerfil: fotoPerfilUrl,
           nombreComercial: profileData.datosPersonales.nombreComercial,
           rfc: profileData.datosPersonales.rfc,
@@ -356,30 +385,7 @@ export const setupProfile = async (req, res) => {
           gradient: profileData.informacionGeneral.gradient,
           establecimientos: [
             {
-              establecimientoID: `EST${crypto
-                .randomBytes(8)
-                .toString("hex")
-                .toUpperCase()}`,
-              nombre: profileData.establecimiento.nombre,
-              ubicacion: {
-                direccion: profileData.establecimiento.ubicacion.direccion,
-                ciudad: profileData.establecimiento.ubicacion.ciudad,
-                estado: profileData.establecimiento.ubicacion.estado,
-                codigoPostal:
-                  profileData.establecimiento.ubicacion.codigoPostal,
-                zona: profileData.establecimiento.ubicacion.zona,
-                coordenadas: {
-                  latitude: 0,
-                  longitude: 0,
-                },
-              },
-              horario: [],
-              metricas: {
-                visitasTotales: 0,
-                visitasPromedioDiarias: 0,
-                horasPico: [],
-                diasMasConcurridos: [],
-              },
+              establecimientoID: establecimiento.establecimientoID,
             },
           ],
           visitasTotales: 0,
@@ -388,7 +394,6 @@ export const setupProfile = async (req, res) => {
         console.log("16. Attempting to save business profile");
         await negocio.save();
         console.log("17. Business profile saved successfully");
-
         // Create loyalty program
         console.log("18. Creating loyalty program");
         try {
@@ -470,7 +475,7 @@ export const setupProfile = async (req, res) => {
 
       const cliente = new Cliente({
         usuarioID: userId,
-        publicID: `CLI${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
+        publicID: `CLI${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
         datosPersonales: {
           nombre: profileData.datosPersonales.nombre,
           edad: parseInt(profileData.datosPersonales.edad),

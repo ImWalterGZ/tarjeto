@@ -131,16 +131,24 @@ app.use(limiter);
 
 // Routes
 app.use("/api", router);
+
+// 404 handler for API routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+// Serve static frontend for non-API routes
 app.use("/", (req, res) => {
   res.send("Hello World");
 });
-app.get("/api/test", (req, res) => {
-  res.send("Hello World");
-});
+
 // Error handling
 app.use(errorHandler);
 
-// 404 handler
+// 404 handler for all other routes
 app.use((req, res) => {
   res.status(404).json({
     success: false,

@@ -6,7 +6,7 @@ const nexoSchema = new mongoose.Schema({
   },
   establecimientoID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Negocio.establecimientos",
+    ref: "Establecimiento",
     required: true,
   },
   fechaRegistro: {

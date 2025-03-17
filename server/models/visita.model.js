@@ -12,7 +12,8 @@ const visitaSchema = new mongoose.Schema({
     required: true,
   },
   establecimientoID: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Establecimiento",
     required: true,
   },
   fecha: {

@@ -6,6 +6,7 @@ import nexoRoutes from "./nexo.route.js";
 import visitaRoutes from "./visita.route.js";
 import promocionRoutes from "./promocion.route.js";
 import programaLealtadRoutes from "./programaLealtad.route.js";
+import establecimientoRoutes from "./establecimiento.route.js";
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.use("/cliente", clienteRoutes);
 router.use("/nexo", nexoRoutes);
 router.use("/visita", visitaRoutes);
 router.use("/promocion", promocionRoutes);
-router.use("/programaLealtad", programaLealtadRoutes);
+router.use("/programa-lealtad", programaLealtadRoutes);
+router.use("/establecimiento", establecimientoRoutes);
 
 export default router;

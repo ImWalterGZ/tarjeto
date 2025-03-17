@@ -1,6 +1,6 @@
 import mongoose, { mongo } from "mongoose";
 
-const negocioSchema = new mongoose.Schema({
+export const negocioSchema = new mongoose.Schema({
   usuarioID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -45,47 +45,9 @@ const negocioSchema = new mongoose.Schema({
   establecimientos: [
     {
       establecimientoID: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Establecimiento",
         required: true,
-      },
-      nombre: String,
-      ubicacion: {
-        direccion: String,
-        ciudad: String,
-        estado: String,
-        codigoPostal: String,
-        coordenadas: {
-          latitude: Number,
-          longitude: Number,
-        },
-        zona: String, // para agrupar por zonas comerciales
-      },
-      horario: [
-        {
-          dia: Number, // 0-6
-          apertura: String,
-          cierre: String,
-          esHorarioEspecial: Boolean,
-        },
-      ],
-      metricas: {
-        visitasTotales: {
-          type: Number,
-          default: 0,
-        },
-        visitasPromedioDiarias: Number,
-        horasPico: [
-          {
-            hora: Number,
-            traficoPromedio: Number,
-          },
-        ],
-        diasMasConcurridos: [
-          {
-            dia: Number,
-            traficoPromedio: Number,
-          },
-        ],
       },
     },
   ],
