@@ -10,6 +10,12 @@ router.post("/register", nexoController.register);
 // Protected route for getting Nexo status
 router.get("/:nexoId/status", nexoController.getStatus);
 
+router.get(
+  "/datosCliente/:clienteId/:establecimientoID",
+  nexoController.getClienteData
+);
+router.post("/registrarVisita", nexoController.registrarVisita);
+router.post("/crearTarjetaNueva", nexoController.crearTarjetaNueva);
 // Add your routes here
 // Example routes:
 // router.post("/register", verifyToken, nexoController.register);
