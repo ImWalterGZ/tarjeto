@@ -5,7 +5,6 @@ import multer from "multer";
 import router from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 import { corsOptions } from "./config/cors.config.js";
-import { limiter } from "./middleware/rateLimit.middleware.js";
 import connectDB from "./config/db.js";
 import dotenv from "dotenv";
 import { initializeSeasonProcessor } from "./services/programaLealtad.service.js";
@@ -127,7 +126,6 @@ connectDB()
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(limiter);
 
 // Routes
 app.use("/api", router);
