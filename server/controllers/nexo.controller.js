@@ -5,6 +5,7 @@ import { Cliente } from "../models/cliente.model.js";
 import { Establecimiento } from "../models/establecimiento.model.js";
 import { Negocio } from "../models/negocio.model.js";
 import ResponseHandler from "../utils/responseHandler.utils.js";
+import { resizeToExactDimensions } from "../../frontend/src/utils/image.compressor.js";
 
 export const nexoController = {
   register: async (req, res) => {
@@ -128,10 +129,24 @@ export const nexoController = {
         (item) => item.negocio_id === negocio.publicID
       );
 
+      // Process profile image if it exists
+      let fotoPerfil = cliente.datosPersonales?.fotoPerfil;
+      let resize = false;
+      if (fotoPerfil) {
+        try {
+          fotoPerfil = await resizeToExactDimensions(fotoPerfil);
+          resize = true;
+        } catch (error) {
+          console.error("Error processing profile image:", error);
+          // If image processing fails, we'll keep the original
+        }
+      }
+
       const clienteData = {
         publicID: cliente.publicID,
+        resize: resize,
         nombre: cliente.datosPersonales?.nombre,
-        fotoPerfil: cliente.datosPersonales?.fotoPerfil,
+        fotoPerfil: fotoPerfil,
       };
 
       return res.status(200).json({
