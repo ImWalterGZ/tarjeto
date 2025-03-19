@@ -19,7 +19,7 @@ import mongoose from "mongoose";
 
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
-  const isMobileClient = req.headers["user-agent"]
+  const isMobileClient = req.headers["cliente"]
     ?.toLowerCase()
     .includes("flutter");
 
@@ -74,6 +74,9 @@ export const signup = async (req, res) => {
 
   try {
     if (!email || !contrasena || !nombre) {
+      if (!nombre) {
+        console.log("Nombre no proporcionado");
+      }
       throw new Error("Todos los campos son requeridos");
     }
 
@@ -222,9 +225,9 @@ export const resetPassword = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    console.log("ID de usuario en checkAuth:", req.userId);
+    // console.log("ID de usuario en checkAuth:", req.userId);
     const usuario = await User.findOne({ _id: req.userId });
-    console.log("Usuario encontrado en checkAuth:", usuario);
+    // console.log("Usuario encontrado en checkAuth:", usuario);
 
     if (!usuario) {
       return res
@@ -236,10 +239,10 @@ export const checkAuth = async (req, res) => {
     let profileData = null;
     if (usuario.tipoUsuario === "Cliente") {
       profileData = await Cliente.findOne({ usuarioID: usuario._id });
-      console.log("Perfil de cliente encontrado:", profileData);
+      //  console.log("Perfil de cliente encontrado:", profileData);
     } else if (usuario.tipoUsuario === "Negocio") {
       profileData = await Negocio.findOne({ usuarioID: usuario._id });
-      console.log("Perfil de negocio encontrado:", profileData);
+      // console.log("Perfil de negocio encontrado:", profileData);
     }
 
     res.status(200).json({
@@ -252,32 +255,32 @@ export const checkAuth = async (req, res) => {
       userType: usuario.tipoUsuario,
     });
   } catch (error) {
-    console.log("Error con checkAuth:", error);
+    // console.log("Error con checkAuth:", error);
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const setupProfile = async (req, res) => {
   try {
-    console.log("=== Backend Setup Profile Debug Logs ===");
-    console.log("1. Raw request body:", req.body);
-    console.log("2. Raw request files:", req.files);
-    console.log("3. Raw profileData from body:", req.body.profileData);
-    console.log("4. Request headers:", req.headers);
+    // console.log("=== Backend Setup Profile Debug Logs ===");
+    // console.log("1. Raw request body:", req.body);
+    // console.log("2. Raw request files:", req.files);
+    // console.log("3. Raw profileData from body:", req.body.profileData);
+    // console.log("4. Request headers:", req.headers);
 
     const userType = req.body.userType;
-    console.log("5. User type from request:", userType);
+    // console.log("5. User type from request:", userType);
 
     let profileData;
 
     // Parse the profileData if it's a string
     if (req.body.profileData) {
       try {
-        console.log("6. Attempting to parse profileData...");
+        // console.log("6. Attempting to parse profileData...");
         profileData = JSON.parse(req.body.profileData);
-        console.log("7. Successfully parsed profileData:", profileData);
+        // console.log("7. Successfully parsed profileData:", profileData);
       } catch (error) {
-        console.error("8. Error parsing profileData:", error);
+        // console.error("8. Error parsing profileData:", error);
         return res.status(400).json({
           success: false,
           message: "Error parsing profile data",
@@ -285,7 +288,7 @@ export const setupProfile = async (req, res) => {
         });
       }
     } else {
-      console.log("8. No profileData found in request body");
+      // console.log("8. No profileData found in request body");
       return res.status(400).json({
         success: false,
         message: "No profile data provided",
@@ -293,22 +296,22 @@ export const setupProfile = async (req, res) => {
     }
 
     const userId = req.userId; // From auth middleware
-    console.log("9. User ID from auth middleware:", userId);
+    // console.log("9. User ID from auth middleware:", userId);
 
     // Find the user first
     const user = await User.findById(userId);
     if (!user) {
-      console.log("10. User not found with ID:", userId);
+      // console.log("10. User not found with ID:", userId);
       return res.status(404).json({
         success: false,
         message: "Usuario no encontrado",
       });
     }
-    console.log("10. Found user:", user);
+    // console.log("10. Found user:", user);
 
     // Update user type first and ensure it's saved
     const newUserType = userType === "business" ? "Negocio" : "Cliente";
-    console.log("11. Setting user type to:", newUserType);
+    // console.log("11. Setting user type to:", newUserType);
 
     // Check if a profile already exists
     const existingClientProfile = await Cliente.findOne({ usuarioID: userId });
@@ -317,7 +320,7 @@ export const setupProfile = async (req, res) => {
     });
 
     if (existingClientProfile || existingBusinessProfile) {
-      console.log("12. Profile already exists for user");
+      // console.log("12. Profile already exists for user");
       return res.status(400).json({
         success: false,
         message: "Ya existe un perfil para este usuario",
@@ -327,16 +330,16 @@ export const setupProfile = async (req, res) => {
     // Update and save user type
     user.tipoUsuario = newUserType;
     await user.save();
-    console.log("13. User type updated successfully");
+    // console.log("13. User type updated successfully");
 
     // Create corresponding profile based on user type
     if (userType === "business") {
-      console.log("14. Creating business profile");
+      // console.log("14. Creating business profile");
       try {
         // Handle profile photo if exists
         let fotoPerfilUrl = profileData.datosPersonales.fotoPerfil;
         if (req.file) {
-          console.log("15. Processing profile photo from request file");
+          // console.log("15. Processing profile photo from request file");
           const base64Image = req.file.buffer.toString("base64");
           fotoPerfilUrl = `data:${req.file.mimetype};base64,${base64Image}`;
         }
@@ -365,7 +368,7 @@ export const setupProfile = async (req, res) => {
           },
         });
 
-        console.log("15a. Saving establecimiento");
+        // console.log("15a. Saving establecimiento");
         await establecimiento.save();
 
         const negocio = new Negocio({
@@ -391,11 +394,11 @@ export const setupProfile = async (req, res) => {
           visitasTotales: 0,
         });
 
-        console.log("16. Attempting to save business profile");
+        // console.log("16. Attempting to save business profile");
         await negocio.save();
-        console.log("17. Business profile saved successfully");
+        // console.log("17. Business profile saved successfully");
         // Create loyalty program
-        console.log("18. Creating loyalty program");
+        // console.log("18. Creating loyalty program");
         try {
           const fechaInicio = new Date();
           const fechaFin = new Date();
@@ -443,23 +446,23 @@ export const setupProfile = async (req, res) => {
             },
           });
 
-          console.log("19. Attempting to save loyalty program");
+          // console.log("19. Attempting to save loyalty program");
           await programaLealtad.save();
-          console.log("20. Loyalty program saved successfully");
+          // console.log("20. Loyalty program saved successfully");
 
           // Update business with loyalty program reference
-          console.log("21. Updating business with loyalty program reference");
+          // console.log("21. Updating business with loyalty program reference");
           negocio.programaLealtad = programaLealtad._id;
           await negocio.save();
-          console.log("22. Business updated with loyalty program reference");
+          // console.log("22. Business updated with loyalty program reference");
         } catch (error) {
-          console.error("Error creating loyalty program:", error);
+          // console.error("Error creating loyalty program:", error);
           // Roll back business profile creation
           await Negocio.findByIdAndDelete(negocio._id);
           throw new Error("Error creating loyalty program: " + error.message);
         }
       } catch (error) {
-        console.error("Error in business profile creation:", error);
+        // console.error("Error in business profile creation:", error);
         // Roll back user type update
         user.tipoUsuario = null;
         await user.save();
@@ -509,10 +512,10 @@ export const setupProfile = async (req, res) => {
       userType: user.tipoUsuario,
     });
   } catch (error) {
-    console.error("Error in setupProfile - Full error:", error);
-    console.error("Error stack trace:", error.stack);
-    console.error("Request body at time of error:", req.body);
-    console.error("User ID at time of error:", req.userId);
+    // console.error("Error in setupProfile - Full error:", error);
+    // console.error("Error stack trace:", error.stack);
+    // console.error("Request body at time of error:", req.body);
+    // console.error("User ID at time of error:", req.userId);
     res.status(500).json({
       success: false,
       message: "Error al configurar el perfil",

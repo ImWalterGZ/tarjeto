@@ -5,7 +5,7 @@ import { Cliente } from "../models/cliente.model.js";
 import { Establecimiento } from "../models/establecimiento.model.js";
 import { Negocio } from "../models/negocio.model.js";
 import ResponseHandler from "../utils/responseHandler.utils.js";
-import { resizeToExactDimensions } from "../../frontend/src/utils/image.compressor.js";
+import { resizeToExactDimensions } from "../utils/comprimir.js";
 
 export const nexoController = {
   register: async (req, res) => {
