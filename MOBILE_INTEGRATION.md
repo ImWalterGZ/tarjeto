@@ -2,8 +2,6 @@
 
 ## Overview
 
-This document explains how to integrate the Flutter mobile app with the Tarjeto backend API. The backend uses JWT-based authentication and provides endpoints for client profiles and loyalty cards management.
-
 ## Base Configuration
 
 ### API Configuration
@@ -12,8 +10,8 @@ Create a configuration file `lib/config/api_config.dart`:
 
 ```dart
 class ApiConfig {
-  static const String baseUrl = 'http://your-api-url';  // Development
-  // static const String baseUrl = 'https://api.tarjeto.app';  o https://tarjeto.onrender.com // Production
+  static const String baseUrl = 'http://www.api.tarjeto.app/';  // Development
+
 
 
   static const Map<String, String> defaultHeaders = {
@@ -40,7 +38,8 @@ class AuthService {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/auth/login'),
-        headers: ApiConfig.defaultHeaders,
+        headers: {...ApiConfig.defaultHeaders,
+                  "cliente": "flutter"} ,
         body: json.encode({
           'email': email,
           'contrasena': password,
