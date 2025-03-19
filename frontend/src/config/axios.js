@@ -11,13 +11,13 @@ const BASE_URL = isProduction
   ? "https://www.api.tarjeto.app"
   : import.meta.env.VITE_API_URL || "http://localhost:5050";
 
-console.log("Axios Initialization Details:");
-console.log("- Current hostname:", window.location.hostname);
-console.log("- Window origin:", window.location.origin);
-console.log("- Environment:", environment);
-console.log("- API URL:", BASE_URL);
-console.log("- Document origin:", document.location.origin);
-console.log("- Document referrer:", document.referrer);
+// console.log("Axios Initialization Details:");
+// console.log("- Current hostname:", window.location.hostname);
+// console.log("- Window origin:", window.location.origin);
+// console.log("- Environment:", environment);
+// console.log("- API URL:", BASE_URL);
+// console.log("- Document origin:", document.location.origin);
+// console.log("- Document referrer:", document.referrer);
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -53,22 +53,22 @@ apiClient.interceptors.request.use(
     }
 
     // Add detailed request logging
-    console.log("\n=== Axios Request Details ===");
-    console.log("1. Request Configuration:");
-    console.log("- Full URL:", config.baseURL + config.url);
-    console.log("- Method:", config.method);
-    console.log("- Headers:", JSON.stringify(config.headers, null, 2));
-    console.log("- WithCredentials:", config.withCredentials);
-    console.log("\n2. Environment Context:");
-    console.log("- Window Origin:", window.location.origin);
-    console.log("- Base URL:", config.baseURL);
-    console.log("- Environment:", environment);
-    console.log("- Production Mode:", isProduction);
-    console.log(
-      "\n3. Request Body:",
-      config.data ? JSON.stringify(config.data, null, 2) : "No body"
-    );
-    console.log("========================");
+    // console.log("\n=== Axios Request Details ===");
+    // console.log("1. Request Configuration:");
+    // console.log("- Full URL:", config.baseURL + config.url);
+    // console.log("- Method:", config.method);
+    // console.log("- Headers:", JSON.stringify(config.headers, null, 2));
+    // console.log("- WithCredentials:", config.withCredentials);
+    // console.log("\n2. Environment Context:");
+    // console.log("- Window Origin:", window.location.origin);
+    // console.log("- Base URL:", config.baseURL);
+    // console.log("- Environment:", environment);
+    // console.log("- Production Mode:", isProduction);
+    // console.log(
+    //   "\n3. Request Body:",
+    //   config.data ? JSON.stringify(config.data, null, 2) : "No body"
+    // );
+    // console.log("========================");
 
     return config;
   },
@@ -87,15 +87,15 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => {
-    console.log("\n=== Axios Response Success ===");
-    console.log("1. Response Overview:");
-    console.log("- Status:", response.status);
-    console.log("- Status Text:", response.statusText);
-    console.log("\n2. Headers Received:");
-    console.log(JSON.stringify(response.headers, null, 2));
-    console.log("\n3. Response Data:");
-    console.log(JSON.stringify(response.data, null, 2));
-    console.log("========================");
+    // console.log("\n=== Axios Response Success ===");
+    // console.log("1. Response Overview:");
+    // console.log("- Status:", response.status);
+    // console.log("- Status Text:", response.statusText);
+    // console.log("\n2. Headers Received:");
+    // console.log(JSON.stringify(response.headers, null, 2));
+    // console.log("\n3. Response Data:");
+    // console.log(JSON.stringify(response.data, null, 2));
+    // console.log("========================");
     return response;
   },
   (error) => {
