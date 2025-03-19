@@ -33,7 +33,7 @@ export const useAuthStore = create((set) => ({
         contrasena,
       });
 
-      console.log("Respuesta de login:", response.data);
+      // console.log("Respuesta de login:", response.data);
       if (!response.data.success) {
         throw new Error(response.data.message || "Error al iniciar sesión");
       }
@@ -45,7 +45,7 @@ export const useAuthStore = create((set) => ({
       });
       return response.data;
     } catch (error) {
-      console.error("Error en login:", error);
+      // console.error("Error en login:", error);
       set({
         error:
           error.response?.data?.message ||
@@ -60,7 +60,7 @@ export const useAuthStore = create((set) => ({
   },
 
   signup: async (email, contrasena, nombre) => {
-    console.log("Sending signup data:", { email, contrasena, nombre });
+    // console.log("Sending signup data:", { email, contrasena, nombre });
     set({ cargando: true, error: null });
     try {
       const response = await apiClient.post(API_PATHS.AUTH.SIGNUP, {
@@ -69,7 +69,7 @@ export const useAuthStore = create((set) => ({
         nombre,
       });
 
-      console.log("Respuesta de signup:", response.data);
+      // console.log("Respuesta de signup:", response.data);
       if (!response.data || !response.data.success) {
         throw new Error(response.data?.message || "Error al registrarse");
       }
@@ -83,7 +83,7 @@ export const useAuthStore = create((set) => ({
 
       return response.data;
     } catch (error) {
-      console.error("Error en signup:", error);
+      // console.("Error en signup:", error);
 
       // If the error is about email sending, treat it as success
       if (
@@ -141,7 +141,7 @@ export const useAuthStore = create((set) => ({
         code: verificationCode,
       });
 
-      console.log("Respuesta de verifyEmail:", response.data);
+      // console.log("Respuesta de verifyEmail:", response.data);
       if (!response.data.success) {
         throw new Error(response.data?.message || "Error verificando email");
       }
@@ -203,9 +203,8 @@ export const useAuthStore = create((set) => ({
   revisarAuth: async () => {
     set({ revisandoAuth: true, error: null });
     try {
-      console.log("Checking auth ID#123");
       const authResponse = await apiClient.get(API_PATHS.AUTH.CHECK_AUTH);
-      console.log("Auth response:", authResponse.data);
+      // console.log("Auth response:", authResponse.data);
 
       if (authResponse.data.success) {
         set({
@@ -223,7 +222,7 @@ export const useAuthStore = create((set) => ({
         });
       }
     } catch (error) {
-      console.error("Error checking auth:", error.response);
+      // console.error("Error checking auth:", error.response);
       set({
         usuario: null,
         cliente: null,
@@ -247,7 +246,7 @@ export const useAuthStore = create((set) => ({
         revisandoAuth: false,
       });
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      // console.error("Error al cerrar sesión:", error);
       // Even if the server call fails, we clear the local state
       set({
         usuario: null,
@@ -266,7 +265,7 @@ export const useAuthStore = create((set) => ({
         profileData,
       });
 
-      console.log("Respuesta de updateClientProfile:", response.data);
+      // console.log("Respuesta de updateClientProfile:", response.data);
       if (response.data.success) {
         set((state) => ({
           ...state,
@@ -277,7 +276,7 @@ export const useAuthStore = create((set) => ({
         throw new Error(response.data.message || "Error updating profile");
       }
     } catch (error) {
-      console.error("Error updating client profile:", error);
+      // console.error("Error updating client profile:", error);
       throw error;
     }
   },
