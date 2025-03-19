@@ -95,7 +95,6 @@ export const useAuthStore = create((set) => ({
         // Create a basic user object with the registration data
         const basicUser = {
           email,
-          nombre,
           verificado: false,
         };
 
