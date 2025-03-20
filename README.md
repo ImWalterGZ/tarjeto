@@ -1,5 +1,3 @@
-I'll create a README.md file for a GitHub repository based on the provided context about the Tarjeto project.
-
 # Tarjeto
 
 A modern digital ecosystem that transforms traditional customer loyalty programs into a centralized, automated solution using proximity technologies (QR and NFC).
@@ -186,14 +184,6 @@ All components communicate via REST API with the following flow:
 - No advanced security features initially
 - No marketing campaign tools in first version
 - Desktop-focused business dashboard
-
-## Getting Started
-
-_Documentation for setup and installation coming soon_
-
-## Contributing
-
-_Contribution guidelines coming soon_
 
 ---
 
