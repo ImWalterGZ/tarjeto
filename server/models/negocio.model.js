@@ -10,6 +10,7 @@ export const negocioSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    index: true,
   },
   fotoPerfil: {
     type: String,
@@ -63,5 +64,6 @@ export const negocioSchema = new mongoose.Schema({
   // Marketing y comunicación
 
   // Métricas de rendimiento
+  // Index en publicID
 });
 export const Negocio = mongoose.model("Negocio", negocioSchema);
