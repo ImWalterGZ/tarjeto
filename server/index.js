@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+console.log("Loading environment variables...");
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -6,11 +9,10 @@ import router from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.middleware.js";
 import { corsOptions } from "./config/cors.config.js";
 import connectDB from "./config/db.js";
-import dotenv from "dotenv";
+
 import { initializeSeasonProcessor } from "./services/programaLealtad.service.js";
 
 // Load env vars
-dotenv.config();
 
 const app = express();
 
