@@ -17,11 +17,16 @@ import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 import { Establecimiento } from "../models/establecimiento.model.js";
 import mongoose from "mongoose";
 
+function isMobile(req) {
+  const clienteHeader = req.headers["Cliente"] || req.headers["cliente"];
+  return Boolean(
+    clienteHeader && clienteHeader.toLowerCase().includes("flutter")
+  );
+}
+
 export const login = async (req, res) => {
   const { email, contrasena } = req.body;
-  const isMobileClient = req.headers["cliente"]
-    ?.toLowerCase()
-    .includes("flutter");
+  const isMobileClient = isMobile(req);
 
   try {
     console.log("Intento de login para:", email);
@@ -35,10 +40,8 @@ export const login = async (req, res) => {
     }
 
     console.log("Verificando contraseña para usuario:", usuario.email);
-    const contrasenaEsValida = await bcrypt.compare(
-      contrasena,
-      usuario.contrasena
-    );
+
+    const contrasenaEsValida = bcrypt.compare(contrasena, usuario.contrasena);
 
     if (!contrasenaEsValida) {
       console.log("Contraseña inválida para usuario:", email);
@@ -48,7 +51,7 @@ export const login = async (req, res) => {
     }
 
     const token = generateTokenAndSetCookie(res, usuario._id, isMobileClient);
-    console.log("Token generado para usuario:", email);
+    // console.log("Token generado para usuario:", email);
 
     usuario.ultimaConexion = new Date();
     await usuario.save();
@@ -71,12 +74,12 @@ export const login = async (req, res) => {
 
 export const signup = async (req, res) => {
   const { email, contrasena, nombre } = req.body;
+  if (!nombre) {
+    nombre = " ";
+  }
 
   try {
-    if (!email || !contrasena || !nombre) {
-      if (!nombre) {
-        console.log("Nombre no proporcionado");
-      }
+    if (!email || !contrasena) {
       throw new Error("Todos los campos son requeridos");
     }
 
@@ -86,6 +89,7 @@ export const signup = async (req, res) => {
         .status(400)
         .json({ success: false, message: "El usuario ya existe" });
     }
+
     const hashedPassword = await bcrypt.hash(contrasena, 10);
     const verificationToken = codigoVerificacion();
 
@@ -99,7 +103,7 @@ export const signup = async (req, res) => {
     await user.save();
 
     // JWT
-    generateTokenAndSetCookie(res, user._id);
+    generateTokenAndSetCookie(res, user._id, isMobile(req));
 
     await sendVerificationEmail(user.email, verificationToken);
 
