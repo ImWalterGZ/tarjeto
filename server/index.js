@@ -18,15 +18,6 @@ const app = express();
 
 // Request logging middleware - must be first
 app.use((req, res, next) => {
-  console.log("\n=== Incoming Request ===");
-  console.log("Timestamp:", new Date().toISOString());
-  console.log("Method:", req.method);
-  console.log("URL:", req.url);
-  console.log("Original URL:", req.originalUrl);
-  console.log("Headers:", JSON.stringify(req.headers, null, 2));
-  console.log("Host:", req.headers.host);
-  console.log("======================\n");
-
   // Handle www subdomain redirect
   const host = req.headers.host;
   if (
@@ -57,6 +48,8 @@ app.use((req, res, next) => {
 
     console.log("\n=== Outgoing Response ===");
     console.log("Status:", res.statusCode);
+    console.log("Data:", res.data);
+
     console.log("Headers:", JSON.stringify(res.getHeaders(), null, 2));
     console.log("======================\n");
 
