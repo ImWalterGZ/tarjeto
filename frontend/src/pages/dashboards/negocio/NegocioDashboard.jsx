@@ -20,6 +20,12 @@ function NegocioDashboard() {
     loading: true,
     error: null,
   });
+  const [establecimiento, setEstablecimiento] = useState(null);
+  const [nexoData, setNexoData] = useState({
+    loading: false,
+    data: null,
+    error: null,
+  });
 
   useEffect(() => {
     const fetchNegocioData = async () => {
@@ -42,6 +48,8 @@ function NegocioDashboard() {
             loading: false,
             error: null,
           });
+          setEstablecimiento(negocioResponse.data.data.establecimientos[0]);
+          console.log(establecimiento);
         } else {
           throw new Error(
             negocioResponse.data.message || "No se encontró el negocio asociado"
@@ -62,6 +70,62 @@ function NegocioDashboard() {
 
     fetchNegocioData();
   }, [usuario]);
+  useEffect(() => {
+    const fetchNexoData = async () => {
+      console.log("Attempting to fetch Nexo data:", {
+        activeSection,
+        hasNegocio: !!dashboardData.negocio,
+        currentNexoData: nexoData,
+      });
+
+      if (
+        activeSection !== "Nexo" ||
+        !dashboardData.negocio ||
+        nexoData.data ||
+        nexoData.loading
+      ) {
+        return;
+      }
+
+      setNexoData((prev) => ({ ...prev, loading: true }));
+
+      try {
+        const establecimiento = dashboardData.negocio.establecimientos[0];
+        if (!establecimiento) {
+          throw new Error("No se encontró información del establecimiento");
+        }
+
+        console.log(
+          "Fetching Nexo data for establecimiento:",
+          establecimiento.establecimientoID
+        );
+
+        const response = await apiClient.get(
+          `/api/establecimiento/${establecimiento.establecimientoID}/nexo`
+        );
+
+        console.log("Nexo data received:", response.data);
+
+        setNexoData({
+          loading: false,
+          data: response.data.data,
+          error: null,
+        });
+      } catch (error) {
+        console.error("Error fetching Nexo data:", error);
+        setNexoData({
+          loading: false,
+          data: null,
+          error:
+            error.response?.data?.message ||
+            error.message ||
+            "Error al cargar datos de Nexo",
+        });
+      }
+    };
+
+    fetchNexoData();
+  }, [activeSection, dashboardData.negocio]);
 
   const renderSection = () => {
     if (dashboardData.loading) {
@@ -90,7 +154,20 @@ function NegocioDashboard() {
       case "Estadísticas":
         return <EstadisticasSection negocio={dashboardData.negocio} />;
       case "Nexo":
-        return <NexoSection negocio={dashboardData.negocio} />;
+        if (nexoData.loading) {
+          return (
+            <div>
+              <p>Cargando datos de nexo</p>
+            </div>
+          );
+        }
+        return (
+          <NexoSection
+            negocio={dashboardData.negocio}
+            nexoData={nexoData.data}
+            nexoError={nexoData.error}
+          />
+        );
       case "Mi negocio":
         return <MiNegocioSection negocio={dashboardData.negocio} />;
       case "Ajustes":
