@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Establecimiento } from "../models/establecimiento.model.js";
 import { Negocio } from "../models/negocio.model.js";
+import { Nexo } from "../models/nexo.model.js";
 import ResponseHandler from "../utils/responseHandler.utils.js";
 
 export const establecimientoController = {
@@ -227,15 +228,81 @@ export const establecimientoController = {
   getEstablecimiento: async (req, res) => {
     try {
       const { id } = req.params;
-      const establecimiento = await Establecimiento.findById(id);
+
+      // Este controlador obtiene establecimientoID por parte de un negocio.establecimientos[0]
+      // busca en la coleccion de establecimientos el establecimientoID y devuelve el establecimiento
+
+      console.log("Searching for establecimientoID:", id);
+      console.log(req.params);
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: id,
+      });
+      console.log("Query result:", establecimiento);
 
       if (!establecimiento) {
-        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+        return ResponseHandler.error(res, "Establecimiento no found", 404);
       }
 
       return ResponseHandler.success(res, establecimiento);
     } catch (error) {
-      return ResponseHandler.error(res, error.message, 500);
+      return ResponseHandler.error(res, "nioasa", 500);
+    }
+  },
+
+  getNexo: async (req, res) => {
+    const { id } = req.params;
+    const establecimiento = await Establecimiento.findOne({
+      establecimientoID: id,
+    });
+    console.log(establecimiento);
+    console.log(req.params);
+    if (!establecimiento) {
+      return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+    }
+    if (!establecimiento.nexoID) {
+      return ResponseHandler.error(res, "Nexo no encontrado", 404);
+    }
+    const nexo = await Nexo.findOne({
+      _id: establecimiento.nexoID,
+    }).lean();
+    if (!nexo) {
+      return ResponseHandler.error(res, "Nexo no encontrado", 404);
+    }
+
+    return ResponseHandler.success(res, nexo);
+  },
+
+  unpairNexo: async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
+    try {
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: id,
+      });
+      if (!establecimiento) {
+        console.log("Establecimiento no encontradoN");
+        console.log(id);
+        return ResponseHandler.error(
+          res,
+          "Establecimiento no encontradoE",
+          404
+        );
+      }
+      if (!establecimiento.nexoID) {
+        return ResponseHandler.error(res, "Establecimiento no tiene Nexo", 204);
+      }
+      establecimiento.nexoID = null;
+      await establecimiento.save();
+
+      res
+        .status(200)
+        .json({ data: establecimiento, message: "Nexo desvinculado" }); // Send back the updated document.
+    } catch (error) {
+      // Abort the transaction on error.
+      console.error("Error unpairing Nexo:", error); // Log the error for debugging.
+      res
+        .status(500)
+        .json({ message: "Failed to unpair Nexo", error: error.message }); // Send error response.
     }
   },
 };

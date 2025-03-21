@@ -41,6 +41,8 @@ export const nexoController = {
         const nexo = new Nexo({
           establecimientoID: establecimiento._id,
           fechaRegistro: new Date(),
+          ultimoUso: new Date(),
+          visitasRegistradas: 0,
         });
         await nexo.save({ session });
 
@@ -110,7 +112,7 @@ export const nexoController = {
       if (!establecimiento) {
         return res.status(404).json({
           success: false,
-          message: "Establecimiento no encontrado",
+          message: "Establecimiento no encontradoF",
         });
       }
 
@@ -141,7 +143,13 @@ export const nexoController = {
           // If image processing fails, we'll keep the original
         }
       }
-
+      const nexo = await Nexo.findOne({
+        establecimientoID: establecimiento._id,
+      });
+      if (nexo) {
+        nexo.ultimoUso = new Date();
+        await nexo.save();
+      }
       const clienteData = {
         publicID: cliente.publicID,
         resize: resize,
@@ -329,7 +337,19 @@ export const nexoController = {
       establecimiento.metricas.visitasTotales =
         (establecimiento.metricas.visitasTotales || 0) + 1;
       await establecimiento.save();
-
+      try {
+        const nexo = await Nexo.findOne({
+          establecimientoID: establecimiento._id,
+        });
+        if (nexo) {
+          nexo.ultimoUso = new Date();
+          nexo.visitasRegistradas += 1;
+          await nexo.save();
+        }
+      } catch (error) {
+        console.error("Error actualizando nexo:", error);
+        // We don't want to fail the whole operation if nexo update fails
+      }
       //devolvemos success
       return res.status(200).json({
         success: true,
@@ -343,6 +363,32 @@ export const nexoController = {
         success: false,
         message: "Error al procesar la solicitud",
       });
+    }
+  },
+
+  getNexoStats: async (req, res) => {
+    try {
+      const { nexoId } = req.params;
+      const nexo = await Nexo.findById(nexoId).populate("establecimientoID");
+
+      if (!nexo) {
+        return ResponseHandler.error(res, "Nexo no encontrado", 404);
+      }
+
+      const stats = {
+        fechaRegistro: nexo.fechaRegistro,
+        ultimoUso: nexo.ultimoUso,
+        visitasRegistradas: nexo.visitasRegistradas,
+        establecimiento: nexo.establecimientoID,
+      };
+
+      return ResponseHandler.success(
+        res,
+        stats,
+        "Estadísticas del Nexo recuperadas exitosamente"
+      );
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
     }
   },
 };

@@ -3,12 +3,12 @@ import { establecimientoController } from "../controllers/establecimiento.contro
 
 const router = express.Router();
 
-// Protected routes (require authentication)
-
 router.post("/generate-code", establecimientoController.generateConnectionCode);
 router.post("/", establecimientoController.addEstablecimiento);
 router.get("/:id", establecimientoController.getEstablecimiento);
 router.put("/:id", establecimientoController.updateEstablecimiento);
 router.delete("/:id", establecimientoController.deleteEstablecimiento);
+router.post("/:id/unpair", establecimientoController.unpairNexo);
+router.get("/:id/nexo", establecimientoController.getNexo);
 
 export default router;

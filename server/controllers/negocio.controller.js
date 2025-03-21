@@ -177,6 +177,29 @@ export const negocioController = {
     }
   },
 
+  // Get establishment
+  getEstablecimiento: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const negocio = await Negocio.findOne({ usuarioID: req.user.id });
+
+      if (!negocio) {
+        return ResponseHandler.error(res, "Negocio not found", 404);
+      }
+
+      const establecimiento = await Establecimiento.find(
+        {
+          nombre: negocio.nombre,
+        },
+        { _id: 1, establecimientoID: 1 }
+      );
+
+      return ResponseHandler.success(res, establecimiento);
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+
   // Update establishment
   updateEstablecimiento: async (req, res) => {
     try {

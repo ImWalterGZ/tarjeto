@@ -17,6 +17,7 @@ router.put("/branding", negocioController.updateBranding);
 router.get("/branding", negocioController.getBranding);
 
 // Establishment routes
+router.get("/establecimiento", negocioController.getEstablecimiento);
 router.post("/establecimiento", negocioController.addEstablecimiento);
 router.put("/establecimiento/:id", negocioController.updateEstablecimiento);
 router.delete("/establecimiento/:id", negocioController.deleteEstablecimiento);

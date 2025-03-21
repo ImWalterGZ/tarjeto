@@ -14,6 +14,14 @@ const nexoSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+  ultimoUso: {
+    type: Date,
+    default: Date.now,
+  },
+  visitasRegistradas: {
+    type: Number,
+    default: 0,
+  },
 });
 
 export const Nexo = mongoose.model("Nexo", nexoSchema);

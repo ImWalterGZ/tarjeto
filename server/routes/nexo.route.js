@@ -10,6 +10,9 @@ router.post("/register", nexoController.register);
 // Protected route for getting Nexo status
 router.get("/:nexoId/status", nexoController.getStatus);
 
+// Add new route for Nexo statistics
+router.get("/:nexoId/stats", nexoController.getNexoStats);
+
 router.get(
   "/datosCliente/:clienteId/:establecimientoID",
   nexoController.getClienteData
