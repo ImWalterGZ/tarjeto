@@ -73,16 +73,18 @@ export const login = async (req, res) => {
 };
 
 export const signup = async (req, res) => {
+  console.log("=== Starting signup function ===");
+  console.log("Request body:", { ...req.body, contrasena: "[REDACTED]" });
+
   const { email, contrasena, nombre } = req.body;
-  if (!nombre) {
-    nombre = " ";
-  }
+  let userResponse = null;
 
   try {
     if (!email || !contrasena) {
       throw new Error("Todos los campos son requeridos");
     }
 
+    console.log("1. Checking if user exists");
     const usuarioExiste = await User.findOne({ email });
     if (usuarioExiste) {
       return res
@@ -90,32 +92,61 @@ export const signup = async (req, res) => {
         .json({ success: false, message: "El usuario ya existe" });
     }
 
+    console.log("2. Hashing password");
     const hashedPassword = await bcrypt.hash(contrasena, 10);
     const verificationToken = codigoVerificacion();
 
+    console.log("3. Creating new user");
     const user = new User({
       email,
       contrasena: hashedPassword,
-      nombre,
+      nombre: nombre || " ",
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
+
+    console.log("4. Saving user to database");
     await user.save();
+    console.log("5. User saved successfully");
 
-    // JWT
-    generateTokenAndSetCookie(res, user._id, isMobile(req));
+    console.log("6. Generating JWT token");
+    const token = generateTokenAndSetCookie(res, user._id, isMobile(req));
+    console.log("7. Token generated successfully");
 
-    await sendVerificationEmail(user.email, verificationToken);
-
-    res.status(201).json({
+    // Prepare the user response object
+    userResponse = {
       success: true,
       message: "Usuario creado con exito",
       user: {
         ...user._doc,
         contrasena: undefined,
       },
-    });
+    };
+
+    // Try to send verification email but don't let it break the flow
+    try {
+      console.log("8. Attempting to send verification email");
+      await sendVerificationEmail(user.email, verificationToken);
+      console.log("9. Verification email sent successfully");
+    } catch (emailError) {
+      console.warn("Warning: Failed to send verification email:", {
+        error: emailError.message,
+        userEmail: email,
+      });
+      // Add a warning to the response but keep it successful
+      userResponse.emailWarning =
+        "Cuenta creada exitosamente, pero hubo un problema al enviar el email de verificación. Por favor, contacte a soporte.";
+    }
+
+    console.log("10. Sending success response");
+    res.status(201).json(userResponse);
+    console.log("=== Signup function completed successfully ===");
   } catch (error) {
+    console.error("=== Error in signup ===");
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+    });
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -151,29 +182,72 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const verifyEmail = async (req, res) => {
+  console.log("=== Starting verifyEmail function ===");
+  console.log("Request body:", req.body);
+
   const { code } = req.body;
   try {
-    console.log("Verificando código:", code);
+    console.log("1. Attempting to verify code:", code);
+
+    // Log the query conditions
+    console.log("2. Query conditions:", {
+      verificationToken: code,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+      currentTime: new Date(),
+    });
+
     const user = await User.findOne({
       verificationToken: code,
       verificationTokenExpiresAt: { $gt: Date.now() },
     });
-    console.log("Usuario encontrado en verifyEmail:", user);
+
+    console.log(
+      "3. User lookup result:",
+      user ? "User found" : "User not found"
+    );
+    if (user) {
+      console.log("4. User details:", {
+        id: user._id,
+        email: user.email,
+        verificationToken: user.verificationToken,
+        tokenExpiry: user.verificationTokenExpiresAt,
+      });
+    }
+
     if (!user) {
+      console.log("5. Verification failed - Invalid or expired code");
       return res
         .status(400)
         .json({ success: false, message: "Codigo invalido o codigo expirado" });
     }
+
+    console.log("6. Updating user verification status");
     user.verificado = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiresAt = undefined;
+
+    console.log("7. Saving user changes");
     await user.save();
+    console.log("8. User changes saved successfully");
 
-    // Generar token JWT y establecer cookie
+    console.log("9. Generating JWT token");
     const token = generateTokenAndSetCookie(res, user._id);
-    console.log("Token generado:", token);
+    console.log("10. Token generated successfully");
 
-    await sendWelcomeEmail(user.email, user.nombre);
+    // Try to send welcome email but don't wait for it or let it break the flow
+    try {
+      console.log("11. Attempting to send welcome email");
+      await sendWelcomeEmail(user.email, user.nombre);
+      console.log("12. Welcome email sent successfully");
+    } catch (emailError) {
+      // Just log the email error but continue with the success response
+      console.warn(
+        "Warning: Failed to send welcome email:",
+        emailError.message
+      );
+    }
+
+    console.log("13. Sending success response");
     res.status(200).json({
       success: true,
       message: `Email verificado correctamente, ${user.nombre}`,
@@ -183,9 +257,19 @@ export const verifyEmail = async (req, res) => {
         contrasena: undefined,
       },
     });
+    console.log("=== verifyEmail function completed successfully ===");
   } catch (error) {
-    console.log("error in verifyEmail", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("=== Error in verifyEmail ===");
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+    });
+    console.error("Request body at time of error:", req.body);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
