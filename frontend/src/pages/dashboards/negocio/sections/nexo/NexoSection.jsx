@@ -189,7 +189,7 @@ export default function NexoSection({ negocio, nexoData, nexoError }) {
     }
   };
 
-  const handle = async () => {
+  const handleUnpair = async () => {
     console.log("Starting unpairing process");
     setNexoState((prevState) => ({
       ...prevState,

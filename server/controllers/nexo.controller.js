@@ -271,11 +271,9 @@ export const nexoController = {
 
   registrarVisita: async (req, res) => {
     try {
-      // obtenemos datos de la request
-      const clienteID = req.body.clienteID;
-      const establecimientoID = req.body.establecimientoID;
+      const { clienteID, establecimientoID } = req.body;
 
-      // no vacios
+      // Validar inputs
       if (!clienteID || !establecimientoID) {
         return res.status(400).json({
           success: false,
@@ -283,10 +281,8 @@ export const nexoController = {
         });
       }
 
-      // encontrar cliente y comprobar
-      const cliente = await Cliente.findOne({
-        publicID: clienteID,
-      });
+      // Find and validate cliente
+      const cliente = await Cliente.findOne({ publicID: clienteID });
       if (!cliente) {
         return res.status(404).json({
           success: false,
@@ -316,27 +312,49 @@ export const nexoController = {
         });
       }
 
-      // Obtener indice de la tarjeta que hace match en establecimiento y cliente.tarjeta
+      // Process profile image if it exists
+      let fotoPerfil = cliente.datosPersonales?.fotoPerfil;
+      let resize = false;
+      if (fotoPerfil) {
+        try {
+          fotoPerfil = await resizeToExactDimensions(fotoPerfil);
+          resize = true;
+        } catch (error) {
+          console.error("Error processing profile image:", error);
+        }
+      }
+
+      // Find or create loyalty card
       const tarjetaIndex = cliente.tarjetas.findIndex(
         (item) => item.negocio_id === negocio.publicID
       );
 
+      let tarjetaInfo;
       if (tarjetaIndex === -1) {
-        return res.status(404).json({
-          success: false,
-          message: "El cliente no tiene tarjeta de lealtad",
-        });
+        // si no existe, creamos una nueva tarjeta
+        tarjetaInfo = {
+          negocio_id: negocio.publicID,
+          nivel: 0,
+          visitas: 1,
+          ultimaVisita: new Date(),
+        };
+        cliente.tarjetas.push(tarjetaInfo);
+      } else {
+        // actualizamos datos y guardamos al cliente
+        cliente.tarjetas[tarjetaIndex].ultimaVisita = new Date();
+        cliente.tarjetas[tarjetaIndex].visitas += 1;
+        tarjetaInfo = cliente.tarjetas[tarjetaIndex];
       }
 
-      // actualizamos datos y guardamos al cliente
-      cliente.tarjetas[tarjetaIndex].ultimaVisita = new Date();
-      cliente.tarjetas[tarjetaIndex].visitas += 1;
+      // Save cliente changes
       await cliente.save();
 
       // actualizamos datos y guardamos metricas de establecimiento
       establecimiento.metricas.visitasTotales =
         (establecimiento.metricas.visitasTotales || 0) + 1;
       await establecimiento.save();
+
+      // actualizamos datos y guardamos estadisticas de nexo
       try {
         const nexo = await Nexo.findOne({
           establecimientoID: establecimiento._id,
@@ -348,14 +366,21 @@ export const nexoController = {
         }
       } catch (error) {
         console.error("Error actualizando nexo:", error);
-        // We don't want to fail the whole operation if nexo update fails
+        // no queremos que falle la operacion si no se actualiza nexo
       }
-      //devolvemos success
+
+      // devolvemos success
       return res.status(200).json({
         success: true,
         message: "Visita registrada exitosamente",
-        tarjetaInfo: cliente.tarjetas[tarjetaIndex],
-        visitasTotal: cliente.tarjetas[tarjetaIndex].visitas,
+        clienteData: {
+          publicID: cliente.publicID,
+          nombre: cliente.datosPersonales?.nombre,
+          fotoPerfil,
+          resize,
+        },
+        tarjetaInfo,
+        visitasTotal: tarjetaInfo.visitas,
       });
     } catch (error) {
       console.error("Error registrando visita:", error);

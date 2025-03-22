@@ -6,6 +6,7 @@ export const ConnectionStatus = ({
   onGenerateCode,
   isGeneratingCode,
   lastConnection,
+  connectionCode,
 }) => {
   // Format the last connection date if available
   const formatLastConnection = (date) => {
@@ -46,6 +47,13 @@ export const ConnectionStatus = ({
               {formatLastConnection(lastConnection)}
             </p>
           </>
+        ) : connectionCode ? (
+          <div className="flex flex-col items-center">
+            <p className="text-gray-600 text-sm mb-1">Código de conexión</p>
+            <p className="text-2xl font-bold text-red-primary tracking-wider">
+              {connectionCode}
+            </p>
+          </div>
         ) : (
           <button
             onClick={onGenerateCode}

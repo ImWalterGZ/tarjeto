@@ -19,10 +19,5 @@ router.get(
 );
 router.post("/registrarVisita", nexoController.registrarVisita);
 router.post("/crearTarjetaNueva", nexoController.crearTarjetaNueva);
-// Add your routes here
-// Example routes:
-// router.post("/register", verifyToken, nexoController.register);
-// router.get("/validate", verifyToken, nexoController.validate);
-// router.get("/status", verifyToken, nexoController.getStatus);
 
 export default router;

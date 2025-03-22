@@ -19,6 +19,7 @@ export const StatusSection = ({
         onGenerateCode={onGenerateCode}
         isGeneratingCode={isGeneratingCode}
         lastConnection={lastConnection}
+        connectionCode={connectionCode}
       />
 
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
