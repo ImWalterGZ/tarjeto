@@ -338,6 +338,9 @@ export const nexoController = {
           visitas: 1,
           ultimaVisita: new Date(),
         };
+        negocio.clientesUnicos = negocio.clientesUnicos + 1;
+        await negocio.save();
+
         cliente.tarjetas.push(tarjetaInfo);
       } else {
         // actualizamos datos y guardamos al cliente
