@@ -49,6 +49,13 @@ export const negocioController = {
       const statistics = {
         totalVisits: negocio.visitasTotales,
         activePromotions: 0,
+        // weeks since registration
+        semanasDesdeRegistro: Math.floor(
+          (Date.now() - new Date(negocio.fechaRegistro)) /
+            (7 * 24 * 60 * 60 * 1000)
+        ),
+        establecimientos: negocio.establecimientos.length,
+        clientesUnicos: negocio.clientesUnicos,
         // Add more statistics as needed
       };
       return ResponseHandler.success(res, statistics);
