@@ -1062,5 +1062,45 @@ module.exports = {
       50: "50",
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        light: {
+          primary: "#F4262F",
+          "primary-focus": "#DC2626",
+          "primary-content": "#ffffff",
+
+          secondary: "#f9fafb",
+          "secondary-focus": "#e5e7eb",
+          "secondary-content": "#1f2937",
+
+          accent: "#F4262F",
+          "accent-focus": "#DC2626",
+          "accent-content": "#ffffff",
+
+          neutral: "#3d4451",
+          "neutral-focus": "#2a2e37",
+          "neutral-content": "#ffffff",
+
+          "base-100": "#ffffff",
+          "base-200": "#f9fafb",
+          "base-300": "#f3f4f6",
+          "base-content": "#1f2937",
+
+          info: "#90C1DB",
+          success: "#36D399",
+          warning: "#FBBD23",
+          error: "#F4262F",
+
+          "--rounded-btn": "0.5rem",
+          "--btn-text-case": "none",
+          "--navbar-padding": "0.5rem",
+          "--border-btn": "2px",
+        },
+      },
+      "light",
+    ],
+    darkTheme: "light",
+  },
 };

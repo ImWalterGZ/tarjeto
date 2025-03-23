@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* DaisyUI component overrides to ensure correct primary color */
+@layer components {
+  .btn-primary {
+    background-color: #f4262f !important;
+    border-color: #f4262f !important;
+  }
+
+  .btn-primary:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+  }
+
+  .range-primary::-webkit-slider-thumb {
+    background-color: #f4262f !important;
+  }
+
+  .range-primary::-moz-range-thumb {
+    background-color: #f4262f !important;
+  }
+
+  .toggle-primary:checked {
+    background-color: #f4262f !important;
+    border-color: #f4262f !important;
+  }
+}

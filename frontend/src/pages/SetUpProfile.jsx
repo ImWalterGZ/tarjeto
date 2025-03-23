@@ -10,21 +10,130 @@ import ClientPreview from "../components/profile/ClientPreview";
 import CategorySelector from "../components/profile/CategorySelector";
 import logo from "/images/isotipo-red.png";
 import { compressImage } from "../utils/image.compressor";
-import {
-  Stepper,
-  Step,
-  StepLabel,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  LinearProgress,
-} from "@mui/material";
 import { gradients } from "../components/profile/BusinessPreview";
 import { Undo2 } from "lucide-react";
 import UserAddPhoto from "/images/userAddPhoto.png";
+
+// Add inline styles to enforce red primary color
+const styleOverrides = `
+  .btn-primary {
+    background-color: #F4262F !important;
+    border-color: #F4262F !important;
+    box-shadow: none !important;
+    color: #FFFFFF !important;
+  }
+  
+  .btn-primary:hover {
+    background-color: #DC2626 !important;
+    border-color: #DC2626 !important;
+    color: #FFFFFF !important;
+  }
+  
+  .btn-primary:focus, 
+  .btn-primary:focus-visible {
+    outline: 2px solid #F4262F !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(244, 38, 47, 0.4) !important;
+    color: #FFFFFF !important;
+  }
+  
+  /* Force specific button colors */
+  button.btn-primary {
+    color: #FFFFFF !important;
+  }
+  
+  .btn-outline:focus,
+  .btn-outline:focus-visible {
+    outline: 2px solid #F4262F !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px rgba(244, 38, 47, 0.4) !important;
+  }
+  
+  /* Remove focus rings and shadows from all buttons */
+  .btn {
+    --focus-shadow: 0 0 0 2px rgba(244, 38, 47, 0.4) !important;
+    --btn-focus-scale: 0.97 !important;
+  }
+  
+  /* Progress bar override */
+  .progress-error {
+    --progress-color: #F4262F !important;
+  }
+  
+  .progress {
+    background-color: rgba(244, 38, 47, 0.2) !important;
+  }
+  
+  .progress::-webkit-progress-value {
+    background-color: #F4262F !important;
+  }
+  
+  .progress::-moz-progress-bar {
+    background-color: #F4262F !important;
+  }
+  
+  .progress:indeterminate::after {
+    background-color: #F4262F !important;
+  }
+  
+  /* Range slider overrides */
+  .range-primary {
+    --range-shdw: #F4262F !important;
+  }
+  
+  .range-primary::-webkit-slider-thumb {
+    background-color: #F4262F !important;
+    border-color: #F4262F !important;
+    box-shadow: 0 0 0 2px #F4262F !important;
+  }
+  
+  .range-primary::-moz-range-thumb {
+    background-color: #F4262F !important;
+    border-color: #F4262F !important;
+    box-shadow: 0 0 0 2px #F4262F !important;
+  }
+  
+  .range-primary::-webkit-slider-runnable-track {
+    background-color: #F4262F !important;
+  }
+  
+  .range-primary::-moz-range-track {
+    background-color: #F4262F !important;
+  }
+  
+  .range-primary:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px #F4262F !important;
+  }
+  
+  .range-primary:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 2px #F4262F !important;
+  }
+  
+  /* Custom red range class */
+  .red-range::-webkit-slider-thumb {
+    background-color: #F4262F !important;
+  }
+  
+  .red-range::-moz-range-thumb {
+    background-color: #F4262F !important;
+  }
+  
+  .red-range::-webkit-slider-runnable-track {
+    background-image: linear-gradient(to right, #F4262F, #F4262F) !important;
+    background-size: var(--range-progress, 0%) 100% !important;
+    background-repeat: no-repeat !important;
+  }
+  
+  /* Toggle overrides */
+  .toggle-primary:checked {
+    background-color: #F4262F !important;
+    border-color: #F4262F !important;
+  }
+  
+  .toggle-primary:focus-visible {
+    outline-color: #F4262F !important;
+  }
+`;
 
 function SetUpProfile() {
   const navigate = useNavigate();
@@ -34,6 +143,76 @@ function SetUpProfile() {
   const [answers, setAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanding, setIsExpanding] = useState(false);
+
+  // Helper functions for specific field types
+  const getHorario = (dia, campo) => {
+    if (!answers.horarioOperacion) return "";
+    const horarioDia = answers.horarioOperacion.find((h) => h.dia === dia);
+    return horarioDia ? horarioDia[campo] : "";
+  };
+
+  const updateHorario = (dia, campo, valor) => {
+    setAnswers((prev) => {
+      const horarioOperacion = [...(prev.horarioOperacion || [])];
+      const index = horarioOperacion.findIndex((h) => h.dia === dia);
+
+      if (index >= 0) {
+        horarioOperacion[index] = {
+          ...horarioOperacion[index],
+          [campo]: valor,
+        };
+      } else {
+        horarioOperacion.push({ dia, [campo]: valor });
+      }
+
+      return { ...prev, horarioOperacion };
+    });
+  };
+
+  // Apply preset schedules to all days or specific days
+  const applyPresetHorario = (preset) => {
+    const dias = [
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+      "Domingo",
+    ];
+
+    let nuevoHorario = [];
+
+    switch (preset) {
+      case "fullDay":
+        // 8:00 - 20:00 todos los días
+        dias.forEach((dia) => {
+          nuevoHorario.push({ dia, apertura: "08:00", cierre: "20:00" });
+        });
+        break;
+      case "halfDay":
+        // 8:00 - 14:00 todos los días
+        dias.forEach((dia) => {
+          nuevoHorario.push({ dia, apertura: "08:00", cierre: "14:00" });
+        });
+        break;
+      case "noWeekends":
+        // 8:00 - 18:00 de lunes a viernes, cerrado en fin de semana
+        dias.forEach((dia) => {
+          if (dia === "Sábado" || dia === "Domingo") {
+            nuevoHorario.push({ dia, apertura: "", cierre: "" });
+          } else {
+            nuevoHorario.push({ dia, apertura: "08:00", cierre: "18:00" });
+          }
+        });
+        break;
+    }
+
+    setAnswers((prev) => ({
+      ...prev,
+      horarioOperacion: nuevoHorario,
+    }));
+  };
 
   useEffect(() => {
     if (!usuario?.verificado) {
@@ -132,6 +311,36 @@ function SetUpProfile() {
         },
       ],
     },
+    {
+      id: 9,
+      pregunta: "¿Cuál es tu rango de precios?",
+      type: "price-range",
+      field: "rangoPrecios",
+      required: true,
+    },
+    {
+      id: 10,
+      pregunta: "¿Cuántos empleados tiene tu negocio?",
+      type: "range",
+      field: "personalTotal",
+      min: 0,
+      max: 100,
+      required: true,
+    },
+    {
+      id: 11,
+      pregunta: "Horario de operación",
+      type: "operating-hours",
+      field: "horarioOperacion",
+      required: true,
+    },
+    {
+      id: 12,
+      pregunta: "Información adicional",
+      type: "business-metrics",
+      field: "business-metrics",
+      required: true,
+    },
   ];
 
   const preguntasUsuario = [
@@ -192,7 +401,23 @@ function SetUpProfile() {
 
   const handleNext = async () => {
     const currentQuestion = preguntas[currentStep];
+    console.log("Current step:", currentStep);
+    console.log("Current field:", currentQuestion.field);
+    console.log("Field value:", answers[currentQuestion.field]);
+    console.log("Required:", currentQuestion.required);
+    console.log("Total steps:", preguntas.length);
+    console.log("Is last step:", currentStep === preguntas.length - 1);
+
+    // Special handling for composite fields
+    if (currentQuestion.type === "business-metrics") {
+      // Set a flag in answers to mark this section as completed
+      if (!answers[currentQuestion.field]) {
+        handleAnswer(true, currentQuestion.field);
+      }
+    }
+
     if (!answers[currentQuestion.field] && currentQuestion.required) {
+      console.log("Validation failed for field:", currentQuestion.field);
       toast.error("Por favor completa este campo");
       return;
     }
@@ -233,10 +458,7 @@ function SetUpProfile() {
       setIsSubmitting(true);
 
       // Debug log for answers object
-      // console.log("Current answers state:", answers);
-      // console.log("Current step:", currentStep);
-      // console.log("Total steps:", preguntas.length);
-      // console.log("User type:", userType);
+      console.log("FINAL ANSWERS:", answers);
 
       // Validate all required fields
       const requiredFields =
@@ -323,6 +545,17 @@ function SetUpProfile() {
               instagram: "",
               tiktok: "",
             },
+            rangoPrecios: answers.rangoPrecios || "",
+            personalTotal: answers.personalTotal || 0,
+            horarioOperacion: answers.horarioOperacion || [],
+            numeroPlatosPrincipales: answers.numeroPlatosPrincipales || 0,
+            presupuestoMarketing: answers.presupuestoMarketing || 0,
+            historiaNegocio: "",
+            valorDiferenciador: "",
+            enfoqueMercado: "",
+            // Keep default values for removed fields
+            numeroClientesDiarios: 0,
+            calificacionPromedio: 0,
           },
           establecimiento: {
             nombre: answers.nombreComercial,
@@ -477,11 +710,11 @@ function SetUpProfile() {
             {currentQuestion.pregunta}
           </h2>
           {currentQuestion.fields.map((field) => (
-            <TextField
+            <input
               key={field.name}
-              fullWidth
-              label={field.label}
               type={field.type}
+              placeholder={field.label}
+              className="input input-bordered w-full"
               value={answers[currentQuestion.field]?.[field.name] || ""}
               onChange={(e) =>
                 handleAnswer(
@@ -493,30 +726,6 @@ function SetUpProfile() {
                 )
               }
               required={field.required}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#F2F2F2",
-                  "& fieldset": {
-                    borderColor: "#616161",
-                    borderWidth: "2px",
-                    borderRadius: "0.5rem",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#EF4444",
-                    borderWidth: "2px",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#EF4444",
-                    borderWidth: "2px",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#616161",
-                  "&.Mui-focused": {
-                    color: "#EF4444",
-                  },
-                },
-              }}
             />
           ))}
         </div>
@@ -572,10 +781,10 @@ function SetUpProfile() {
 
           <label
             htmlFor={currentQuestion.field}
-            className="w-full max-w-md py-4 px-6 rounded-full border-2 border-red-500 flex items-center justify-center gap-2 cursor-pointer hover:bg-red-50 transition-colors"
+            className="btn  btn-error w-full max-w-md"
           >
             <svg
-              className="w-6 h-6 text-red-500"
+              className="w-6 h-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -587,18 +796,19 @@ function SetUpProfile() {
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"
               />
             </svg>
-            <span className="text-red-500 font-medium text-lg">Subir</span>
+            <span>Subir</span>
           </label>
 
           <button
             onClick={() => handleNext()}
-            className="w-full h-12 max-w-md py-4 px-6 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+            className="btn btn-ghost w-full max-w-md"
           >
-            <span className="text-gray-600 font-medium text-lg">Omitir</span>
+            <span>Omitir</span>
           </button>
         </div>
       );
     }
+
     if (currentQuestion.type === "gradient") {
       return (
         <div className="space-y-4">
@@ -630,157 +840,441 @@ function SetUpProfile() {
       );
     }
 
+    if (currentQuestion.type === "price-range") {
+      return (
+        <div className="form-control" data-theme="light">
+          <label className="label">
+            <span className="label-text text-lg">
+              {currentQuestion.pregunta}
+            </span>
+          </label>
+          <div className="flex justify-center gap-3">
+            {[
+              { value: "low", label: "60 - 199" },
+              { value: "mid", label: "200 - 245" },
+              { value: "high", label: "250 - 449" },
+              { value: "premium", label: "500+" },
+            ].map((range) => (
+              <button
+                key={range.value}
+                type="button"
+                className={`btn ${
+                  answers[currentQuestion.field] === range.value
+                    ? "btn-primary"
+                    : ""
+                } flex-1`}
+                onClick={() => handleAnswer(range.value, currentQuestion.field)}
+                style={
+                  answers[currentQuestion.field] === range.value
+                    ? { color: "#E0E0E0" }
+                    : {}
+                }
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (currentQuestion.type === "range") {
+      // Create a mapping between slider position and employee count values
+      const employeeCountMap = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50];
+
+      // Get the displayed value from the map or use default
+      const getDisplayValue = (sliderPosition) => {
+        if (!sliderPosition) return 0;
+        const position = parseInt(sliderPosition);
+        const value = employeeCountMap[position - 1];
+        return position === employeeCountMap.length ? value + "+" : value;
+      };
+
+      // Get slider position from actual value (for setting initial value)
+      const getSliderPosition = (actualValue) => {
+        if (!actualValue) return 1;
+        const position =
+          employeeCountMap.findIndex((val) => actualValue <= val) + 1;
+        return position > 0 ? position : employeeCountMap.length;
+      };
+
+      // Current slider position (not the actual value)
+      const currentPosition = answers[currentQuestion.field + "_position"] || 1;
+
+      // Current display value based on the position
+      const displayValue = getDisplayValue(currentPosition);
+
+      return (
+        <div className="form-control" data-theme="light">
+          <label className="label">
+            <span className="label-text text-lg">
+              {currentQuestion.pregunta}
+            </span>
+            <span className="label-text-alt font-medium text-gray-700">
+              {displayValue} empleados
+            </span>
+          </label>
+          <input
+            type="range"
+            min="1"
+            max={employeeCountMap.length}
+            step="1"
+            value={currentPosition}
+            onChange={(e) => {
+              const sliderPosition = parseInt(e.target.value);
+              const actualValue = employeeCountMap[sliderPosition - 1];
+
+              // Store both the position and the actual value
+              handleAnswer(sliderPosition, currentQuestion.field + "_position");
+              handleAnswer(actualValue, currentQuestion.field);
+            }}
+            className="range range-primary range-lg w-full red-range py-7"
+            style={{
+              "--range-shdw": "#F4262F",
+              "--range-color": "#FEF2F2",
+            }}
+          />
+          <div className="w-full flex justify-between text-xs px-2 mt-2">
+            {employeeCountMap.map((value, index) => (
+              <span key={index} className="font-medium">
+                {index === employeeCountMap.length - 1 ? "50+" : value}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (currentQuestion.type === "operating-hours") {
+      return (
+        <div className="form-control" data-theme="light">
+          <label className="label">
+            <span className="label-text text-lg">
+              {currentQuestion.pregunta}
+            </span>
+          </label>
+
+          {/* Preset Schedule Buttons */}
+          <div className="my-4">
+            <p className="text-sm text-gray-500 mb-2">
+              Selecciona un horario común o define uno personalizado:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-sm "
+                onClick={() => applyPresetHorario("fullDay")}
+              >
+                Jornada completa (8:00-20:00)
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm "
+                onClick={() => applyPresetHorario("halfDay")}
+              >
+                Media jornada (8:00-14:00)
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            {[
+              "Lunes",
+              "Martes",
+              "Miércoles",
+              "Jueves",
+              "Viernes",
+              "Sábado",
+              "Domingo",
+            ].map((day) => {
+              const apertura = getHorario(day, "apertura");
+              const cierre = getHorario(day, "cierre");
+              const isClosed = !apertura && !cierre;
+
+              return (
+                <div key={day} className="flex items-center gap-2">
+                  <span className="w-24 text-sm font-medium">{day}</span>
+
+                  {/* Toggle for open/closed */}
+                  <div className="form-control mr-2">
+                    <label className="label cursor-pointer p-0">
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-xs"
+                        checked={!isClosed}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            // Set default hours if toggling to open
+                            updateHorario(day, "apertura", "09:00");
+                            updateHorario(day, "cierre", "18:00");
+                          } else {
+                            // Clear hours if toggling to closed
+                            updateHorario(day, "apertura", "");
+                            updateHorario(day, "cierre", "");
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Time inputs */}
+                  {!isClosed ? (
+                    <>
+                      <input
+                        type="time"
+                        className="input input-bordered input-sm w-28"
+                        value={apertura}
+                        onChange={(e) =>
+                          updateHorario(day, "apertura", e.target.value)
+                        }
+                      />
+                      <span>a</span>
+                      <input
+                        type="time"
+                        className="input input-bordered input-sm w-28"
+                        value={cierre}
+                        onChange={(e) =>
+                          updateHorario(day, "cierre", e.target.value)
+                        }
+                      />
+                    </>
+                  ) : (
+                    <span className="text-sm italic text-gray-500">
+                      Cerrado
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    if (currentQuestion.type === "business-metrics") {
+      // Define budget ranges for marketing budget slider
+      const marketingBudgetRanges = [1000, 2000, 3000, 5000, 7500, 10000];
+
+      console.log("Rendering business-metrics section");
+
+      // Mark this section as completed
+      if (!answers[currentQuestion.field] && currentQuestion.required) {
+        handleAnswer(true, currentQuestion.field);
+      }
+
+      // Get displayed value for marketing budget
+      const getMarketingBudgetValue = (sliderPosition) => {
+        if (!sliderPosition) return 0;
+        const position = parseInt(sliderPosition);
+        const value = marketingBudgetRanges[position - 1];
+        return position === marketingBudgetRanges.length ? value + "+" : value;
+      };
+
+      // Current displayed values
+      const marketingBudgetValue = getMarketingBudgetValue(
+        answers.marketingBudgetPosition || 1
+      );
+
+      return (
+        <div className="space-y-6" data-theme="light">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Información adicional
+          </h2>
+
+          {/* Featured Products - Slider */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">
+                Número de productos/platos principales
+              </span>
+              <span className="label-text-alt font-medium text-gray-700">
+                {answers.numeroPlatosPrincipales || 1}
+              </span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="5"
+              step="1"
+              value={answers.numeroPlatosPrincipales || 1}
+              onChange={(e) => {
+                handleAnswer(
+                  parseInt(e.target.value),
+                  "numeroPlatosPrincipales"
+                );
+                // Also mark the parent field as completed
+                handleAnswer(true, currentQuestion.field);
+              }}
+              className="range range-primary w-full red-range"
+              style={{
+                "--range-shdw": "#F4262F",
+                "--range-color": "#F4262F",
+              }}
+            />
+            <div className="w-full flex justify-between text-xs px-2 mt-2">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <span key={num} className="font-medium">
+                  {num}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Marketing Budget - Slider */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">
+                Presupuesto mensual para marketing (MXN)
+              </span>
+              <span className="label-text-alt font-medium text-gray-700">
+                ${marketingBudgetValue}
+              </span>
+            </label>
+            <input
+              type="range"
+              min="1"
+              max={marketingBudgetRanges.length}
+              step="1"
+              value={answers.marketingBudgetPosition || 1}
+              onChange={(e) => {
+                const position = parseInt(e.target.value);
+                const actualValue = marketingBudgetRanges[position - 1];
+
+                // Store both the position and actual value
+                handleAnswer(position, "marketingBudgetPosition");
+                handleAnswer(actualValue, "presupuestoMarketing");
+                // Also mark the parent field as completed
+                handleAnswer(true, currentQuestion.field);
+              }}
+              className="range range-primary w-full red-range"
+              style={{
+                "--range-shdw": "#F4262F",
+                "--range-color": "#F4262F",
+              }}
+            />
+            <div className="w-full flex justify-between text-xs px-2 mt-2">
+              {marketingBudgetRanges.map((value, index) => (
+                <span key={index} className="font-medium">
+                  {index === 0
+                    ? "$1K"
+                    : index === marketingBudgetRanges.length - 1
+                    ? "$10K+"
+                    : value >= 10000
+                    ? "$" + value / 1000 + "K"
+                    : "$" + value / 1000 + "K"}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (currentQuestion.type === "category") {
       return (
-        <CategorySelector
-          selectedCategories={answers[currentQuestion.field] || []}
-          onChange={(value) => handleAnswer(value, currentQuestion.field)}
-          maxSelections={userType === "business" ? 3 : 5}
-        />
+        <div data-theme="light">
+          <CategorySelector
+            selectedCategories={answers[currentQuestion.field] || []}
+            onChange={(value) => handleAnswer(value, currentQuestion.field)}
+            maxSelections={userType === "business" ? 3 : 5}
+          />
+        </div>
       );
     }
 
     if (currentQuestion.type === "select") {
       return (
-        <FormControl fullWidth>
-          <InputLabel
-            sx={{
-              color: "#616161",
-              "&.Mui-focused": {
-                color: "#EF4444",
-              },
-            }}
-          >
-            {currentQuestion.pregunta}
-          </InputLabel>
-          <Select
+        <div className="form-control w-full" data-theme="light">
+          <label className="label">
+            <span className="label-text">{currentQuestion.pregunta}</span>
+          </label>
+          <select
+            className="select select-bordered"
             value={answers[currentQuestion.field] || ""}
             onChange={(e) =>
               handleAnswer(e.target.value, currentQuestion.field)
             }
-            required={currentQuestion.required}
-            sx={{
-              backgroundColor: "#F2F2F2",
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#616161",
-                borderWidth: "2px",
-                borderRadius: "0.5rem",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#EF4444",
-                borderWidth: "2px",
-              },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "#EF4444",
-                borderWidth: "2px",
-              },
-              "& .MuiSelect-icon": {
-                color: "#616161",
-              },
-              "&:hover .MuiSelect-icon": {
-                color: "#EF4444",
-              },
-            }}
           >
+            <option disabled value="">
+              Selecciona una opción
+            </option>
             {currentQuestion.opciones.map((opcion) => (
-              <MenuItem key={opcion} value={opcion}>
+              <option key={opcion} value={opcion}>
                 {opcion}
-              </MenuItem>
+              </option>
             ))}
-          </Select>
-        </FormControl>
+          </select>
+        </div>
       );
     }
 
     if (currentQuestion.type === "social") {
       return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-theme="light">
           {currentQuestion.opciones.map((red) => (
-            <TextField
-              key={red}
-              fullWidth
-              label={`URL de ${red}`}
-              value={answers[currentQuestion.field]?.[red.toLowerCase()] || ""}
-              onChange={(e) =>
-                handleAnswer(
-                  {
-                    ...answers[currentQuestion.field],
-                    [red.toLowerCase()]: e.target.value,
-                  },
-                  currentQuestion.field
-                )
-              }
-              required={currentQuestion.required}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#F2F2F2",
-                  "& fieldset": {
-                    borderColor: "#616161",
-                    borderWidth: "2px",
-                    borderRadius: "0.5rem",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#EF4444",
-                    borderWidth: "2px",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#EF4444",
-                    borderWidth: "2px",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#616161",
-                  "&.Mui-focused": {
-                    color: "#EF4444",
-                  },
-                },
-              }}
-            />
+            <div key={red} className="form-control">
+              <label className="label">
+                <span className="label-text">URL de {red}</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                value={
+                  answers[currentQuestion.field]?.[red.toLowerCase()] || ""
+                }
+                onChange={(e) =>
+                  handleAnswer(
+                    {
+                      ...answers[currentQuestion.field],
+                      [red.toLowerCase()]: e.target.value,
+                    },
+                    currentQuestion.field
+                  )
+                }
+              />
+            </div>
           ))}
         </div>
       );
     }
 
     return (
-      <TextField
-        fullWidth
-        label={currentQuestion.pregunta}
-        type={currentQuestion.type}
-        value={answers[currentQuestion.field] || ""}
-        onChange={(e) => handleAnswer(e.target.value, currentQuestion.field)}
-        required={currentQuestion.required}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            backgroundColor: "#F2F2F2",
-            "& fieldset": {
-              borderColor: "#616161",
-              borderWidth: "2px",
-              borderRadius: "0.5rem",
-            },
-            "&:hover fieldset": {
-              borderColor: "#EF4444",
-              borderWidth: "2px",
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: "#EF4444",
-              borderWidth: "2px",
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: "#616161",
-            "&.Mui-focused": {
-              color: "#EF4444",
-            },
-          },
-        }}
-      />
+      <div className="form-control w-full" data-theme="light">
+        <label className="label">
+          <span className="label-text">{currentQuestion.pregunta}</span>
+        </label>
+        <input
+          type={currentQuestion.type || "text"}
+          className="input input-bordered w-full"
+          value={answers[currentQuestion.field] || ""}
+          onChange={(e) => handleAnswer(e.target.value, currentQuestion.field)}
+          required={currentQuestion.required}
+        />
+      </div>
     );
   };
 
   const progress = ((currentStep + 1) / preguntas.length) * 100;
 
   return (
-    <div className="bg-red-primary w-screen h-screen relative flex items-center justify-center p-2 overflow-hidden">
+    <div
+      className="bg-red-primary w-screen h-screen relative flex items-center justify-center p-2 overflow-hidden"
+      data-theme="light"
+      style={{
+        "--p": "244 38 47" /* RGB values for #F4262F */,
+        "--pf": "220 38 38" /* RGB values for #DC2626 - focus color */,
+        "--pc": "255 255 255" /* white text color */,
+        "--focus-ring": "0 0 0 2px rgba(244, 38, 47, 0.2)",
+        "--focus-shadow": "0 0 0 2px rgba(244, 38, 47, 0.4)",
+        "--btn-focus-scale": "0.97",
+        "--btn-text-case": "none",
+        "--btn-color": "#FFFFFF",
+        "--progress-color": "#F4262F",
+        "--progress-background": "rgba(244, 38, 47, 0.2)",
+        "--er": "244 38 47" /* Error color in RGB format */,
+      }}
+    >
+      <style>{styleOverrides}</style>
       <motion.div
         initial={false}
         animate={{
@@ -928,8 +1422,10 @@ function SetUpProfile() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleStartSetup}
-            className="w-6/12 mt-8 bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary w-6/12 mt-8"
             disabled={!userType}
+            data-theme="light"
+            style={{ boxShadow: "none", color: "#FFFFFF" }}
           >
             Siguiente
           </motion.button>
@@ -1013,48 +1509,39 @@ function SetUpProfile() {
                         layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] },
                       }}
                     >
-                      <LinearProgress
-                        variant="determinate"
+                      <progress
+                        className="progress progress-primary w-full"
                         value={progress}
-                        className="mb-4"
-                        sx={{
-                          backgroundColor: "#f3f4f6",
-                          "& .MuiLinearProgress-bar": {
-                            backgroundColor: "#EF4444",
-                          },
+                        max="100"
+                        style={{
+                          "--progress-color": "#F4262F",
+                          "--progress-background": "rgba(244, 38, 47, 0.2)",
                         }}
-                      />
+                      ></progress>
 
                       <div className="flex items-center justify-between mt-4">
-                        <Button
+                        <button
                           onClick={handleBack}
-                          sx={{
-                            color: "#EF4444",
-                            "&:hover": {
-                              backgroundColor: "#5555",
-                            },
-                          }}
+                          className="btn"
+                          data-theme="light"
+                          style={{ boxShadow: "none" }}
                         >
-                          <Undo2 className="w-10 font-bold mr-3" />
+                          <Undo2 className="w-5 mr-2" />
                           {currentStep === 0 ? "Cambiar tipo" : "Atrás"}
-                        </Button>
-                        <Button
-                          variant="contained"
+                        </button>
+                        <button
                           onClick={handleNext}
                           disabled={isSubmitting}
-                          sx={{
-                            backgroundColor: "#EF4444",
-                            "&:hover": {
-                              backgroundColor: "#DC2626",
-                            },
-                          }}
+                          className="btn btn-primary"
+                          data-theme="light"
+                          style={{ boxShadow: "none", color: "#FFFFFF" }}
                         >
                           {isSubmitting
                             ? "Enviando..."
                             : currentStep === preguntas.length - 1
                             ? "Finalizar"
                             : "Siguiente"}
-                        </Button>
+                        </button>
                       </div>
                     </motion.div>
                   </>

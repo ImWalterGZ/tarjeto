@@ -64,6 +64,45 @@ const BusinessPreview = ({ data }) => {
           </div>
         </div>
 
+        {/* Price Range */}
+        {data?.rangoPrecios && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">
+              Rango de precios
+            </h3>
+            <p className="text-gray-700">
+              {data.rangoPrecios === "low" && "$"}
+              {data.rangoPrecios === "mid" && "$$"}
+              {data.rangoPrecios === "high" && "$$$"}
+              {data.rangoPrecios === "premium" && "$$$$"}
+            </p>
+          </div>
+        )}
+
+        {/* Business Story */}
+        {data?.historiaNegocio && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">
+              Nuestra historia
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {data.historiaNegocio}
+            </p>
+          </div>
+        )}
+
+        {/* Value Proposition */}
+        {data?.valorDiferenciador && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">
+              Valor diferenciador
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {data.valorDiferenciador}
+            </p>
+          </div>
+        )}
+
         {/* Location Info */}
         {data?.establecimiento && (
           <div className="mt-6">
