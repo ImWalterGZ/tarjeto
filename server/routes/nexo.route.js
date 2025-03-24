@@ -19,5 +19,5 @@ router.get(
 );
 router.post("/registrarVisita", nexoController.registrarVisita);
 router.post("/crearTarjetaNueva", nexoController.crearTarjetaNueva);
-
+router.get("/sensorConectado", nexoController.getSensorConectado);
 export default router;

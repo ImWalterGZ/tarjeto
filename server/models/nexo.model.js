@@ -22,6 +22,10 @@ const nexoSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  sensorConectado: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const Nexo = mongoose.model("Nexo", nexoSchema);
