@@ -16,9 +16,9 @@ const router = express.Router();
 // CRUD Routes
 router.post("/", createPromocion);
 router.get("/", getPromociones);
-router.get("/:negocioID", getPromocionesNegocio);
 router.get("/stats/:negocioID", getPromocionStats);
-router.get("/:id", getPromocionById);
+router.get("/:negocioID", getPromocionesNegocio);
+router.get("/promocion/:id", getPromocionById);
 router.put("/:id", updatePromocion);
 router.delete("/:id", deletePromocion);
 
