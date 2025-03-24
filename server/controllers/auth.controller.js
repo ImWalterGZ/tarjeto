@@ -55,13 +55,16 @@ export const login = async (req, res) => {
 
     usuario.ultimaConexion = new Date();
     await usuario.save();
+
+    let perfil = null;
     if (usuario.tipoUsuario === "Cliente") {
-      const perfil = await Cliente.findOne({ usuarioID: usuario._id });
+      perfil = await Cliente.findOne({ usuarioID: usuario._id });
       console.log("Cliente encontrado:", perfil);
     } else {
-      const perfil = await Negocio.findOne({ usuarioID: usuario._id });
+      perfil = await Negocio.findOne({ usuarioID: usuario._id });
       console.log("Negocio encontrado:", perfil);
     }
+
     console.log("Login exitoso para usuario:", email);
     res.status(200).json({
       success: true,
