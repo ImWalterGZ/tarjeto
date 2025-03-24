@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Apply Nunito font to all text elements */
+@layer base {
+  html {
+    font-family: "Nunito", sans-serif;
+  }
+}
+
 /* DaisyUI component overrides to ensure correct primary color */
 @layer components {
   .btn-primary {

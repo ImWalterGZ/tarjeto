@@ -2,7 +2,7 @@
 module.exports = {
   content: [],
   presets: [],
-  darkMode: "media", // or 'class'
+  darkMode: "class", // or 'class'
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontFamily: {
@@ -1101,6 +1101,5 @@ module.exports = {
       },
       "light",
     ],
-    darkTheme: "light",
   },
 };
