@@ -10,6 +10,7 @@ import { resizeToExactDimensions } from "../utils/comprimir.js";
 import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 import { Promocion } from "../models/promocion.model.js";
 import e from "express";
+import { MensajePantalla } from "../models/mensajePantalla.model.js";
 
 export const nexoController = {
   register: async (req, res) => {
@@ -713,6 +714,176 @@ export const nexoController = {
             programaLealtad.temporadaActual.estadisticas.promocionesCanjeadas,
         },
         "Promoción canjeada exitosamente"
+      );
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+  // Método privado para obtener promociones
+  _getPromocionesUsuario: async (clienteID, establecimientoID) => {
+    try {
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({ publicID: clienteID });
+      if (!cliente) {
+        return { success: false, message: "Cliente no encontrado" };
+      }
+
+      // Encontrar establecimiento
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+      if (!establecimiento) {
+        return { success: false, message: "Establecimiento no encontrado" };
+      }
+
+      // Encontrar negocio
+      const negocio = await Negocio.findOne({
+        "establecimientos.establecimientoID": establecimiento.establecimientoID,
+      });
+      if (!negocio) {
+        return { success: false, message: "Negocio no encontrado" };
+      }
+
+      // Encontrar programa de lealtad
+      const programaLealtad = await ProgramaLealtad.findOne({
+        _id: negocio.programaLealtad,
+      }).populate({
+        path: "niveles.promocionesAsignadas.promocionID",
+        model: "Promocion",
+      });
+      if (!programaLealtad) {
+        return { success: false, message: "Programa de lealtad no encontrado" };
+      }
+
+      // Verificar nivel
+      const tarjeta = cliente.tarjetas.find(
+        (item) => item.negocio_id === negocio.publicID
+      );
+      if (!tarjeta) {
+        return {
+          success: false,
+          message: "El cliente no tiene tarjeta para este negocio",
+        };
+      }
+      const nivelUser = tarjeta.nivel;
+
+      // Obtener todas las promociones para el nivel del usuario
+      const promociones = [];
+      programaLealtad.niveles.forEach((nivel) => {
+        if (nivel.nivel <= nivelUser) {
+          nivel.promocionesAsignadas.forEach((promo) => {
+            if (promo.activa && promo.promocionID) {
+              promociones.push(promo.promocionID);
+            }
+          });
+        }
+      });
+
+      // Encontrar promociones activas con nivel requerido
+      const activePromotions = await Promocion.find({
+        negocioID: negocio._id,
+        nivelReq: { $lte: nivelUser },
+        activo: true,
+      });
+
+      // Combinar promociones de ambos fuentes
+      const allPromotions = [...new Set([...promociones, ...activePromotions])];
+
+      if (allPromotions.length === 0) {
+        return {
+          success: false,
+          message: "No hay promociones disponibles para tu nivel",
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          promociones: allPromotions,
+          nivel: nivelUser,
+        },
+      };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+
+  mostrarEnPantalla: async (req, res) => {
+    try {
+      const { clienteID, establecimientoID } = req.body;
+
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({ publicID: clienteID });
+      if (!cliente) {
+        return ResponseHandler.error(res, "Cliente no encontrado", 404);
+      }
+
+      // Encontrar establecimiento
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+      }
+
+      // Obtener promociones del usuario usando el método privado
+      const promocionesResult = await nexoController._getPromocionesUsuario(
+        clienteID,
+        establecimientoID
+      );
+      if (!promocionesResult.success) {
+        return ResponseHandler.error(res, promocionesResult.message, 404);
+      }
+
+      // Crear nuevo mensaje para pantalla
+      const mensajePantalla = new MensajePantalla({
+        clienteID: cliente.publicID,
+        establecimientoID: establecimiento.establecimientoID,
+        promociones: promocionesResult.data.promociones.map((p) => p._id),
+        datosCliente: {
+          nombre: cliente.datosPersonales?.nombre,
+          fotoPerfil: cliente.datosPersonales?.fotoPerfil,
+          nivel: promocionesResult.data.nivel,
+        },
+      });
+
+      await mensajePantalla.save();
+
+      return ResponseHandler.success(
+        res,
+        mensajePantalla,
+        "Mensaje creado para pantalla"
+      );
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+
+  obtenerMensajePantalla: async (req, res) => {
+    try {
+      const { establecimientoID } = req.params;
+
+      // Buscar el mensaje más reciente no mostrado para este establecimiento
+      const mensaje = await MensajePantalla.findOne({
+        establecimientoID,
+        mostrado: false,
+      }).sort({ fechaCreacion: -1 });
+
+      if (!mensaje) {
+        return res.status(205).json({
+          success: true,
+          message: "No hay mensajes para mostrar",
+        });
+      }
+
+      // Marcar el mensaje como mostrado
+      mensaje.mostrado = true;
+      await mensaje.save();
+
+      return ResponseHandler.success(
+        res,
+        mensaje,
+        "Mensaje recuperado exitosamente"
       );
     } catch (error) {
       return ResponseHandler.error(res, error.message, 500);

@@ -28,4 +28,12 @@ router.post(
   "/canjearPromocion/:promocionID/:clienteID/:establecimientoID",
   nexoController.canjearPromocion
 );
+router.post("/mostrarEnPantalla", nexoController.mostrarEnPantalla);
+
+// Ruta para obtener mensajes de pantalla
+router.get(
+  "/mensajePantalla/:establecimientoID",
+  nexoController.obtenerMensajePantalla
+);
+
 export default router;
