@@ -3,7 +3,7 @@ import {
   registrarVisita,
   getVisitasByNegocio,
   getVisitasByCliente,
-  getVisitasStats,
+  getVisitasMensualesStats,
   getTraficoHorario,
 } from "../controllers/visita.controller.js";
 
@@ -19,7 +19,7 @@ router.get("/negocio/:negocioID", getVisitasByNegocio);
 router.get("/cliente/:clienteID", getVisitasByCliente);
 
 // Get visit statistics for a business
-router.get("/stats/:negocioID", getVisitasStats);
+router.get("/stats/:negocioID", getVisitasMensualesStats);
 
 // Get hourly traffic patterns for a business
 router.get("/trafico/:negocioID", getTraficoHorario);

@@ -1,22 +1,27 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const clienteSchema = new mongoose.Schema({
+  // Reference to the user’s account
   usuarioID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
+
+  // A unique public identifier for sharing
   publicID: {
     type: String,
     required: true,
     unique: true,
   },
+
+  // Personal info
   datosPersonales: {
     nombre: String,
     edad: Number,
     genero: String,
     fotoPerfil: {
-      type: String, // Aquí almacenaremos la imagen en base64
+      type: String, // Image in base64 or path/URL
       default: null,
     },
     ubicacion: {
@@ -24,9 +29,13 @@ const clienteSchema = new mongoose.Schema({
       codigoPostal: String,
     },
   },
+
+  // Client’s favorite category or categories
   categoriaFavorita: {
     type: Array,
   },
+
+  // Searching history (example data)
   historialBusquedas: [
     {
       termino: String,
@@ -34,6 +43,8 @@ const clienteSchema = new mongoose.Schema({
       resultadosVistos: Number,
     },
   ],
+
+  // Cards for each business loyalty program the customer is subscribed to
   tarjetas: [
     {
       negocio_id: {
@@ -46,14 +57,27 @@ const clienteSchema = new mongoose.Schema({
       },
       visitas: {
         type: Number,
-        default: 0,
+        default: 0, // total visits for this business
+      },
+      // track first/last visits and streak logic per business
+      fechaPrimeraVisita: {
+        type: Date,
       },
       ultimaVisita: {
         type: Date,
-        required: true,
+      },
+      rachaVisitasConsecutivas: {
+        type: Number,
+        default: 0,
+      },
+      maximaRachaLograda: {
+        type: Number,
+        default: 0,
       },
     },
   ],
+
+  // Achievements or badges
   logros: [
     {
       logroId: {
@@ -64,18 +88,22 @@ const clienteSchema = new mongoose.Schema({
       categoria: String,
     },
   ],
+
+  // Engagement metrics (optional)
   engagement: {
     ultimoLogin: Date,
     sesionesTotal: Number,
     tiempoPromedioSesion: Number,
     dispositivosUsados: [
       {
-        tipo: String,
+        tipo: String, // e.g. “movil”, “web”
         ultimoUso: Date,
         frecuenciaUso: Number,
       },
     ],
   },
+
+  // Lifetime value or segmentation for the customer
   valorCliente: {
     ltv: Number,
     churnRisk: Number,
@@ -89,4 +117,5 @@ const clienteSchema = new mongoose.Schema({
     ],
   },
 });
+
 export const Cliente = mongoose.model("Cliente", clienteSchema);

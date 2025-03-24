@@ -41,7 +41,10 @@ export const negocioSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  planAI: {
+    type: Boolean,
+    default: false,
+  },
   // Datos sobre el rango de precios (ej: $, $$, $$$)
   rangoPrecios: {
     type: String,

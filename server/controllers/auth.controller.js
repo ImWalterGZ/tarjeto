@@ -350,14 +350,14 @@ export const checkAuth = async (req, res) => {
 
 export const setupProfile = async (req, res) => {
   try {
-    // console.log("=== Backend Setup Profile Debug Logs ===");
-    // console.log("1. Raw request body:", req.body);
-    // console.log("2. Raw request files:", req.files);
-    // console.log("3. Raw profileData from body:", req.body.profileData);
-    // console.log("4. Request headers:", req.headers);
+    console.log("=== Backend Setup Profile Debug Logs ===");
+    console.log("1. Raw request body:", req.body);
+    //    console.log("2. Raw request files:", req.files);
+    //console.log("3. Raw profileData from body:", req.body.profileData);
+    console.log("4. Request headers:", req.headers);
 
     const userType = req.body.userType;
-    // console.log("5. User type from request:", userType);
+    console.log("5. User type from request:", userType);
 
     let profileData;
 
@@ -388,6 +388,7 @@ export const setupProfile = async (req, res) => {
 
     // Find the user first
     const user = await User.findById(userId);
+    console.log(req.body.profileData);
     if (!user) {
       // console.log("10. User not found with ID:", userId);
       return res.status(404).json({
@@ -480,6 +481,10 @@ export const setupProfile = async (req, res) => {
             },
           ],
           visitasTotales: 0,
+          horarioOperacion:
+            profileData.informacionGeneral.horarioOperacion || [],
+          rangoPrecios: profileData.informacionGeneral.rangoPrecios || "",
+          personalTotal: profileData.informacionGeneral.personalTotal || 0,
         });
 
         // console.log("16. Attempting to save business profile");

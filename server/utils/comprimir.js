@@ -2,8 +2,8 @@ import sharp from "sharp";
 
 export const resizeToExactDimensions = async (
   base64String,
-  width = 40,
-  height = 40
+  width = 30,
+  height = 30
 ) => {
   try {
     // Remove the data URL prefix if it exists

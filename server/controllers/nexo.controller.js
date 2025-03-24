@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Nexo } from "../models/nexo.model.js";
 import { User } from "../models/user.model.js";
+import { Visita } from "../models/visita.model.js";
 import { Cliente } from "../models/cliente.model.js";
 import { Establecimiento } from "../models/establecimiento.model.js";
 import { Negocio } from "../models/negocio.model.js";
@@ -371,6 +372,13 @@ export const nexoController = {
         console.error("Error actualizando nexo:", error);
         // no queremos que falle la operacion si no se actualiza nexo
       }
+
+      const visita = new Visita({
+        clienteID: cliente._id,
+        negocioID: negocio._id,
+        establecimientoID: establecimientoID,
+      });
+      await visita.save();
 
       // devolvemos success
       return res.status(200).json({

@@ -190,7 +190,7 @@ export const getVisitasByCliente = async (req, res) => {
 };
 
 // Get visit statistics
-export const getVisitasStats = async (req, res) => {
+export const getVisitasMensualesStats = async (req, res) => {
   try {
     const { negocioID } = req.params;
 
@@ -203,7 +203,9 @@ export const getVisitasStats = async (req, res) => {
       });
     }
 
-    const { startDate, endDate } = req.query;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
 
     const matchStage = { negocioID: negocio._id };
 

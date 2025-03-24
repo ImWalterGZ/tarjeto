@@ -21,13 +21,9 @@ const visitaSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
-  hora: {
-    type: Number,
-    required: true,
-  },
   trafico: {
     type: Number,
-    required: true,
+    required: false,
   },
 });
 
