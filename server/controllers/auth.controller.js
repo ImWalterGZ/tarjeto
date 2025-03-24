@@ -39,9 +39,20 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Credenciales inválidas" });
     }
 
+    if (!usuario.verificado) {
+      console.log("Usuario no verificado:", email);
+      return res.status(400).json({
+        success: false,
+        message: "Por favor verifica tu cuenta antes de iniciar sesión",
+      });
+    }
+
     console.log("Verificando contraseña para usuario:", usuario.email);
 
-    const contrasenaEsValida = bcrypt.compare(contrasena, usuario.contrasena);
+    const contrasenaEsValida = await bcrypt.compare(
+      contrasena,
+      usuario.contrasena
+    );
 
     if (!contrasenaEsValida) {
       console.log("Contraseña inválida para usuario:", email);
@@ -60,7 +71,7 @@ export const login = async (req, res) => {
     if (usuario.tipoUsuario === "Cliente") {
       perfil = await Cliente.findOne({ usuarioID: usuario._id });
       console.log("Cliente encontrado:", perfil);
-    } else {
+    } else if (usuario.tipoUsuario === "Negocio") {
       perfil = await Negocio.findOne({ usuarioID: usuario._id });
       console.log("Negocio encontrado:", perfil);
     }

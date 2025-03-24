@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema(
         default: true,
       },
     },
-    ulitmaConexion: {
+    ultimaConexion: {
       type: Date,
     },
     creadoEn: {
