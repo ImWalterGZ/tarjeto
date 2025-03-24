@@ -7,6 +7,9 @@ import { Establecimiento } from "../models/establecimiento.model.js";
 import { Negocio } from "../models/negocio.model.js";
 import ResponseHandler from "../utils/responseHandler.utils.js";
 import { resizeToExactDimensions } from "../utils/comprimir.js";
+import { ProgramaLealtad } from "../models/programaLealtad.model.js";
+import { Promocion } from "../models/promocion.model.js";
+import e from "express";
 
 export const nexoController = {
   register: async (req, res) => {
@@ -535,6 +538,118 @@ export const nexoController = {
       }
       return ResponseHandler.success(res, nexo, "No hay nexos sin sensor");
     } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+  getPromocionUsuario: async (req, res) => {
+    try {
+      const { clienteID, establecimientoID } = req.params;
+
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({ publicID: clienteID });
+      if (!cliente) {
+        return ResponseHandler.error(res, "Cliente no encontrado", 404);
+      }
+
+      // Encontrar establecimiento
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+      }
+
+      // Encontrar negocio
+      const negocio = await Negocio.findOne({
+        "establecimientos.establecimientoID": establecimiento.establecimientoID,
+      });
+      if (!negocio) {
+        return ResponseHandler.error(res, "Negocio no encontrado", 404);
+      }
+
+      // Encontrar programa de lealtad
+      const programaLealtad = await ProgramaLealtad.findOne({
+        _id: negocio.programaLealtad,
+      }).populate({
+        path: "niveles.promocionesAsignadas.promocionID",
+        model: "Promocion",
+      });
+      if (!programaLealtad) {
+        return ResponseHandler.error(
+          res,
+          "Programa de lealtad no encontrado",
+          404
+        );
+      }
+
+      // Verificar nivel
+      const tarjeta = cliente.tarjetas.find(
+        (item) => item.negocio_id === negocio.publicID
+      );
+      if (!tarjeta) {
+        return ResponseHandler.error(
+          res,
+          "El cliente no tiene tarjeta para este negocio",
+          404
+        );
+      }
+      const nivelUser = tarjeta.nivel;
+
+      // Obtener todas las promociones para el nivel del usuario
+      const promociones = [];
+      programaLealtad.niveles.forEach((nivel) => {
+        if (nivel.nivel <= nivelUser) {
+          nivel.promocionesAsignadas.forEach((promo) => {
+            if (promo.activa && promo.promocionID) {
+              promociones.push(promo.promocionID);
+            }
+          });
+        }
+      });
+
+      // Encontrar promociones activas con nivel requerido no necesarimente en programa de lealtad
+      const activePromotions = await Promocion.find({
+        negocioID: negocio._id,
+        nivelReq: { $lte: nivelUser },
+        activo: true,
+      });
+
+      // Combinar promociones de ambos fuentes
+      const allPromotions = [...new Set([...promociones, ...activePromotions])];
+
+      if (allPromotions.length === 0) {
+        return ResponseHandler.error(
+          res,
+          "No hay promociones disponibles para tu nivel",
+          404
+        );
+      }
+
+      // Filtrar campos innecesarios de cada promoción
+      const filteredPromotions = allPromotions.map((promo) => {
+        // Extraer solo los campos necesarios
+        return {
+          _id: promo._id,
+          negocioID: promo.negocioID,
+          titulo: promo.titulo,
+          descripcion: promo.descripcion,
+          nivelReq: promo.nivelReq,
+          status: promo.status,
+        };
+      });
+
+      const promocionUsuario = {
+        promociones: filteredPromotions,
+        nivel: nivelUser,
+      };
+
+      return ResponseHandler.success(
+        res,
+        promocionUsuario,
+        "Promociones encontradas"
+      );
+    } catch (error) {
+      console.error("Error en getPromocionUsuario:", error);
       return ResponseHandler.error(res, error.message, 500);
     }
   },

@@ -91,6 +91,10 @@ const programaLealtadSchema = new mongoose.Schema({
     ref: "Negocio",
     required: true,
   },
+  nombreComercialNegocio: {
+    type: String,
+    trim: true,
+  },
   niveles: [nivelLealtadSchema],
   temporadaActual: temporadaSchema,
   temporadasAnteriores: [temporadaSchema],

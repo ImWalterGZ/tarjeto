@@ -18,6 +18,15 @@ export const programaLealtadController = {
         });
       }
 
+      // Get business information to include the commercial name
+      const negocio = await Negocio.findById(negocioID);
+      if (!negocio) {
+        return res.status(404).json({
+          success: false,
+          message: "Negocio no encontrado",
+        });
+      }
+
       // Calculate season dates
       const fechaInicio = new Date();
       const fechaFin = new Date();
@@ -55,6 +64,8 @@ export const programaLealtadController = {
 
       const nuevoPrograma = new ProgramaLealtad({
         negocioID,
+        nombreComercialNegocio:
+          negocio.nombreComercial || "Sin nombre comercial",
         niveles: nivelesDefault,
         temporadaActual: {
           fechaInicio,
