@@ -653,4 +653,69 @@ export const nexoController = {
       return ResponseHandler.error(res, error.message, 500);
     }
   },
+  canjearPromocion: async (req, res) => {
+    try {
+      const { promocionID, clienteID, establecimientoID } = req.params;
+
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({ publicID: clienteID });
+      if (!cliente) {
+        return ResponseHandler.error(res, "Cliente no encontrado", 404);
+      }
+
+      // Encontrar establecimiento
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+      }
+
+      // Encontrar negocio
+      const negocio = await Negocio.findOne({
+        "establecimientos.establecimientoID": establecimiento.establecimientoID,
+      });
+      if (!negocio) {
+        return ResponseHandler.error(res, "Negocio no encontrado", 404);
+      }
+
+      // Encontrar promocion
+      const promocion = await Promocion.findOne({
+        _id: promocionID,
+        negocioID: negocio._id,
+      });
+      if (!promocion) {
+        return ResponseHandler.error(res, "Promoción no encontrada", 404);
+      }
+
+      // Encontrar programa de lealtad
+      const programaLealtad = await ProgramaLealtad.findOne({
+        negocioID: negocio._id,
+      });
+      if (!programaLealtad) {
+        return ResponseHandler.error(
+          res,
+          "Programa de lealtad no encontrado",
+          404
+        );
+      }
+
+      // Incrementar contador de promociones canjeadas en la temporada actual
+      if (programaLealtad.temporadaActual) {
+        programaLealtad.temporadaActual.estadisticas.promocionesCanjeadas += 1;
+        await programaLealtad.save();
+      }
+
+      return ResponseHandler.success(
+        res,
+        {
+          promocionesCanjeadas:
+            programaLealtad.temporadaActual.estadisticas.promocionesCanjeadas,
+        },
+        "Promoción canjeada exitosamente"
+      );
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
 };

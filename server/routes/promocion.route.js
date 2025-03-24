@@ -8,6 +8,7 @@ import {
   hardDeletePromocion,
   updatePromocionAnalytics,
   getPromocionStats,
+  getPromocionesNegocio,
 } from "../controllers/promocion.controller.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 // CRUD Routes
 router.post("/", createPromocion);
 router.get("/", getPromociones);
+router.get("/:negocioID", getPromocionesNegocio);
 router.get("/stats/:negocioID", getPromocionStats);
 router.get("/:id", getPromocionById);
 router.put("/:id", updatePromocion);

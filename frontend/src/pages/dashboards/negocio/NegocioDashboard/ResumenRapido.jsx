@@ -40,13 +40,14 @@ export default function ResumenRapido({ negocio, usuario }) {
           },
         });
 
+        // Fetch programa de lealtad stats
+        const programaLealtadResponse = await apiClient.get(
+          `/api/programa-lealtad/negocio/${negocio.publicID}`
+        );
+
         console.log("Visitas response:", visitasResponse.data);
         console.log("Promociones response:", promocionesResponse.data);
-
-        // Calculate total promotion usage from visits stats
-        const totalCanjes = visitasResponse.data.data.reduce((acc, day) => {
-          return acc + (day.promocionesUsadas || 0);
-        }, 0);
+        console.log("Programa lealtad response:", programaLealtadResponse.data);
 
         setStats({
           visitasUltimaSemana: visitasResponse.data.data.reduce(
@@ -54,7 +55,9 @@ export default function ResumenRapido({ negocio, usuario }) {
             0
           ),
           ofertasActivas: promocionesResponse.data.data.length,
-          canjesRealizados: totalCanjes,
+          canjesRealizados:
+            programaLealtadResponse.data.data.temporadaActual?.estadisticas
+              ?.promocionesCanjeadas || 0,
           loading: false,
           error: null,
         });

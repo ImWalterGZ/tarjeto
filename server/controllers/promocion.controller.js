@@ -273,3 +273,32 @@ export const getPromocionStats = async (req, res) => {
     });
   }
 };
+
+// Obtener las promociones de un negocio
+export const getPromocionesNegocio = async (req, res) => {
+  try {
+    const { negocioID } = req.params;
+
+    // Buscar el negocio por publicID
+    const negocio = await Negocio.findOne({ publicID: negocioID });
+    if (!negocio) {
+      return res.status(404).json({
+        success: false,
+        message: "Negocio no encontrado",
+      });
+    }
+
+    // Obtener todas las promociones del negocio
+    const promociones = await Promocion.find({ negocioID: negocio._id });
+
+    res.status(200).json({
+      success: true,
+      data: promociones,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

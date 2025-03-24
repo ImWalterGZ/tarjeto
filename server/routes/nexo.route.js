@@ -24,4 +24,8 @@ router.get(
   "/promocionUsuario/:clienteID/:establecimientoID",
   nexoController.getPromocionUsuario
 );
+router.post(
+  "/canjearPromocion/:promocionID/:clienteID/:establecimientoID",
+  nexoController.canjearPromocion
+);
 export default router;
