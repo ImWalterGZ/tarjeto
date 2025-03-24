@@ -46,13 +46,6 @@ app.use((req, res, next) => {
   res.end = function (chunk) {
     if (chunk) chunks.push(chunk);
 
-    console.log("\n=== Outgoing Response ===");
-    console.log("Status:", res.statusCode);
-    console.log("Data:", res.data);
-
-    console.log("Headers:", JSON.stringify(res.getHeaders(), null, 2));
-    console.log("======================\n");
-
     oldEnd.apply(res, arguments);
   };
 
@@ -75,18 +68,18 @@ app.use((req, res, next) => {
 
 // Security middleware
 app.use((req, res, next) => {
-  console.log("\n=== CORS Preflight Check ===");
-  console.log("Is OPTIONS request:", req.method === "OPTIONS");
-  console.log("Origin:", req.headers.origin);
-  console.log(
-    "Access-Control-Request-Method:",
-    req.headers["access-control-request-method"]
-  );
-  console.log(
-    "Access-Control-Request-Headers:",
-    req.headers["access-control-request-headers"]
-  );
-  console.log("========================\n");
+  // console.log("\n=== CORS Preflight Check ===");
+  // console.log("Is OPTIONS request:", req.method === "OPTIONS");
+  // console.log("Origin:", req.headers.origin);
+  // console.log(
+  //   "Access-Control-Request-Method:",
+  //   req.headers["access-control-request-method"]
+  // );
+  // console.log(
+  //   "Access-Control-Request-Headers:",
+  //   req.headers["access-control-request-headers"]
+  // );
+  // console.log("========================\n");
 
   // Prevent redirects on OPTIONS requests
   if (req.method === "OPTIONS") {
