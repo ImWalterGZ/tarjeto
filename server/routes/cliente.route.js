@@ -13,6 +13,9 @@ router.use(verifyToken);
 router.get("/profile", clienteController.getProfile);
 router.put("/profile", clienteController.updateProfile);
 
+// Client data route - for mobile app startup
+router.get("/data", clienteController.getClientData);
+
 // Cards routes
 router.get("/cards", clienteController.getCards);
 
