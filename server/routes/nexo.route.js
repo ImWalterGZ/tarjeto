@@ -19,7 +19,7 @@ router.get(
 );
 router.post("/registrarVisita", nexoController.registrarVisita);
 router.post("/crearTarjetaNueva", nexoController.crearTarjetaNueva);
-router.get("/sensorConectado", nexoController.getSensorConectado);
+router.get("/conectarSensor", nexoController.conectarSensor);
 router.get(
   "/promocionUsuario/:clienteID/:establecimientoID",
   nexoController.getPromocionUsuario
@@ -28,7 +28,6 @@ router.post(
   "/canjearPromocion/:promocionID/:clienteID/:establecimientoID",
   nexoController.canjearPromocion
 );
-router.post("/mostrarEnPantalla", nexoController.mostrarEnPantalla);
 
 // Ruta para obtener mensajes de pantalla
 router.get(
