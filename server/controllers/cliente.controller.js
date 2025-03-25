@@ -86,6 +86,31 @@ export const clienteController = {
     }
   },
 
+  getClientData: async (req, res) => {
+    try {
+      const cliente = await Cliente.findOne({ usuarioID: req.userId });
+
+      if (!cliente) {
+        return res.status(404).json({
+          success: false,
+          message: "Cliente no encontrado",
+        });
+      }
+
+      // Return complete client data
+      res.status(200).json({
+        success: true,
+        data: cliente,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error al obtener los datos del cliente",
+        error: error.message,
+      });
+    }
+  },
+
   getCards: async (req, res) => {
     try {
       const cliente = await Cliente.findOne({ usuarioID: req.userId });
