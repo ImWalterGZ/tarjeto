@@ -9,9 +9,8 @@ import ResponseHandler from "../utils/responseHandler.utils.js";
 import { resizeToExactDimensions } from "../utils/comprimir.js";
 import { ProgramaLealtad } from "../models/programaLealtad.model.js";
 import { Promocion } from "../models/promocion.model.js";
-import e from "express";
 import { MensajePantalla } from "../models/mensajePantalla.model.js";
-
+import Impresion from "../models/impresion.model.js";
 export const nexoController = {
   register: async (req, res) => {
     try {
@@ -66,7 +65,7 @@ export const nexoController = {
             nexoId: nexo._id,
             establecimientoId: establecimiento.establecimientoID,
           },
-          "Nexo registrado exitosamente"
+          "Nexo registrado exitosamente, falta conectar el sensor"
         );
       } catch (error) {
         await session.abortTransaction();
@@ -74,6 +73,23 @@ export const nexoController = {
       } finally {
         session.endSession();
       }
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+  conectarSensor: async (req, res) => {
+    try {
+      const nexo = await Nexo.findOne({ sensorConectado: false });
+      if (!nexo) {
+        return ResponseHandler.error(res, "No hay nexos disponibles", 204);
+      }
+      nexo.sensorConectado = true;
+      await nexo.save();
+      return ResponseHandler.success(
+        res,
+        nexo,
+        "Sensor conectado exitosamente"
+      );
     } catch (error) {
       return ResponseHandler.error(res, error.message, 500);
     }
@@ -87,7 +103,9 @@ export const nexoController = {
       if (!nexo) {
         return ResponseHandler.error(res, "Nexo no encontrado", 404);
       }
-
+      if (!nexo.sensorConectado) {
+        return ResponseHandler.error(res, "Sensor no conectado", 204);
+      }
       return ResponseHandler.success(res, nexo);
     } catch (error) {
       return ResponseHandler.error(res, error.message, 500);
@@ -470,6 +488,41 @@ export const nexoController = {
         // no queremos que falle la operacion si no se actualiza nexo
       }
 
+      // Obtener promociones usando el método privado
+      console.log(`🎁 Getting promotions for user`);
+      const promocionesResult = await nexoController._getPromocionesUsuario(
+        cliente.publicID,
+        establecimiento.establecimientoID
+      );
+
+      // Crear mensaje para mostrar en pantalla
+      try {
+        console.log(`📝 Creating display message`);
+        const mensajeData = {
+          clienteID: cliente.publicID,
+          establecimientoID: establecimientoID,
+          promociones: [],
+          datosCliente: {
+            nombre: cliente.datosPersonales?.nombre,
+            fotoPerfil: cliente.datosPersonales?.fotoPerfil,
+          },
+          nivel: tarjetaInfo.nivel,
+          visitas: tarjetaInfo.visitas,
+          mostrado: false,
+        };
+
+        // Solo agregar promociones si se obtuvieron exitosamente
+        if (promocionesResult.success && promocionesResult.data) {
+          mensajeData.promociones = promocionesResult.data.promociones;
+        }
+
+        const mensaje = await MensajePantalla.create(mensajeData);
+        console.log(`✅ Display message created: ${mensaje._id}`);
+      } catch (error) {
+        console.error("❌ Error creating message:", error);
+        // Log detailed error for debugging
+        console.error("Error details:", error.message);
+      }
       console.log(`📝 Creating new visit record`);
       const visita = new Visita({
         clienteID: cliente._id,
@@ -808,57 +861,6 @@ export const nexoController = {
     }
   },
 
-  mostrarEnPantalla: async (req, res) => {
-    try {
-      const { clienteID, establecimientoID } = req.body;
-
-      // Encontrar cliente
-      const cliente = await Cliente.findOne({ publicID: clienteID });
-      if (!cliente) {
-        return ResponseHandler.error(res, "Cliente no encontrado", 404);
-      }
-
-      // Encontrar establecimiento
-      const establecimiento = await Establecimiento.findOne({
-        establecimientoID: establecimientoID,
-      });
-      if (!establecimiento) {
-        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
-      }
-
-      // Obtener promociones del usuario usando el método privado
-      const promocionesResult = await nexoController._getPromocionesUsuario(
-        clienteID,
-        establecimientoID
-      );
-      if (!promocionesResult.success) {
-        return ResponseHandler.error(res, promocionesResult.message, 404);
-      }
-
-      // Crear nuevo mensaje para pantalla
-      const mensajePantalla = new MensajePantalla({
-        clienteID: cliente.publicID,
-        establecimientoID: establecimiento.establecimientoID,
-        promociones: promocionesResult.data.promociones.map((p) => p._id),
-        datosCliente: {
-          nombre: cliente.datosPersonales?.nombre,
-          fotoPerfil: cliente.datosPersonales?.fotoPerfil,
-          nivel: promocionesResult.data.nivel,
-        },
-      });
-
-      await mensajePantalla.save();
-
-      return ResponseHandler.success(
-        res,
-        mensajePantalla,
-        "Mensaje creado para pantalla"
-      );
-    } catch (error) {
-      return ResponseHandler.error(res, error.message, 500);
-    }
-  },
-
   obtenerMensajePantalla: async (req, res) => {
     try {
       const { establecimientoID } = req.params;
@@ -886,6 +888,113 @@ export const nexoController = {
         "Mensaje recuperado exitosamente"
       );
     } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+  postImpresoraPromocion: async (req, res) => {
+    try {
+      const { promocionID, clienteID, establecimientoID } = req.body;
+
+      // Encontrar promoción
+      const promocion = await Promocion.findOne({
+        _id: promocionID,
+        negocioID: establecimientoID,
+      });
+      if (!promocion) {
+        return ResponseHandler.error(res, "Promoción no encontrada", 404);
+      }
+
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({
+        publicID: clienteID,
+      });
+      if (!cliente) {
+        return ResponseHandler.error(res, "Cliente no encontrado", 404);
+      }
+
+      // Encontrar establecimiento
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+      }
+
+      // Find business to get client's loyalty level
+      const negocio = await Negocio.findOne({
+        "establecimientos.establecimientoID": establecimiento.establecimientoID,
+      });
+      if (!negocio) {
+        return ResponseHandler.error(res, "Negocio no encontrado", 404);
+      }
+
+      // Get client's loyalty card for this business
+      const tarjeta = cliente.tarjetas.find(
+        (item) => item.negocio_id === negocio.publicID
+      );
+      if (!tarjeta) {
+        return ResponseHandler.error(
+          res,
+          "El cliente no tiene tarjeta para este negocio",
+          404
+        );
+      }
+
+      // Crear registro de impresión
+      const impresion = await Impresion.create({
+        clienteID: cliente.publicID,
+        nombreCliente: cliente.datosPersonales?.nombre,
+        nivelCliente: tarjeta.nivel,
+        establecimientoID: establecimientoID,
+        nombreEstablecimiento: establecimiento.nombre,
+        promocionID: promocionID,
+        tituloPromocion: promocion.titulo,
+        descripcionPromocion: promocion.descripcion,
+        fecha: new Date(),
+        mostrado: false, // Add mostrado flag
+      });
+
+      return ResponseHandler.success(
+        res,
+        impresion,
+        "Impresión creada exitosamente"
+      );
+    } catch (error) {
+      console.error("Error en postImpresoraPromocion:", error);
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
+
+  getImpresiones: async (req, res) => {
+    try {
+      const { establecimientoID } = req.params;
+
+      // Buscar la siguiente impresión no mostrada para este establecimiento
+      const impresion = await Impresion.findOne({
+        establecimientoID,
+        mostrado: false,
+      }).sort({ fecha: 1 }); // Ordenar por fecha más antigua para procesar en orden
+
+      if (!impresion) {
+        return ResponseHandler.success(
+          res,
+          null,
+          "No hay impresiones pendientes",
+          205
+        );
+      }
+
+      // Marcar la impresión como mostrada
+      impresion.mostrado = true;
+      await impresion.save();
+
+      return ResponseHandler.success(
+        res,
+        impresion,
+        "Impresión recuperada exitosamente"
+      );
+    } catch (error) {
+      console.error("Error en getImpresiones:", error);
       return ResponseHandler.error(res, error.message, 500);
     }
   },
