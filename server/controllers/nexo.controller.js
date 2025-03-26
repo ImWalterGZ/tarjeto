@@ -984,23 +984,6 @@ export const nexoController = {
     try {
       const { promocionID, clienteID, establecimientoID } = req.body;
 
-      // Encontrar promoción
-      const promocion = await Promocion.findOne({
-        _id: promocionID,
-        negocioID: establecimientoID,
-      });
-      if (!promocion) {
-        return ResponseHandler.error(res, "Promoción no encontrada", 404);
-      }
-
-      // Encontrar cliente
-      const cliente = await Cliente.findOne({
-        publicID: clienteID,
-      });
-      if (!cliente) {
-        return ResponseHandler.error(res, "Cliente no encontrado", 404);
-      }
-
       // Encontrar establecimiento
       const establecimiento = await Establecimiento.findOne({
         establecimientoID: establecimientoID,
@@ -1015,6 +998,22 @@ export const nexoController = {
       });
       if (!negocio) {
         return ResponseHandler.error(res, "Negocio no encontrado", 404);
+      }
+      // Encontrar promoción
+      const promocion = await Promocion.findOne({
+        _id: promocionID,
+        negocioID: negocio._id,
+      });
+      if (!promocion) {
+        return ResponseHandler.error(res, "Promoción no encontrada", 404);
+      }
+
+      // Encontrar cliente
+      const cliente = await Cliente.findOne({
+        publicID: clienteID,
+      });
+      if (!cliente) {
+        return ResponseHandler.error(res, "Cliente no encontrado", 404);
       }
 
       // Get client's loyalty card for this business

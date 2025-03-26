@@ -34,5 +34,10 @@ router.get(
   "/mensajePantalla/:establecimientoID",
   nexoController.obtenerMensajePantalla
 );
+router.post("/imprimirPromocion", nexoController.postImpresoraPromocion);
+router.get(
+  "/imprimirPromocion/:establecimientoID",
+  nexoController.getImpresiones
+);
 
 export default router;
