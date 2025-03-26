@@ -4,12 +4,10 @@ const mensajePantallaSchema = new mongoose.Schema(
   {
     clienteID: {
       type: String,
-      required: true,
       ref: "Cliente",
     },
     establecimientoID: {
       type: String,
-      required: true,
       ref: "Establecimiento",
     },
     promociones: [
@@ -18,6 +16,12 @@ const mensajePantallaSchema = new mongoose.Schema(
         ref: "Promocion",
       },
     ],
+    nivelCliente: {
+      type: Number,
+    },
+    clienteVisitas: {
+      type: Number,
+    },
     datosCliente: {
       nombre: String,
       fotoPerfil: String,

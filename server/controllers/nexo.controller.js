@@ -560,9 +560,9 @@ export const nexoController = {
             fotoPerfil: cliente.datosPersonales?.fotoPerfil,
             tarjeta: tarjetaInfo,
           },
+          nivelCliente: tarjetaInfo.nivel,
+          clienteVisitas: tarjetaInfo.visitas,
           promociones: promociones, // This will now be an array of IDs
-          nivel: tarjetaInfo.nivel,
-          visitas: tarjetaInfo.visitas,
           mostrado: false,
         };
 
@@ -626,6 +626,13 @@ export const nexoController = {
         return res.status(205).json({
           success: true,
           message: "No hay mensajes para mostrar",
+        });
+      }
+      const cliente = await Cliente.findOne({ publicID: mensaje.clienteID });
+      if (!cliente) {
+        return res.status(404).json({
+          success: false,
+          message: "Cliente no encontrado",
         });
       }
 
