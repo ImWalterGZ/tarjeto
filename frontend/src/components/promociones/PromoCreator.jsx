@@ -213,7 +213,7 @@ const PromoCreator = ({ negocio, onSuccess }) => {
           </div>
         </div>
 
-        {/* Categories */}
+        {/* Categories 
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Categorías Favoritas
@@ -252,6 +252,7 @@ const PromoCreator = ({ negocio, onSuccess }) => {
             ))}
           </div>
         </div>
+        */}
 
         {/* Promotion Type */}
         <div>
@@ -381,60 +382,58 @@ const PromoCreator = ({ negocio, onSuccess }) => {
         {/* Usage Limits */}
         <div>
           <h4 className="font-medium text-gray-700 mb-2">Límites de Uso</h4>
+          <div className="flex flex-row gap-4">
+            <div className="flex flex-row gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Por Usuario/Día
+                </label>
+                <input
+                  type="number"
+                  value={limiteDiario}
+                  onChange={(e) => setLimiteDiario(Number(e.target.value))}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  min="0"
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Por Usuario/Día
-              </label>
-              <input
-                type="number"
-                value={limiteDiario}
-                onChange={(e) => setLimiteDiario(Number(e.target.value))}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                min="0"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Por Usuario/Semana
+                </label>
+                <input
+                  type="number"
+                  value={limiteSemanal}
+                  onChange={(e) => setLimiteSemanal(Number(e.target.value))}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Total por Usuario
+                </label>
+                <input
+                  type="number"
+                  value={limiteTotal}
+                  onChange={(e) => setLimiteTotal(Number(e.target.value))}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  min="0"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Por Usuario/Semana
-              </label>
-              <input
-                type="number"
-                value={limiteSemanal}
-                onChange={(e) => setLimiteSemanal(Number(e.target.value))}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                min="0"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Total por Usuario
-              </label>
-              <input
-                type="number"
-                value={limiteTotal}
-                onChange={(e) => setLimiteTotal(Number(e.target.value))}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                min="0"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Total Global
-              </label>
-              <input
-                type="number"
-                value={limiteTotalGlobal}
-                onChange={(e) => setLimiteTotalGlobal(Number(e.target.value))}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                min="0"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Total Global
+                </label>
+                <input
+                  type="number"
+                  value={limiteTotalGlobal}
+                  onChange={(e) => setLimiteTotalGlobal(Number(e.target.value))}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  min="0"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -316,11 +316,11 @@ export const nexoController = {
         });
       }
 
-      // Find and validate cliente
-      console.log(`🔍 Finding client with publicID: ${clienteID}`);
+      // Encontrar cliente y comprobar
+      console.log(`🔍 Encontrando cliente con publicID: ${clienteID}`);
       const cliente = await Cliente.findOne({ publicID: clienteID });
       if (!cliente) {
-        console.log(`❌ Client with publicID ${clienteID} not found`);
+        console.log(`❌ Cliente con publicID ${clienteID} no encontrado`);
         return res.status(404).json({
           success: false,
           message: "No se encuentra cliente",
@@ -334,13 +334,15 @@ export const nexoController = {
         establecimientoID: establecimientoID,
       });
       if (!establecimiento) {
-        console.log(`❌ Establishment with ID ${establecimientoID} not found`);
+        console.log(
+          `❌ Establecimiento con ID ${establecimientoID} no encontrado`
+        );
         return res.status(404).json({
           success: false,
           message: "Establecimiento no encontrado",
         });
       }
-      console.log(`✅ Establishment found: ${establecimiento._id}`);
+      console.log(`✅ Establecimiento encontrado: ${establecimiento._id}`);
 
       // encontrar negocio y comprobar
       console.log(
@@ -505,6 +507,7 @@ export const nexoController = {
           datosCliente: {
             nombre: cliente.datosPersonales?.nombre,
             fotoPerfil: cliente.datosPersonales?.fotoPerfil,
+            tarjeta: tarjetaInfo,
           },
           nivel: tarjetaInfo.nivel,
           visitas: tarjetaInfo.visitas,

@@ -80,12 +80,14 @@ export default function ResumenRapido({ negocio, usuario }) {
 
   if (stats.loading) {
     return (
-      <div className="flex flex-col mb-2 align-middle gap-16">
+      <div className="flex flex-col mb-2  align-middle gap-16">
         <PerfilNeg
           nombre={negocio?.nombreComercial || "Cargando..."}
           fotoPerfil={negocio?.fotoPerfil}
         />
-        <div>Cargando estadísticas...</div>
+        <div className="bg-red-primary p-14 text-white rounded-xl shadow-xl text-center">
+          Cargando estadísticas...
+        </div>
       </div>
     );
   }

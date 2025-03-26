@@ -74,7 +74,7 @@ export const clienteController = {
         data: {
           datosPersonales: cliente.datosPersonales,
           categoriaFavorita: cliente.categoriaFavorita,
-          engagement: cliente.engagement,
+          tarjetas: cliente.tarjetas,
         },
       });
     } catch (error) {
