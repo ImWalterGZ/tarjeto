@@ -492,33 +492,82 @@ export const nexoController = {
 
       // Obtener promociones usando el método privado
       console.log(`🎁 Getting promotions for user`);
-      const promocionesResult = await nexoController._getPromocionesUsuario(
-        cliente.publicID,
-        establecimiento.establecimientoID
-      );
+      let promociones = [];
+      try {
+        const promocionesResult = await nexoController._getPromocionesUsuario(
+          cliente.publicID,
+          establecimiento.establecimientoID
+        );
 
+        if (
+          promocionesResult.success &&
+          promocionesResult.data &&
+          promocionesResult.data.promociones
+        ) {
+          // First, get complete promotion info for logging and debugging
+          const promocionesCompletas = await Promise.all(
+            promocionesResult.data.promociones.map(async (promo) => {
+              // Check if promo is already an object with required fields or just an ID reference
+              if (promo.titulo && promo.descripcion) {
+                return {
+                  _id: promo._id,
+                  titulo: promo.titulo,
+                  descripcion: promo.descripcion,
+                };
+              } else {
+                // It's just an ID reference or incomplete object, fetch complete data
+                const promoInfo = await Promocion.findOne({
+                  _id: promo._id || promo, // Handle both {_id: ...} and direct ID reference
+                });
+                return promoInfo
+                  ? {
+                      _id: promoInfo._id,
+                      titulo: promoInfo.titulo,
+                      descripcion: promoInfo.descripcion,
+                    }
+                  : null;
+              }
+            })
+          );
+
+          // Filter out any null values
+          const promocionesValidas = promocionesCompletas.filter(
+            (promo) => promo !== null
+          );
+
+          // Log complete promotion objects for debugging
+          console.log("Promotions data structure (complete objects):");
+          console.log(JSON.stringify(promocionesValidas, null, 2));
+
+          // Extract just the IDs for storage in the model
+          promociones = promocionesValidas.map((promo) => promo._id);
+        }
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+      }
+
+      console.log("Promotions data structure:");
+      console.log(JSON.stringify(promociones, null, 2));
       // Crear mensaje para mostrar en pantalla
       try {
         console.log(`📝 Creating display message`);
         const mensajeData = {
           clienteID: cliente.publicID,
           establecimientoID: establecimientoID,
-          promociones: [],
+          nombreEstablecimiento: establecimiento.nombre,
           datosCliente: {
             nombre: cliente.datosPersonales?.nombre,
             fotoPerfil: cliente.datosPersonales?.fotoPerfil,
             tarjeta: tarjetaInfo,
           },
+          promociones: promociones, // This will now be an array of IDs
           nivel: tarjetaInfo.nivel,
           visitas: tarjetaInfo.visitas,
           mostrado: false,
         };
 
-        // Solo agregar promociones si se obtuvieron exitosamente
-        if (promocionesResult.success && promocionesResult.data) {
-          mensajeData.promociones = promocionesResult.data.promociones;
-        }
-
+        console.log("Promotion IDs being saved:");
+        console.log(mensajeData.promociones);
         const mensaje = await MensajePantalla.create(mensajeData);
         console.log(`✅ Display message created: ${mensaje._id}`);
       } catch (error) {
@@ -549,6 +598,7 @@ export const nexoController = {
         },
         tarjetaInfo,
         visitasTotal: tarjetaInfo.visitas,
+        nombreEstablecimiento: establecimiento.nombre,
       });
     } catch (error) {
       console.error("❌ Error in registrarVisita function:", error);
@@ -556,6 +606,65 @@ export const nexoController = {
         success: false,
         message: "Error al procesar la solicitud",
       });
+    }
+  },
+
+  obtenerMensajePantalla: async (req, res) => {
+    try {
+      const { establecimientoID } = req.params;
+
+      // Buscar el mensaje más reciente no mostrado para este establecimiento
+      // Populate the promociones field to get full promotion details
+      const mensaje = await MensajePantalla.findOne({
+        establecimientoID,
+        mostrado: false,
+      })
+        .populate("promociones") // Add populate here to get full promotion details
+        .sort({ fechaCreacion: -1 });
+
+      if (!mensaje) {
+        return res.status(205).json({
+          success: true,
+          message: "No hay mensajes para mostrar",
+        });
+      }
+
+      let fotoPerfil = mensaje.datosCliente?.fotoPerfil;
+      if (fotoPerfil != "null") {
+        try {
+          console.log(`🔄 Resizing profile image`);
+          fotoPerfil = await resizeToExactDimensions(fotoPerfil);
+          console.log(`✅ Image resized successfully`);
+          mensaje.datosCliente.fotoPerfil = fotoPerfil;
+        } catch (error) {
+          console.error("❌ Error processing profile image:", error);
+        }
+      }
+
+      // Extract the information we want from each promotion
+      const promocionesDetalladas = mensaje.promociones.map((promo) => ({
+        _id: promo._id,
+        titulo: promo.titulo,
+        descripcion: promo.descripcion,
+      }));
+
+      // Create a response object with the formatted promotions
+      const respuesta = {
+        ...mensaje.toObject(),
+        promociones: promocionesDetalladas,
+      };
+
+      // Marcar el mensaje como mostrado
+      mensaje.mostrado = true;
+      await mensaje.save();
+
+      return ResponseHandler.success(
+        res,
+        respuesta,
+        "Mensaje recuperado exitosamente"
+      );
+    } catch (error) {
+      return ResponseHandler.error(res, error.message, 500);
     }
   },
 
@@ -864,36 +973,6 @@ export const nexoController = {
     }
   },
 
-  obtenerMensajePantalla: async (req, res) => {
-    try {
-      const { establecimientoID } = req.params;
-
-      // Buscar el mensaje más reciente no mostrado para este establecimiento
-      const mensaje = await MensajePantalla.findOne({
-        establecimientoID,
-        mostrado: false,
-      }).sort({ fechaCreacion: -1 });
-
-      if (!mensaje) {
-        return res.status(205).json({
-          success: true,
-          message: "No hay mensajes para mostrar",
-        });
-      }
-
-      // Marcar el mensaje como mostrado
-      mensaje.mostrado = true;
-      await mensaje.save();
-
-      return ResponseHandler.success(
-        res,
-        mensaje,
-        "Mensaje recuperado exitosamente"
-      );
-    } catch (error) {
-      return ResponseHandler.error(res, error.message, 500);
-    }
-  },
   postImpresoraPromocion: async (req, res) => {
     try {
       const { promocionID, clienteID, establecimientoID } = req.body;
