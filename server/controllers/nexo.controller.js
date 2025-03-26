@@ -43,7 +43,7 @@ export const nexoController = {
 
         // Create new Nexo
         const nexo = new Nexo({
-          establecimientoID: establecimiento._id,
+          establecimientoID: establecimiento.establecimientoID,
           fechaRegistro: new Date(),
           ultimoUso: new Date(),
           visitasRegistradas: 0,
