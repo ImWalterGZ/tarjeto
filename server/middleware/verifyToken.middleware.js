@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
   console.log("\n=== verifyToken Middleware ===");
+  console.log("Request URL:", req.originalUrl);
   console.log("Method:", req.method);
   console.log("Headers:", JSON.stringify(req.headers, null, 2));
-  console.log("Cookies:", req.cookies);
 
   // Skip token verification for OPTIONS requests
   if (req.method === "OPTIONS") {
@@ -18,24 +18,32 @@ export const verifyToken = (req, res, next) => {
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
     token = authHeader.split(" ")[1]; // Extract token after "Bearer "
-    console.log("Token found in Authorization header");
+    console.log(
+      "Token found in Authorization header:",
+      token.substring(0, 20) + "..."
+    );
   } else {
     // Fallback to cookies (for web)
     token = req.cookies.token;
-    console.log("Token found in cookies:", !!token);
+    console.log(
+      "Token found in cookies:",
+      token ? token.substring(0, 20) + "..." : "No token in cookies"
+    );
   }
 
   if (!token) {
-    console.log("No token found");
+    console.log("No token found in either Authorization header or cookies");
     return res
       .status(401)
       .json({ success: false, message: "Sin autorizacion, no hay token" });
   }
 
   try {
-    console.log("Verifying token...");
+    console.log("Attempting to verify token...");
+    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("Token verified successfully");
+    console.log("Decoded token payload:", decoded);
     // Set both userId and user object for compatibility
     req.userId = decoded.userId;
     req.user = { id: decoded.userId };

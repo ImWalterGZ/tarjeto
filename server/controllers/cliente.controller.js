@@ -88,9 +88,15 @@ export const clienteController = {
 
   getClientData: async (req, res) => {
     try {
+      console.log("=== getClientData ===");
+      console.log("User ID from token:", req.userId);
+      console.log("Full request user object:", req.user);
+
       const cliente = await Cliente.findOne({ usuarioID: req.userId });
+      console.log("Cliente found:", cliente ? "Yes" : "No");
 
       if (!cliente) {
+        console.log("No cliente found for userId:", req.userId);
         return res.status(404).json({
           success: false,
           message: "Cliente no encontrado",
@@ -103,6 +109,7 @@ export const clienteController = {
         data: cliente,
       });
     } catch (error) {
+      console.error("Error in getClientData:", error);
       res.status(500).json({
         success: false,
         message: "Error al obtener los datos del cliente",
