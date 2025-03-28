@@ -1,4 +1,5 @@
 import { Cliente } from "../models/cliente.model.js";
+import mongoose from "mongoose";
 
 export const clienteController = {
   setupProfile: async (req, res) => {
@@ -92,11 +93,20 @@ export const clienteController = {
       console.log("User ID from token:", req.userId);
       console.log("Full request user object:", req.user);
 
+      // Add database connection check
+      console.log("MongoDB URI:", process.env.MONGO_URI ? "Set" : "Not set");
+      console.log("MongoDB Connection State:", mongoose.connection.readyState);
+      // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+
       const cliente = await Cliente.findOne({ usuarioID: req.userId });
       console.log("Cliente found:", cliente ? "Yes" : "No");
 
       if (!cliente) {
         console.log("No cliente found for userId:", req.userId);
+        // Add collection check
+        const count = await Cliente.countDocuments({});
+        console.log("Total documents in Cliente collection:", count);
+
         return res.status(404).json({
           success: false,
           message: "Cliente no encontrado",
