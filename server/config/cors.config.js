@@ -39,7 +39,7 @@ export const corsOptions = {
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
   ],
-  exposedHeaders: ["set-cookie"],
+  exposedHeaders: ["set-cookie", "Authorization"],
   optionsSuccessStatus: 204,
   preflightContinue: false,
   maxAge: 86400, // 24 hours
