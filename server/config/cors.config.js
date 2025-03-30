@@ -30,6 +30,7 @@ export const corsOptions = {
     "Cliente",
     "Content-Type",
     "Authorization",
+    "mobile-auth",
     "X-Requested-With",
     "Accept",
     "Origin",
@@ -39,7 +40,7 @@ export const corsOptions = {
     "Access-Control-Allow-Methods",
     "Access-Control-Allow-Credentials",
   ],
-  exposedHeaders: ["set-cookie", "Authorization"],
+  exposedHeaders: ["set-cookie", "Authorization", "mobile-auth"],
   optionsSuccessStatus: 204,
   preflightContinue: false,
   maxAge: 86400, // 24 hours
