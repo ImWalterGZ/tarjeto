@@ -8,19 +8,19 @@ export const corsOptions = {
       "https://api.tarjeto.app", // Keep this as fallback
     ];
 
-    // console.log("\n=== CORS Origin Check ===");
-    // console.log("Request Origin:", origin);
-    // console.log("Request Protocol:", origin?.split("://")[0]);
-    // console.log("Request Host:", origin?.split("://")[1]);
-    // console.log("Allowed Origins:", allowedOrigins);
-    // console.log("Full Request URL:", this?.req?.url);
-    // console.log("Headers:", JSON.stringify(this?.req?.headers, null, 2));
+    console.log("\n=== CORS Origin Check ===");
+    console.log("Request Origin:", origin);
+    console.log("Request Protocol:", origin?.split("://")[0]);
+    console.log("Request Host:", origin?.split("://")[1]);
+    console.log("Allowed Origins:", allowedOrigins);
+    console.log("Full Request URL:", this?.req?.url);
+    console.log("Headers:", JSON.stringify(this?.req?.headers, null, 2));
 
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      // console.log("Origin allowed:", origin || "no origin");
+      console.log("Origin allowed:", origin || "no origin");
       callback(null, true);
     } else {
-      // console.log("Origin blocked:", origin);
+      console.log("Origin blocked:", origin);
       callback(null, false);
     }
   },
