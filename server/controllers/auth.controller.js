@@ -619,11 +619,12 @@ export const setupProfile = async (req, res) => {
       });
       await cliente.save();
     }
-
+    const token = generateTokenAndSetCookie(res, usuario._id, isMobileClient);
     res.status(200).json({
       success: true,
       message: "Perfil configurado exitosamente",
       userType: user.tipoUsuario,
+      token: isMobileClient ? token : undefined,
     });
   } catch (error) {
     // console.error("Error in setupProfile - Full error:", error);
