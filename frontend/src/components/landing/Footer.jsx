@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 const Facebook = "/images/facebook.webp";
 const Ig = "/images/ig.webp";
 const Tiktok = "/images/tiktok.webp";
@@ -17,19 +19,28 @@ const Footer = () => {
               <h3 className="font-bold text-lg mb-2">Sobre tarjeto</h3>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/que-es-tarjeto"
+                    className="no-underline hover:text-gray-200"
+                  >
                     ¿Qué es Tarjeto?
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/como-funciona"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Cómo funciona
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/noticias"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Noticias
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -39,19 +50,28 @@ const Footer = () => {
               <h3 className="font-bold text-lg mb-2">Usuarios</h3>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/descargar-app"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Descargar app
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/beneficios"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Beneficios
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/faq"
+                    className="no-underline hover:text-gray-200"
+                  >
                     FAQ
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -61,19 +81,28 @@ const Footer = () => {
               <h3 className="font-bold text-lg mb-2">Negocios</h3>
               <ul className="space-y-2 text-xs">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/registra-negocio"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Registra tu negocio
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/planes-precios"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Planes y precios
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/soporte"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Soporte
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -99,9 +128,12 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/privacidad"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Privacidad
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -157,7 +189,10 @@ const Footer = () => {
 
           {/* Derechos reservados */}
           <div className="mt-6 text-center text-[10px] text-gray-200">
-            <p>© 2024 Tarjeto. Todos los derechos reservados.</p>
+            <p>
+              © {new Date().getFullYear()} Tarjeto. Todos los derechos
+              reservados.
+            </p>
             <p className="mt-1">
               Los beneficios y promociones son responsabilidad de los negocios
               afiliados.
@@ -175,24 +210,36 @@ const Footer = () => {
               <h3 className="font-bold text-2xl">Sobre tarjeto</h3>
               <ul className="mt-3 space-y-4">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/que-es-tarjeto"
+                    className="no-underline hover:text-gray-200"
+                  >
                     ¿Qué es Tarjeto?
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/como-funciona"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Cómo funciona
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/noticias"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Noticias y novedades
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/historias-exito"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Historias de éxito
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -202,24 +249,36 @@ const Footer = () => {
               <h3 className="font-bold text-2xl">Usuarios</h3>
               <ul className="mt-3 space-y-4">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/descargar-app"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Descargar la app
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/beneficios"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Beneficios para ti
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/faq"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Preguntas frecuentes
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/promociones-exclusivas"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Promociones exclusivas
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -229,24 +288,36 @@ const Footer = () => {
               <h3 className="font-bold text-2xl">Negocios</h3>
               <ul className="mt-3 space-y-4">
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/registra-negocio"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Registra tu negocio
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/como-funciona-negocio"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Cómo funciona
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/planes-precios"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Planes y precios
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/soporte"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Soporte técnico
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -272,14 +343,20 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/privacidad"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Política de privacidad
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="no-underline hover:text-gray-200">
+                  <Link
+                    to="/footer/terminos-condiciones"
+                    className="no-underline hover:text-gray-200"
+                  >
                     Términos y condiciones
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -339,7 +416,10 @@ const Footer = () => {
 
           {/* Derechos reservados */}
           <div className="mt-16 text-center text-xs text-gray-200">
-            <p>© 2024 Tarjeto. Todos los derechos reservados.</p>
+            <p>
+              © {new Date().getFullYear()} Tarjeto. Todos los derechos
+              reservados.
+            </p>
             <br />
             <p>
               Los beneficios y promociones son responsabilidad de los negocios

@@ -9,6 +9,8 @@ import NegocioDashboard from "./pages/dashboards/negocio/NegocioDashboard";
 import ClientDashboard from "./pages/dashboards/cliente/ClientDashboard";
 import SetupProfile from "./pages/SetUpProfile";
 import { useEffect } from "react";
+import FooterPageExample from "./pages/FooterPageExample";
+import FooterPage from "./components/ui/FooterPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -177,6 +179,10 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Footer Pages */}
+        <Route path="/footer-example" element={<FooterPageExample />} />
+        <Route path="/footer/:pageSlug" element={<FooterPage />} />
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />
