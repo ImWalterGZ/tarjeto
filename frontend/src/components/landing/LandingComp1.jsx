@@ -1,5 +1,5 @@
 import React from "react";
-const Fidelity = "/images/Fidelity.png";
+const Fidelity = "/images/Fidelity.webp";
 
 const LandingComp1 = () => {
   return (

@@ -1,9 +1,9 @@
 import React from "react";
-const Facebook = "/images/facebook.png";
-const Ig = "/images/ig.png";
-const Tiktok = "/images/tiktok.png";
-const X = "/images/X.png";
-const TarjetoSlogan = "/images/tarjeto-slogan.png";
+const Facebook = "/images/facebook.webp";
+const Ig = "/images/ig.webp";
+const Tiktok = "/images/tiktok.webp";
+const X = "/images/X.webp";
+const TarjetoSlogan = "/images/tarjeto-slogan.webp";
 
 const Footer = () => {
   return (

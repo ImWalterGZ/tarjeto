@@ -1,5 +1,5 @@
 import React from "react";
-const Porcentage = "/images/porcentage.png";
+const Porcentage = "/images/porcentage.webp";
 
 const RegistrationPromo = () => {
   return (

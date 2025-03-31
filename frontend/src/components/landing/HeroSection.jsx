@@ -1,9 +1,9 @@
 import React from "react";
 import BotoneraHeroSection from "./BotoneraHeroSection";
 
-const konga = "/images/tarjetas/KONGA.png";
-const caffenio = "/images/tarjetas/CAFFENIO.png";
-const shugu = "/images/tarjetas/SHUGU.png";
+const konga = "/images/tarjetas/KONGA.webp";
+const caffenio = "/images/tarjetas/CAFFENIO.webp";
+const shugu = "/images/tarjetas/SHUGU.webp";
 
 export default function HeroSection() {
   return (

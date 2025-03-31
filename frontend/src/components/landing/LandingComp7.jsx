@@ -1,5 +1,5 @@
 import React from "react";
-const LocalImage = "/images/Local.png";
+const LocalImage = "/images/Local.webp";
 
 const features = [
   {
