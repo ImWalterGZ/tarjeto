@@ -1086,4 +1086,37 @@ export const nexoController = {
       return ResponseHandler.error(res, error.message, 500);
     }
   },
+
+  checkNexoLinked: async (req, res) => {
+    try {
+      const { establecimientoID } = req.params;
+
+      // Find the establecimiento by its ID
+      const establecimiento = await Establecimiento.findOne({
+        establecimientoID: establecimientoID,
+      });
+
+      if (!establecimiento) {
+        return ResponseHandler.error(res, "Establecimiento no encontrado", 404);
+      }
+
+      // Check if the establecimiento has a nexoID (is linked to a nexo)
+      const isLinked = !!establecimiento.nexoID;
+
+      if (isLinked) {
+        // Return 200 if the nexo is linked
+        return ResponseHandler.success(
+          res,
+          { isLinked: true },
+          "El establecimiento sigue vinculado a un Nexo"
+        );
+      } else {
+        // Return 204 if the nexo is not linked
+        return res.status(204).end();
+      }
+    } catch (error) {
+      console.error("Error en checkNexoLinked:", error);
+      return ResponseHandler.error(res, error.message, 500);
+    }
+  },
 };

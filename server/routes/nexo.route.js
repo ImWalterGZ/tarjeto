@@ -13,6 +13,9 @@ router.get("/:nexoId/status", nexoController.getStatus);
 // Add new route for Nexo statistics
 router.get("/:nexoId/stats", nexoController.getNexoStats);
 
+// Route to check if a nexo is still linked to an establecimiento
+router.get("/:establecimientoID/isLinked", nexoController.checkNexoLinked);
+
 router.get(
   "/datosCliente/:clienteId/:establecimientoID",
   nexoController.getClienteData
