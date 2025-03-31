@@ -62,8 +62,8 @@ const TestimonialsSection = () => {
       </section>
 
       {/* Desktop version - hidden on mobile */}
-      <section className="hidden md:flex justify-center py-12 px-6">
-        <div className="bg-red-600 rounded-2xl max-w-7xl w-full p-20 mt-20">
+      <section className="hidden md:flex justify-center py-12 px-12">
+        <div className="bg-red-600 rounded-2xl max-w-7xl w-full p-12 mt-20">
           {/* Título */}
           <h2 className="text-white text-4xl font-bold text-center mb-6">
             Ellos ya usan Tarjeto. Esto es lo que dicen:

@@ -87,7 +87,7 @@ const PromotionsSection = () => {
       </div>
 
       {/* Desktop version - hidden on mobile */}
-      <div className="hidden md:flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto p-8 mt-20">
+      <div className="hidden md:flex flex-col md:flex-row items-center justify-between max-w-7xl mx-auto px-20 mt-20">
         {/* Sección de promociones a la izquierda */}
         <div className="md:w-3/5 relative h-96">
           {promotions.map((promo, index) => (

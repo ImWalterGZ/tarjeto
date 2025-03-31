@@ -49,7 +49,7 @@ const BenefitsSection = () => {
       </div>
 
       {/* Desktop version - hidden on mobile */}
-      <div className="hidden md:flex flex-row items-center justify-between bg-white px-8 py-12 max-w-5xl mx-auto">
+      <div className="hidden md:flex flex-row items-center justify-between bg-white px-12 py-12 max-w-5xl mx-auto">
         {/* Texto a la izquierda */}
         <div className="max-w-lg">
           <h2 className="text-4xl md:text-5xl font-semibold text-gray-800 mb-6">

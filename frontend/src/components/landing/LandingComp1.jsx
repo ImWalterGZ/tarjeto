@@ -34,7 +34,7 @@ const LandingComp1 = () => {
       </div>
 
       {/* Desktop version - hidden on mobile */}
-      <div className="hidden md:flex items-center justify-center p-6 bg-white">
+      <div className="hidden md:flex items-center justify-center py-6 px-12 bg-white">
         <div className="flex items-center gap-12">
           {/* Left side with image */}
           <div className="mr-4">

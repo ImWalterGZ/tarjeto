@@ -46,7 +46,7 @@ const StepsSection = () => {
       </div>
 
       {/* Desktop version - hidden on mobile */}
-      <div className="hidden md:block text-center py-12 bg-white">
+      <div className="hidden md:block text-center py-12 px-12 bg-white">
         {/* Título principal */}
         <h2 className="text-4xl font-semibold text-gray-800 mb-8">
           Así de fácil, sin complicaciones.
