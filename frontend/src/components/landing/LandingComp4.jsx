@@ -6,7 +6,7 @@ const LoyaltyLevels = () => {
       name: "BRONCE",
       description:
         "El primer nivel. Recibe descuentos básicos y acceso a promociones estándar.",
-      color: "from-amber-800 to-amber-600",
+      color: "from-[#2F1717] to-[#803D40]",
       hoverColor: "hover:shadow-brown-300",
     },
     {
