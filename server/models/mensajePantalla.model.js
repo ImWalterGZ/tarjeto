@@ -10,6 +10,9 @@ const mensajePantallaSchema = new mongoose.Schema(
       type: String,
       ref: "Establecimiento",
     },
+    nombreEstablecimiento: {
+      type: String,
+    },
     promociones: [
       {
         type: mongoose.Schema.Types.ObjectId,
