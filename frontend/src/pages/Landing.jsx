@@ -14,8 +14,10 @@ import Footer from "../components/landing/Footer";
 
 export default function Landing() {
   return (
-    <div>
-      <Navbar />
+    <div className="w-full overflow-x-hidden">
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
       <HeroSection />
       <LandingComp1 />
       <LandingComp2 />
