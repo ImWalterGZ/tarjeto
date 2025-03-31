@@ -402,7 +402,7 @@ export const nexoController = {
         );
         tarjetaInfo = {
           negocio_id: negocio.publicID,
-          nivel: 0,
+          nivel: 1,
           visitas: 1,
           ultimaVisita: new Date(),
         };

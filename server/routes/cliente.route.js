@@ -17,13 +17,13 @@ router.put("/profile", clienteController.updateProfile);
 router.get("/data", clienteController.getClientData);
 
 // Cards routes
-router.get("/cards", clienteController.getCards);
+router.get("/tarjetas", clienteController.getCards);
 
 // Promotions routes
-router.get("/promotions", clienteController.getPromotions);
+router.get("/promociones", clienteController.getPromotions);
 
 // Visits routes
-router.get("/visits", clienteController.getVisits);
-router.post("/visits", clienteController.registrarVisita);
+router.get("/visitas", clienteController.getVisits);
+router.post("/visitas", clienteController.registrarVisita);
 
 export default router; // This is the important part - the default export

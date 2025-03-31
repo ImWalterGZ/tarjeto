@@ -16,8 +16,48 @@ export const createPromocion = async (req, res) => {
       req.body.negocioID = negocio._id;
     }
 
+    // Create and save the promotion
     const promocion = new Promocion(req.body);
     await promocion.save();
+
+    // Now, add this promotion to the appropriate level in the loyalty program
+    if (promocion.nivelReq && promocion.negocioID) {
+      try {
+        // Find the loyalty program for this business
+        const { ProgramaLealtad } = await import(
+          "../models/programaLealtad.model.js"
+        );
+        const programaLealtad = await ProgramaLealtad.findOne({
+          negocioID: promocion.negocioID,
+        });
+
+        if (programaLealtad) {
+          // Find the correct level based on nivelReq from the promotion
+          const nivelIndex = programaLealtad.niveles.findIndex(
+            (nivel) => nivel.nivel === promocion.nivelReq
+          );
+
+          if (nivelIndex !== -1) {
+            // Add promotion to the level's promocionesAsignadas array
+            programaLealtad.niveles[nivelIndex].promocionesAsignadas.push({
+              promocionID: promocion._id,
+              fechaAsignacion: new Date(),
+              activa: true,
+            });
+
+            // Save the updated loyalty program
+            await programaLealtad.save();
+          }
+        }
+      } catch (error) {
+        // Log error but don't fail the promotion creation
+        console.error(
+          "Error adding promotion to loyalty program:",
+          error.message
+        );
+      }
+    }
+
     res.status(201).json({ success: true, data: promocion });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -96,6 +136,14 @@ export const updatePromocion = async (req, res) => {
       ultimaModificacion: new Date(),
     };
 
+    // Get the current promotion to check if nivelReq changed
+    const currentPromocion = await Promocion.findById(req.params.id);
+    if (!currentPromocion) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Promoción no encontrada" });
+    }
+
     const promocion = await Promocion.findByIdAndUpdate(
       req.params.id,
       updates,
@@ -109,6 +157,55 @@ export const updatePromocion = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Promoción no encontrada" });
+    }
+
+    // If nivelReq changed, update the loyalty program
+    if (req.body.nivelReq && req.body.nivelReq !== currentPromocion.nivelReq) {
+      try {
+        const { ProgramaLealtad } = await import(
+          "../models/programaLealtad.model.js"
+        );
+        const programaLealtad = await ProgramaLealtad.findOne({
+          negocioID: promocion.negocioID,
+        });
+
+        if (programaLealtad) {
+          // Remove from old level
+          const oldNivelIndex = programaLealtad.niveles.findIndex(
+            (nivel) => nivel.nivel === currentPromocion.nivelReq
+          );
+
+          if (oldNivelIndex !== -1) {
+            // Filter out this promotion from the old level
+            programaLealtad.niveles[oldNivelIndex].promocionesAsignadas =
+              programaLealtad.niveles[
+                oldNivelIndex
+              ].promocionesAsignadas.filter(
+                (promo) => !promo.promocionID.equals(promocion._id)
+              );
+          }
+
+          // Add to new level
+          const newNivelIndex = programaLealtad.niveles.findIndex(
+            (nivel) => nivel.nivel === parseInt(req.body.nivelReq)
+          );
+
+          if (newNivelIndex !== -1) {
+            programaLealtad.niveles[newNivelIndex].promocionesAsignadas.push({
+              promocionID: promocion._id,
+              fechaAsignacion: new Date(),
+              activa: true,
+            });
+          }
+
+          await programaLealtad.save();
+        }
+      } catch (error) {
+        console.error(
+          "Error updating promotion in loyalty program:",
+          error.message
+        );
+      }
     }
 
     res.status(200).json({ success: true, data: promocion });
@@ -132,6 +229,37 @@ export const deletePromocion = async (req, res) => {
         .json({ success: false, message: "Promoción no encontrada" });
     }
 
+    // Update the promotion's status in the loyalty program
+    try {
+      const { ProgramaLealtad } = await import(
+        "../models/programaLealtad.model.js"
+      );
+      const programaLealtad = await ProgramaLealtad.findOne({
+        negocioID: promocion.negocioID,
+      });
+
+      if (programaLealtad) {
+        // Find the level containing this promotion
+        for (const nivel of programaLealtad.niveles) {
+          // Find the promotion and mark it as inactive
+          const promoIndex = nivel.promocionesAsignadas.findIndex((promo) =>
+            promo.promocionID.equals(promocion._id)
+          );
+
+          if (promoIndex !== -1) {
+            nivel.promocionesAsignadas[promoIndex].activa = false;
+            await programaLealtad.save();
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Error updating promotion status in loyalty program:",
+        error.message
+      );
+    }
+
     res.status(200).json({ success: true, data: promocion });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -141,13 +269,42 @@ export const deletePromocion = async (req, res) => {
 // Hard delete a promotion (only for admin use)
 export const hardDeletePromocion = async (req, res) => {
   try {
-    const promocion = await Promocion.findByIdAndDelete(req.params.id);
+    const promocion = await Promocion.findById(req.params.id);
 
     if (!promocion) {
       return res
         .status(404)
         .json({ success: false, message: "Promoción no encontrada" });
     }
+
+    // Remove the promotion from any loyalty program before deleting
+    try {
+      const { ProgramaLealtad } = await import(
+        "../models/programaLealtad.model.js"
+      );
+      const programaLealtad = await ProgramaLealtad.findOne({
+        negocioID: promocion.negocioID,
+      });
+
+      if (programaLealtad) {
+        // Find and remove the promotion from any level
+        for (let i = 0; i < programaLealtad.niveles.length; i++) {
+          programaLealtad.niveles[i].promocionesAsignadas =
+            programaLealtad.niveles[i].promocionesAsignadas.filter(
+              (promo) => !promo.promocionID.equals(promocion._id)
+            );
+        }
+        await programaLealtad.save();
+      }
+    } catch (error) {
+      console.error(
+        "Error removing promotion from loyalty program:",
+        error.message
+      );
+    }
+
+    // Now delete the promotion
+    await Promocion.findByIdAndDelete(req.params.id);
 
     res
       .status(200)
