@@ -130,10 +130,110 @@ export const clienteController = {
           message: "No se encontraron tarjetas",
         });
       }
+
+      // Get all business publicIDs from client cards
+      const negocioPublicIds = cliente.tarjetas.map(
+        (tarjeta) => tarjeta.negocio_id
+      );
+
+      // Find the businesses by their publicIDs
+      const negocios = await Negocio.find({
+        publicID: { $in: negocioPublicIds },
+      });
+
+      // Create a map of publicID to business name and internal ID
+      const negocioMap = {};
+      negocios.forEach((negocio) => {
+        negocioMap[negocio.publicID] = {
+          nombre: negocio.nombreComercial,
+          internalId: negocio._id,
+        };
+      });
+
+      // Find loyalty programs for these businesses using internal IDs
+      const internalIds = negocios.map((negocio) => negocio._id);
+      const programas = await ProgramaLealtad.find({
+        negocioID: { $in: internalIds },
+      });
+
+      // Create maps for program information
+      const programaInfo = {};
+      programas.forEach((programa) => {
+        const negocioId = programa.negocioID.toString();
+        programaInfo[negocioId] = {
+          reglasDescenso: programa.configuracion.reglasDescenso,
+          reglasAscenso: programa.configuracion.reglasAscenso,
+          temporadaFin: programa.temporadaActual?.fechaFin || null,
+          niveles: programa.niveles.map((nivel) => ({
+            nivel: nivel.nivel,
+            nombre: nivel.nombre,
+            visitasRequeridas: nivel.visitasRequeridas,
+            beneficios: nivel.beneficios
+              .filter((b) => b.activo)
+              .map((b) => b.descripcion),
+          })),
+        };
+      });
+
+      // Add business name and rules to each card
+      const tarjetasConInfo = cliente.tarjetas.map((tarjeta) => {
+        const negocioInfo = negocioMap[tarjeta.negocio_id] || {
+          nombre: "Desconocido",
+        };
+        const nivel = tarjeta.nivel;
+        let visitasProximoNivel = 0;
+        let nombreNivel = "";
+        let beneficios = [];
+        let proximoNivel = "";
+        let temporadaFin = null;
+
+        // Get program information if available
+        if (negocioInfo.internalId) {
+          const info = programaInfo[negocioInfo.internalId.toString()];
+          if (info) {
+            // Get temporada end date
+            temporadaFin = info.temporadaFin;
+
+            // Get visits required for next level
+            const reglasAscenso = info.reglasAscenso;
+            if (nivel === 1) {
+              visitasProximoNivel =
+                reglasAscenso.bronceAPlata?.visitasRequeridas || 0;
+              proximoNivel = "Plata";
+            } else if (nivel === 2) {
+              visitasProximoNivel =
+                reglasAscenso.plataAOro?.visitasRequeridas || 0;
+              proximoNivel = "Oro";
+            } else if (nivel === 3) {
+              visitasProximoNivel =
+                reglasAscenso.oroARubi?.visitasRequeridas || 0;
+              proximoNivel = "Rubi";
+            }
+
+            // Get current level name and benefits
+            const nivelInfo = info.niveles.find((n) => n.nivel === nivel);
+            if (nivelInfo) {
+              nombreNivel = nivelInfo.nombre;
+              beneficios = nivelInfo.beneficios || [];
+            }
+          }
+        }
+
+        return {
+          ...tarjeta.toObject(),
+          negocio_nombre: negocioInfo.nombre,
+          nivel_nombre: nombreNivel,
+          visitas_proximo_nivel: visitasProximoNivel,
+          proximo_nivel: proximoNivel,
+          beneficios: beneficios,
+          temporada_fin: temporadaFin,
+        };
+      });
+
       res.status(200).json({
         success: true,
         data: {
-          tarjetas: cliente.tarjetas,
+          tarjetas: tarjetasConInfo,
         },
       });
     } catch (error) {
