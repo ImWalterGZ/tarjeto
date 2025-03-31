@@ -551,6 +551,44 @@ export const nexoController = {
       // Crear mensaje para mostrar en pantalla
       try {
         console.log(`📝 Creating display message`);
+
+        // Get the loyalty program to calculate visits needed for next level
+        console.log(`🔍 Finding loyalty program for business: ${negocio._id}`);
+        let visitasProximoNivel = 0;
+        let proximoNivel = "";
+
+        const programaLealtad = await ProgramaLealtad.findOne({
+          negocioID: negocio._id,
+        });
+
+        if (programaLealtad && programaLealtad.configuracion?.reglasAscenso) {
+          console.log(`✅ Loyalty program found: ${programaLealtad._id}`);
+          const nivel = tarjetaInfo.nivel;
+          const reglasAscenso = programaLealtad.configuracion.reglasAscenso;
+
+          if (nivel === 1) {
+            visitasProximoNivel =
+              reglasAscenso.bronceAPlata?.visitasRequeridas || 0;
+            proximoNivel = "Plata";
+          } else if (nivel === 2) {
+            visitasProximoNivel =
+              reglasAscenso.plataAOro?.visitasRequeridas || 0;
+            proximoNivel = "Oro";
+          } else if (nivel === 3) {
+            visitasProximoNivel =
+              reglasAscenso.oroARubi?.visitasRequeridas || 0;
+            proximoNivel = "Rubi";
+          }
+          console.log(
+            `📊 Calculated visits for next level: ${visitasProximoNivel}`
+          );
+          console.log(`🏆 Next level: ${proximoNivel}`);
+        } else {
+          console.log(
+            `⚠️ No loyalty program found for business: ${negocio._id}`
+          );
+        }
+
         const mensajeData = {
           clienteID: cliente.publicID,
           establecimientoID: establecimientoID,
@@ -562,6 +600,8 @@ export const nexoController = {
           },
           nivelCliente: tarjetaInfo.nivel,
           clienteVisitas: tarjetaInfo.visitas,
+          visitasProximoNivel: visitasProximoNivel,
+          proximoNivel: proximoNivel,
           promociones: promociones, // This will now be an array of IDs
           mostrado: false,
         };
@@ -655,11 +695,16 @@ export const nexoController = {
         descripcion: promo.descripcion,
       }));
 
-      // Create a response object with the formatted promotions
+      // Create a response object with the formatted promotions and ensure we include visitasProximoNivel
       const respuesta = {
         ...mensaje.toObject(),
         promociones: promocionesDetalladas,
       };
+
+      // Log the response for debugging
+      console.log(
+        `Responding with message data: visitasProximoNivel=${respuesta.visitasProximoNivel}, proximoNivel=${respuesta.proximoNivel}`
+      );
 
       // Marcar el mensaje como mostrado
       mensaje.mostrado = true;

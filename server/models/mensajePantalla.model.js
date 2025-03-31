@@ -22,6 +22,13 @@ const mensajePantallaSchema = new mongoose.Schema(
     clienteVisitas: {
       type: Number,
     },
+    visitasProximoNivel: {
+      type: Number,
+      default: 0,
+    },
+    proximoNivel: {
+      type: String,
+    },
     datosCliente: {
       nombre: String,
       fotoPerfil: String,
