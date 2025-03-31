@@ -265,9 +265,9 @@ const PromoCreator = ({ negocio, onSuccess }) => {
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             required
           >
-            <option value="PROGRAMA">Programa Semanal</option>
-            <option value="PERIODO">Periodo de Tiempo</option>
-            <option value="EXCLUSIVO">Cantidad Limitada</option>
+            <option value="programa">Programa Semanal</option>
+            <option value="periodo">Periodo de Tiempo</option>
+            <option value="exclusivo">Cantidad Limitada</option>
           </select>
         </div>
 

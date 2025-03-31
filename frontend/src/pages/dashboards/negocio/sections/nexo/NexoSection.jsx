@@ -199,7 +199,7 @@ export default function NexoSection({ negocio, nexoData, nexoError }) {
 
     try {
       await apiClient.post(
-        `/establecimiento/${nexoState.selectedEstablishment._id}/unpair`
+        `/establecimiento/${nexoState.selectedEstablishment.establecimientoID}/unpair`
       );
 
       console.log("Successfully unpaired device");
