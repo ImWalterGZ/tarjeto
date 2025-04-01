@@ -9,17 +9,8 @@ export const registrarVisita = async (req, res) => {
   const { negocioID, establecimientoID, clienteID } = req.body;
 
   try {
-    // Verify if client and business exist using publicID
-    const cliente = await Cliente.findOne({ publicID: clienteID });
+    // Verify if business exists using publicID
     const negocio = await Negocio.findOne({ publicID: negocioID });
-
-    if (!cliente) {
-      return res.status(404).json({
-        success: false,
-        message: "Cliente no encontrado",
-      });
-    }
-
     if (!negocio) {
       return res.status(404).json({
         success: false,
@@ -39,16 +30,62 @@ export const registrarVisita = async (req, res) => {
       });
     }
 
-    // Create visit with current hour
-    const currentHour = new Date().getHours();
-    const visita = new Visita({
-      clienteID: cliente._id,
+    // Create visit object
+    const visitaData = {
       negocioID: negocio._id,
       establecimientoID,
-      hora: currentHour,
+      hora: new Date().getHours(),
       trafico: 1, // Base traffic value
-    });
+    };
 
+    // Add clientID if provided
+    if (clienteID) {
+      const cliente = await Cliente.findOne({ publicID: clienteID });
+      if (!cliente) {
+        return res.status(404).json({
+          success: false,
+          message: "Cliente no encontrado",
+        });
+      }
+      visitaData.clienteID = cliente._id;
+
+      // Check if business has a loyalty program and if season should end
+      const programa = await ProgramaLealtad.findOne({
+        negocioID: negocio._id,
+      });
+      if (programa) {
+        const fechaFin = new Date(programa.temporadaActual.fechaFin);
+        if (new Date() >= fechaFin) {
+          // Process end of season in background
+          procesarFinTemporadaInterno(programa._id)
+            .then((success) => {
+              if (success) {
+                console.log(
+                  `Season processed for program ${programa._id} during visit registration`
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Error processing season during visit:", error);
+            });
+        }
+
+        // Update visit count in client's loyalty card
+        const tarjeta = cliente.tarjetas.find(
+          (t) => t.negocio_id.toString() === negocio._id.toString()
+        );
+        if (tarjeta) {
+          tarjeta.visitas += 1;
+          tarjeta.ultimaVisita = new Date();
+          await cliente.save();
+        }
+      }
+    } else {
+      console.log("Anonymous visit - no client ID provided");
+    }
+
+    // Create and save the visit
+    const visita = new Visita(visitaData);
     await visita.save();
 
     // Update establishment metrics
@@ -57,36 +94,6 @@ export const registrarVisita = async (req, res) => {
     );
     establecimiento.metricas.visitasTotales += 1;
     await negocio.save();
-
-    // Check if business has a loyalty program and if season should end
-    const programa = await ProgramaLealtad.findOne({ negocioID: negocio._id });
-    if (programa) {
-      const fechaFin = new Date(programa.temporadaActual.fechaFin);
-      if (new Date() >= fechaFin) {
-        // Process end of season in background
-        procesarFinTemporadaInterno(programa._id)
-          .then((success) => {
-            if (success) {
-              console.log(
-                `Season processed for program ${programa._id} during visit registration`
-              );
-            }
-          })
-          .catch((error) => {
-            console.error("Error processing season during visit:", error);
-          });
-      }
-
-      // Update visit count in client's loyalty card
-      const tarjeta = cliente.tarjetas.find(
-        (t) => t.negocio_id.toString() === negocio._id.toString()
-      );
-      if (tarjeta) {
-        tarjeta.visitas += 1;
-        tarjeta.ultimaVisita = new Date();
-        await cliente.save();
-      }
-    }
 
     res.status(201).json({
       success: true,
@@ -126,6 +133,8 @@ export const getVisitasByNegocio = async (req, res) => {
       };
     }
 
+    console.log("Finding visits with query:", JSON.stringify(query));
+
     const visitas = await Visita.find(query)
       .populate({
         path: "clienteID",
@@ -133,11 +142,35 @@ export const getVisitasByNegocio = async (req, res) => {
       })
       .sort({ fecha: -1 });
 
+    // Debug logging to check clientID population
+    console.log(`Found ${visitas.length} visits. ClientID details:`);
+
+    // Process to add virtual clientID for null values
+    const processedVisitas = visitas.map((visita, index) => {
+      const visitaObj = visita.toObject();
+      console.log(
+        `Visit ${index + 1}: clientID=${
+          visita.clienteID ? "populated" : "null"
+        }, ID=${visita._id}`
+      );
+
+      // If clientID is null, create a virtual clientID using the visit ID as unique identifier
+      if (!visitaObj.clienteID) {
+        visitaObj.clienteID = {
+          publicID: `anonymous-${visitaObj._id}`,
+          datosPersonales: { nombre: "Visitante Anónimo" },
+        };
+      }
+
+      return visitaObj;
+    });
+
     res.status(200).json({
       success: true,
-      data: visitas,
+      data: processedVisitas,
     });
   } catch (error) {
+    console.error("Error in getVisitasByNegocio:", error);
     res.status(400).json({
       success: false,
       message: error.message,

@@ -128,9 +128,8 @@ export default function ResumenRapido({ negocio, usuario }) {
               <div className="flex flex-col">
                 <h4>Hasta ahora</h4>
                 <p className="text-3xl font-extrabold text-red-primary">
-                  {stats.visitasUltimaSemana} clientes
+                  {stats.visitasUltimaSemana} visitas
                 </p>
-                <h4> te han visitado</h4>
               </div>
             </div>
             <div className="flex flex-row items-center gap-2 align-middle">

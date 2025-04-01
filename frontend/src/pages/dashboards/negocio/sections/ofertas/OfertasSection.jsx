@@ -8,7 +8,12 @@ import { FiEye, FiPlusCircle } from "react-icons/fi";
 // Stats View Component
 const StatsView = ({ negocio, refreshTrigger }) => {
   const [stats, setStats] = useState({
-    ofertasActivas: [],
+    ofertasActivas: {
+      promociones: 0,
+      cupones: 0,
+      recompensas: 0,
+      eventos: 0,
+    },
     tasaDeUso: {
       promociones: 0,
       cupones: 0,
@@ -22,82 +27,189 @@ const StatsView = ({ negocio, refreshTrigger }) => {
   });
 
   useEffect(() => {
+    // Reset state when refreshTrigger changes to ensure clean data
+    setStats((prevStats) => ({ ...prevStats, loading: true, error: null }));
+
     const fetchStats = async () => {
       console.log("Starting to fetch stats with negocio:", negocio);
+
+      // Validate negocio.publicID before attempting API calls
+      if (!negocio?.publicID) {
+        console.error("Missing negocio.publicID - cannot fetch stats");
+        setStats((prevStats) => ({
+          ...prevStats,
+          loading: false,
+          error: "No se puede cargar las estadísticas: falta ID del negocio",
+        }));
+        return;
+      }
+
       try {
-        // Fetch all promotions for this business
-        console.log("Fetching promotions for business ID:", negocio.publicID);
-        const promocionesResponse = await apiClient.get(
-          `/promocion/${negocio.publicID}`
-        );
-        console.log("Promociones response:", promocionesResponse.data);
-
-        // Fetch stats for this business
-        console.log("Fetching stats for business ID:", negocio.publicID);
-        const statsResponse = await apiClient.get(
-          `/promocion/stats/${negocio.publicID}`
-        );
-        console.log("Stats response:", statsResponse.data);
-
-        // Fetch loyalty program to get level info
+        // Fetch all data with proper error handling for each request
         console.log(
           "Fetching loyalty program for business ID:",
           negocio.publicID
         );
-        const programaLealtadResponse = await apiClient.get(
-          `/programa-lealtad/negocio/${negocio.publicID}`
-        );
-        console.log("Programa lealtad response:", programaLealtadResponse.data);
+        let promocionesData = [];
+        let statsData = null;
+        let programaLealtadData = null;
 
-        const promociones = promocionesResponse.data.data;
-        console.log("Raw promociones data:", promociones);
+        try {
+          const programaLealtadResponse = await apiClient.get(
+            `/programa-lealtad/negocio/${negocio.publicID}`
+          );
+          console.log(
+            "Programa lealtad response:",
+            programaLealtadResponse.data
+          );
 
-        // Process data for UI
-        const ofertasActivas = promociones.filter((p) => p.activo);
-        console.log("Filtered active offers:", ofertasActivas);
+          // Validate the response format
+          if (
+            programaLealtadResponse.data &&
+            programaLealtadResponse.data.success
+          ) {
+            programaLealtadData = programaLealtadResponse.data.data || {
+              niveles: [],
+            };
 
-        // Group by type
-        const cupones = ofertasActivas.filter(
-          (p) => p.tipoPromo?.tipo === "cupon"
+            // Extract promotions directly from loyalty program levels
+            if (
+              programaLealtadData.niveles &&
+              Array.isArray(programaLealtadData.niveles)
+            ) {
+              promocionesData = [];
+
+              // Get all promociones from all niveles
+              programaLealtadData.niveles.forEach((nivel) => {
+                if (
+                  nivel.promocionesAsignadas &&
+                  Array.isArray(nivel.promocionesAsignadas)
+                ) {
+                  nivel.promocionesAsignadas.forEach((promo) => {
+                    if (promo.activa && promo.promocionID) {
+                      // Add the nivel info to the promocion object
+                      promocionesData.push({
+                        ...promo.promocionID,
+                        nivelAsignado: nivel.nivel,
+                        nombreNivel: nivel.nombre,
+                      });
+                    }
+                  });
+                }
+              });
+
+              console.log(
+                "Extracted promotions from programa lealtad:",
+                promocionesData.length
+              );
+            }
+          } else {
+            console.warn(
+              "Unexpected programa lealtad response format:",
+              programaLealtadResponse.data
+            );
+            programaLealtadData = { niveles: [] };
+          }
+        } catch (lealtadError) {
+          console.error("Error fetching loyalty program:", lealtadError);
+          // Use default loyalty program data
+          programaLealtadData = { niveles: [] };
+        }
+
+        // Fetch stats for this business if needed
+        try {
+          const statsResponse = await apiClient.get(
+            `/promocion/stats/${negocio.publicID}`
+          );
+          console.log("Stats response:", statsResponse.data);
+
+          // Validate the response format
+          if (statsResponse.data && statsResponse.data.success) {
+            statsData = statsResponse.data.data || {
+              estadisticasUso: { totalVistas: 0, totalUsos: 0 },
+            };
+          } else {
+            console.warn(
+              "Unexpected stats response format:",
+              statsResponse.data
+            );
+            statsData = { estadisticasUso: { totalVistas: 0, totalUsos: 0 } };
+          }
+        } catch (statsError) {
+          console.error("Error fetching stats:", statsError);
+          // Use default stats
+          statsData = { estadisticasUso: { totalVistas: 0, totalUsos: 0 } };
+        }
+
+        console.log("Promotions data from loyalty program:", promocionesData);
+
+        if (!Array.isArray(promocionesData)) {
+          console.error("Promociones data is not an array:", promocionesData);
+          promocionesData = [];
+        }
+
+        // Group promotions by type with validation
+        const cupones = promocionesData.filter(
+          (p) => p.tipoPromo && p.tipoPromo.tipo === "cupon"
         );
-        const eventos = ofertasActivas.filter(
-          (p) => p.tipoPromo?.tipo === "evento"
+        const eventos = promocionesData.filter(
+          (p) => p.tipoPromo && p.tipoPromo.tipo === "evento"
         );
-        const recompensas = ofertasActivas.filter(
-          (p) => p.tipoPromo?.tipo === "recompensa"
+        const recompensas = promocionesData.filter(
+          (p) => p.tipoPromo && p.tipoPromo.tipo === "recompensa"
+        );
+        const promociones = promocionesData.filter(
+          (p) =>
+            (p.tipoPromo && p.tipoPromo.tipo === "promocion") ||
+            (p.tipoPromo && p.tipoPromo.tipo === "PROGRAMA")
         );
 
         console.log("Grouped by type:", {
           cupones: cupones.length,
           eventos: eventos.length,
           recompensas: recompensas.length,
-          promociones: ofertasActivas.filter(
-            (p) => p.tipoPromo?.tipo === "promocion"
-          ).length,
+          promociones: promociones.length,
         });
 
-        // Expiring soon (within 3 days)
+        // Expiring soon (within 3 days) with validation
         const threeDaysFromNow = new Date();
         threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
         console.log("Looking for offers expiring before:", threeDaysFromNow);
 
-        const ofertasQueExpiran = ofertasActivas.filter((p) => {
-          if (p.tipoPromo?.periodo?.fechaFin) {
-            const fechaFin = new Date(p.tipoPromo.periodo.fechaFin);
-            return fechaFin <= threeDaysFromNow;
+        const ofertasQueExpiran = promocionesData.filter((p) => {
+          if (
+            p.tipoPromo &&
+            p.tipoPromo.periodo &&
+            p.tipoPromo.periodo.fechaFin
+          ) {
+            try {
+              const fechaFin = new Date(p.tipoPromo.periodo.fechaFin);
+              return fechaFin <= threeDaysFromNow;
+            } catch (e) {
+              console.error(
+                "Invalid date format for fechaFin:",
+                p.tipoPromo.periodo.fechaFin
+              );
+              return false;
+            }
           }
           return false;
         });
+
         console.log("Offers expiring soon:", ofertasQueExpiran);
 
-        // Calculate usage rates
+        // Calculate usage rates with safe division
         let promocionesUsageRate = 0;
         let cuponesUsageRate = 0;
 
-        if (statsResponse.data.data.estadisticasUso.totalVistas > 0) {
+        if (
+          statsData &&
+          statsData.estadisticasUso &&
+          statsData.estadisticasUso.totalVistas > 0
+        ) {
           promocionesUsageRate = Math.round(
-            (statsResponse.data.data.estadisticasUso.totalUsos /
-              statsResponse.data.data.estadisticasUso.totalVistas) *
+            (statsData.estadisticasUso.totalUsos /
+              statsData.estadisticasUso.totalVistas) *
               100
           );
         }
@@ -122,11 +234,30 @@ const StatsView = ({ negocio, refreshTrigger }) => {
           cupones: cuponesUsageRate,
         });
 
+        // Prepare statistics about loyalty program levels
+        const nivelStats = {};
+        if (
+          programaLealtadData.niveles &&
+          Array.isArray(programaLealtadData.niveles)
+        ) {
+          programaLealtadData.niveles.forEach((nivel) => {
+            const activePromos = nivel.promocionesAsignadas
+              ? nivel.promocionesAsignadas.filter((p) => p.activa).length
+              : 0;
+
+            nivelStats[nivel.nivel] = {
+              nombre: nivel.nombre,
+              nivel: nivel.nivel,
+              promocionesActivas: activePromos,
+              visitasRequeridas: nivel.visitasRequeridas,
+              clientesActuales: nivel.clientesActuales || 0,
+            };
+          });
+        }
+
         const newStats = {
           ofertasActivas: {
-            promociones: ofertasActivas.filter(
-              (p) => p.tipoPromo?.tipo === "promocion"
-            ).length,
+            promociones: promociones.length,
             cupones: cupones.length,
             recompensas: recompensas.length,
             eventos: eventos.length,
@@ -136,10 +267,17 @@ const StatsView = ({ negocio, refreshTrigger }) => {
             cupones: cuponesUsageRate,
           },
           ofertasQueExpiran,
-          cupones: cupones.sort((a, b) => a.nivelReq - b.nivelReq),
+          cupones: cupones.sort(
+            (a, b) => (a.nivelReq || 0) - (b.nivelReq || 0)
+          ),
           eventos,
-          recompensas: recompensas.sort((a, b) => a.nivelReq - b.nivelReq),
-          niveles: programaLealtadResponse.data.data.niveles,
+          recompensas: recompensas.sort(
+            (a, b) => (a.nivelReq || 0) - (b.nivelReq || 0)
+          ),
+          promociones: promociones,
+          niveles: programaLealtadData?.niveles || [],
+          nivelStats,
+          temporadaActual: programaLealtadData?.temporadaActual,
           loading: false,
           error: null,
         };
@@ -149,20 +287,16 @@ const StatsView = ({ negocio, refreshTrigger }) => {
       } catch (error) {
         console.error("Error fetching offer stats:", error);
         console.error("Error details:", error.response?.data || error.message);
-        setStats({
-          ...stats,
+        setStats((prevStats) => ({
+          ...prevStats,
           loading: false,
           error:
             error.response?.data?.message || "Error al cargar las estadísticas",
-        });
+        }));
       }
     };
 
-    if (negocio?.publicID) {
-      fetchStats();
-    } else {
-      console.warn("Cannot fetch stats - missing negocio.publicID");
-    }
+    fetchStats();
   }, [negocio, refreshTrigger]);
 
   console.log("Rendering StatsView with stats:", stats);
@@ -170,13 +304,33 @@ const StatsView = ({ negocio, refreshTrigger }) => {
   if (stats.loading) {
     console.log("StatsView is in loading state");
     return (
-      <div className="p-4 text-center">Cargando estadísticas de ofertas...</div>
+      <div className="p-4 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-primary mx-auto mb-2"></div>
+        <div>Cargando estadísticas de ofertas...</div>
+      </div>
     );
   }
 
   if (stats.error) {
     console.log("StatsView encountered an error:", stats.error);
-    return <div className="p-4 text-center text-red-500">{stats.error}</div>;
+    return (
+      <div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+        <div className="font-bold mb-2">Error</div>
+        <div>{stats.error}</div>
+        <button
+          onClick={() =>
+            setStats((prevStats) => ({
+              ...prevStats,
+              loading: true,
+              error: null,
+            }))
+          }
+          className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   // Helper function to get nivel nombre
@@ -191,9 +345,33 @@ const StatsView = ({ negocio, refreshTrigger }) => {
     return nivelMap[nivelReq] || "Desconocido";
   };
 
+  // Helper to get day name from day number
+  const getDayName = (dayNumber) => {
+    const days = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
+    return days[dayNumber] || "Día desconocido";
+  };
+
   // Helper to get nivel count by nivelReq
   const getNivelCount = (items, nivel) => {
-    const count = items.filter((item) => item.nivelReq === nivel).length;
+    if (!Array.isArray(items)) return 0;
+
+    // First check if we have the precomputed stats
+    if (stats.nivelStats && stats.nivelStats[nivel]) {
+      return stats.nivelStats[nivel].promocionesActivas;
+    }
+
+    // Fall back to the old count method
+    const count = items.filter(
+      (item) => item && item.nivelReq === nivel
+    ).length;
     console.log(`getNivelCount for level ${nivel}:`, count);
     return count;
   };
@@ -395,7 +573,17 @@ const StatsView = ({ negocio, refreshTrigger }) => {
                   </div>
                 </div>
                 <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium w-max mt-2">
-                  Viernes 19 de enero, 7:00 PM - 10:00 PM
+                  {stats.eventos[0].tipoPromo?.periodo?.fechaInicio
+                    ? `${new Date(
+                        stats.eventos[0].tipoPromo.periodo.fechaInicio
+                      ).toLocaleDateString("es-ES", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                      })}, ${
+                        stats.eventos[0].tipoPromo?.periodo?.horaInicio || ""
+                      } - ${stats.eventos[0].tipoPromo?.periodo?.horaFin || ""}`
+                    : "Fecha no disponible"}
                 </div>
               </div>
             )}
@@ -411,58 +599,85 @@ const StatsView = ({ negocio, refreshTrigger }) => {
             </h3>
 
             <div className="flex flex-row gap-2 bg-gray-50 p-4 rounded-lg">
-              <div className="text-center p-2 flex-1">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 mx-auto mb-2">
-                  <span className="text-gray-700">★</span>
+              {stats.niveles &&
+                stats.niveles.map((nivel, index) => (
+                  <div key={index} className="text-center p-2 flex-1">
+                    <div
+                      className={`w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-2 ${
+                        nivel.nivel === 1
+                          ? "bg-amber-800 text-white"
+                          : nivel.nivel === 2
+                          ? "bg-gray-400 text-white"
+                          : nivel.nivel === 3
+                          ? "bg-yellow-500 text-white"
+                          : nivel.nivel === 4
+                          ? "bg-red-700 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      <span>★</span>
+                    </div>
+                    <span>{nivel.nombre}</span>
+                    <div className="text-2xl font-bold text-red-600">
+                      {nivel.promocionesAsignadas?.filter((p) => p.activa)
+                        .length || 0}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {nivel.clientesActuales || 0} clientes
+                    </div>
+                  </div>
+                ))}
+              {(!stats.niveles || stats.niveles.length === 0) && (
+                <div className="text-center p-2 flex-1">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200 mx-auto mb-2">
+                    <span className="text-gray-700">★</span>
+                  </div>
+                  <span>Sin niveles</span>
+                  <div className="text-2xl font-bold text-red-600">0</div>
                 </div>
-                <span>Todos</span>
-                <div className="text-2xl font-bold text-red-600">
-                  {getNivelCount(stats.cupones, 0) +
-                    getNivelCount(stats.recompensas, 0)}
-                </div>
-              </div>
-              <div className="text-center p-2 flex-1">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-amber-800 mx-auto mb-2">
-                  <span className="text-white">★</span>
-                </div>
-                <span>Bronce</span>
-                <div className="text-2xl font-bold text-red-600">
-                  {getNivelCount(stats.cupones, 1) +
-                    getNivelCount(stats.recompensas, 1)}
-                </div>
-              </div>
-              <div className="text-center p-2 flex-1">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-400 mx-auto mb-2">
-                  <span className="text-white">★</span>
-                </div>
-                <span>Plata</span>
-                <div className="text-2xl font-bold text-red-600">
-                  {getNivelCount(stats.cupones, 2) +
-                    getNivelCount(stats.recompensas, 2)}
-                </div>
-              </div>
-              <div className="text-center p-2 flex-1">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-500 mx-auto mb-2">
-                  <span className="text-white">★</span>
-                </div>
-                <span>Oro</span>
-                <div className="text-2xl font-bold text-red-600">
-                  {getNivelCount(stats.cupones, 3) +
-                    getNivelCount(stats.recompensas, 3)}
-                </div>
-              </div>
-              <div className="text-center p-2 flex-1">
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-red-700 mx-auto mb-2">
-                  <span className="text-white">★</span>
-                </div>
-                <span>Rubí</span>
-                <div className="text-2xl font-bold text-red-600">
-                  {getNivelCount(stats.cupones, 4) +
-                    getNivelCount(stats.recompensas, 4)}
+              )}
+            </div>
+          </div>
+
+          {/* Temporada Actual section */}
+          {stats.temporadaActual && (
+            <div className="bg-white rounded-xl p-4 shadow mb-4">
+              <h3 className="text-xl font-semibold text-red-600 mb-2">
+                Temporada Actual
+              </h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Periodo</h4>
+                    <p className="text-sm text-gray-600">
+                      {new Date(
+                        stats.temporadaActual.fechaInicio
+                      ).toLocaleDateString("es-ES")}{" "}
+                      -{" "}
+                      {new Date(
+                        stats.temporadaActual.fechaFin
+                      ).toLocaleDateString("es-ES")}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Duración: {stats.temporadaActual.duracionMeses} meses
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Estadísticas</h4>
+                    <p className="text-sm text-gray-600">
+                      Visitas totales:{" "}
+                      {stats.temporadaActual.estadisticas?.visitasTotales || 0}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Promociones canjeadas:{" "}
+                      {stats.temporadaActual.estadisticas
+                        ?.promocionesCanjeadas || 0}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Cupones */}
           <div className="bg-white rounded-xl p-4 shadow">
@@ -509,25 +724,38 @@ const StatsView = ({ negocio, refreshTrigger }) => {
                   <div className="flex justify-between items-center">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        cupon.nivelReq === 0
+                        (cupon.nivelAsignado || cupon.nivelReq) === 0
                           ? "bg-gray-200 text-gray-800"
-                          : cupon.nivelReq === 1
+                          : (cupon.nivelAsignado || cupon.nivelReq) === 1
                           ? "bg-amber-100 text-amber-800"
-                          : cupon.nivelReq === 2
+                          : (cupon.nivelAsignado || cupon.nivelReq) === 2
                           ? "bg-gray-200 text-gray-700"
-                          : cupon.nivelReq === 3
+                          : (cupon.nivelAsignado || cupon.nivelReq) === 3
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {cupon.nivelReq === 0
+                      {(cupon.nivelAsignado || cupon.nivelReq) === 0
                         ? "Para todos los usuarios"
-                        : `Solo para usuarios ${getNivelName(cupon.nivelReq)}`}
+                        : `Solo para usuarios ${
+                            cupon.nombreNivel || getNivelName(cupon.nivelReq)
+                          }`}
                     </span>
-                    <span className="text-xs text-gray-500">10/50</span>
+                    <span className="text-xs text-gray-500">
+                      {cupon.analitica?.usos || 0}/
+                      {cupon.analitica?.limite ||
+                        cupon.limiteDeUsos?.totalGlobal ||
+                        50}
+                    </span>
                   </div>
                 </div>
               ))}
+
+              {stats.cupones.length === 0 && (
+                <div className="col-span-2 bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                  No hay cupones activos
+                </div>
+              )}
             </div>
           </div>
 
@@ -543,62 +771,80 @@ const StatsView = ({ negocio, refreshTrigger }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {stats.recompensas.slice(0, 4).map((recompensa, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex justify-between mb-2">
-                    <h5 className="font-medium">
-                      {recompensa.titulo || "Recompensa"}
-                    </h5>
-                    <div className="flex gap-2">
-                      <button className="text-gray-500">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
-                        </svg>
-                      </button>
-                      <button className="text-gray-500">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                        </svg>
-                      </button>
+              {stats.recompensas &&
+                Array.isArray(stats.recompensas) &&
+                stats.recompensas.slice(0, 4).map((recompensa, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex justify-between mb-2">
+                      <h5 className="font-medium">
+                        {recompensa.titulo || "Recompensa"}
+                      </h5>
+                      <div className="flex gap-2">
+                        <button className="text-gray-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
+                          </svg>
+                        </button>
+                        <button className="text-gray-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {recompensa.descripcion || "Sin descripción"}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          (recompensa.nivelAsignado || recompensa.nivelReq) ===
+                          0
+                            ? "bg-gray-200 text-gray-800"
+                            : (recompensa.nivelAsignado ||
+                                recompensa.nivelReq) === 1
+                            ? "bg-amber-100 text-amber-800"
+                            : (recompensa.nivelAsignado ||
+                                recompensa.nivelReq) === 2
+                            ? "bg-gray-200 text-gray-700"
+                            : (recompensa.nivelAsignado ||
+                                recompensa.nivelReq) === 3
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {(recompensa.nivelAsignado || recompensa.nivelReq) === 0
+                          ? "Para todos los usuarios"
+                          : `Solo para usuarios ${
+                              recompensa.nombreNivel ||
+                              getNivelName(recompensa.nivelReq)
+                            }`}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {recompensa.analitica?.usos || 0}/
+                        {recompensa.analitica?.limite ||
+                          recompensa.limiteDeUsos?.totalGlobal ||
+                          50}
+                      </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {recompensa.descripcion || "Sin descripción"}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        recompensa.nivelReq === 0
-                          ? "bg-gray-200 text-gray-800"
-                          : recompensa.nivelReq === 1
-                          ? "bg-amber-100 text-amber-800"
-                          : recompensa.nivelReq === 2
-                          ? "bg-gray-200 text-gray-700"
-                          : recompensa.nivelReq === 3
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {recompensa.nivelReq === 0
-                        ? "Para todos los usuarios"
-                        : `Solo para usuarios ${getNivelName(
-                            recompensa.nivelReq
-                          )}`}
-                    </span>
-                    <span className="text-xs text-gray-500">10/50</span>
-                  </div>
+                ))}
+
+              {(!stats.recompensas || !stats.recompensas.length) && (
+                <div className="col-span-2 bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                  No hay recompensas activas
                 </div>
-              ))}
+              )}
             </div>
           </div>
           {/* Promociones section */}
@@ -613,113 +859,65 @@ const StatsView = ({ negocio, refreshTrigger }) => {
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex justify-between">
-                  <div>
-                    <h5 className="font-medium mb-2">Promo description</h5>
-                    <p className="text-sm text-gray-600 mb-2">
-                      Para todos los usuarios
-                    </p>
+              {stats.promociones &&
+                stats.promociones.slice(0, 3).map((promo, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex justify-between">
+                      <div>
+                        <h5 className="font-medium mb-2">
+                          {promo.titulo || "Promoción"}
+                        </h5>
+                        <p className="text-sm text-gray-600 mb-2">
+                          {promo.nivelAsignado === 0
+                            ? "Para todos los usuarios"
+                            : `Solo para usuarios ${
+                                promo.nombreNivel ||
+                                getNivelName(promo.nivelReq)
+                              }`}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="text-gray-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
+                          </svg>
+                        </button>
+                        <button className="text-gray-500">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-medium w-max mt-2">
+                      {promo.tipoPromo?.periodo?.fechaFin
+                        ? `Termina el ${new Date(
+                            promo.tipoPromo.periodo.fechaFin
+                          ).toLocaleDateString("es-ES")}`
+                        : promo.tipoPromo?.programa?.diaSemana !== undefined
+                        ? `${getDayName(promo.tipoPromo.programa.diaSemana)}: ${
+                            promo.tipoPromo.programa.horaInicio || ""
+                          } - ${promo.tipoPromo.programa.horaFin || ""}`
+                        : "Promoción permanente"}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
-                      </svg>
-                    </button>
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-medium w-max mt-2">
-                  Termina hoy
-                </div>
-              </div>
+                ))}
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex justify-between">
-                  <div>
-                    <h5 className="font-medium mb-2">Promo description</h5>
-                    <p className="text-sm text-gray-600 mb-2">
-                      Solo para usuarios BRONCE
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
-                      </svg>
-                    </button>
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                  </div>
+              {(!stats.promociones || stats.promociones.length === 0) && (
+                <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+                  No hay promociones activas
                 </div>
-                <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-medium w-max mt-2">
-                  Termina hoy
-                </div>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex justify-between">
-                  <div>
-                    <h5 className="font-medium mb-2">Promo description</h5>
-                    <p className="text-sm text-gray-600 mb-2">
-                      Solo para usuarios PLATA
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9z" />
-                      </svg>
-                    </button>
-                    <button className="text-gray-500">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-medium w-max mt-2">
-                  Termina hoy
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -753,6 +951,18 @@ export default function OfertasSection({ negocio }) {
     setIsDrawerOpen(true);
   }, []);
 
+  // Reset state and trigger refresh when switching views
+  const handleViewModeChange = useCallback(
+    (mode) => {
+      setViewMode(mode);
+      if (mode === "view") {
+        // Force refresh when switching to view mode
+        handleRefresh();
+      }
+    },
+    [handleRefresh]
+  );
+
   return (
     <div className="flex flex-col w-full h-full gap-4">
       <div className="flex justify-between items-center mb-4">
@@ -761,7 +971,7 @@ export default function OfertasSection({ negocio }) {
         </h2>
         <div className="flex gap-2">
           <button
-            onClick={() => setViewMode("view")}
+            onClick={() => handleViewModeChange("view")}
             className={`px-4 py-2 rounded-md flex items-center gap-2 ${
               viewMode === "view"
                 ? "bg-red-600 text-white"
@@ -772,7 +982,7 @@ export default function OfertasSection({ negocio }) {
             Ver
           </button>
           <button
-            onClick={() => setViewMode("create")}
+            onClick={() => handleViewModeChange("create")}
             className={`px-4 py-2 rounded-md flex items-center gap-2 ${
               viewMode === "create"
                 ? "bg-red-600 text-white"

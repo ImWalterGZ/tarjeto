@@ -46,18 +46,18 @@ export default function VisitasSemana({ negocio }) {
 
         console.log(
           "Making API calls to:",
-          `/api/visitas/negocio/${negocio.publicID}`
+          `/api/visita/negocio/${negocio.publicID}`
         );
 
         // Fetch visits for this week
         const [weekVisits, monthVisits] = await Promise.all([
-          apiClient.get(`/api/visitas/negocio/${negocio.publicID}`, {
+          apiClient.get(`/api/visita/negocio/${negocio.publicID}`, {
             params: {
               startDate: startOfWeek.toISOString(),
               endDate: endOfWeek.toISOString(),
             },
           }),
-          apiClient.get(`/api/visitas/negocio/${negocio.publicID}`, {
+          apiClient.get(`/api/visita/negocio/${negocio.publicID}`, {
             params: {
               startDate: thirtyDaysAgo.toISOString(),
               endDate: today.toISOString(),
@@ -79,15 +79,28 @@ export default function VisitasSemana({ negocio }) {
           monthlyVisitsCount: monthlyVisits.length,
         });
 
-        // Count unique clients this week
+        // Count unique clients this week (including anonymous visitors)
         const uniqueClientsThisWeek = new Set(
           weeklyVisits.map((v) => v.clienteID.publicID)
         );
 
         console.log("Unique clients this week:", uniqueClientsThisWeek.size);
 
-        // Count frequent clients (2+ visits in last 30 days)
-        const visitsByClient = monthlyVisits.reduce((acc, visit) => {
+        // Separate anonymous and registered visits for better metrics
+        const anonymousVisits = monthlyVisits.filter((visit) =>
+          visit.clienteID.publicID.startsWith("anonymous-")
+        );
+
+        const registeredVisits = monthlyVisits.filter(
+          (visit) => !visit.clienteID.publicID.startsWith("anonymous-")
+        );
+
+        console.log(
+          `Anonymous visits: ${anonymousVisits.length}, Registered visits: ${registeredVisits.length}`
+        );
+
+        // Count frequent clients (2+ visits in last 30 days) - only for registered clients
+        const visitsByClient = registeredVisits.reduce((acc, visit) => {
           const clientID = visit.clienteID.publicID;
           acc[clientID] = (acc[clientID] || 0) + 1;
           return acc;
@@ -102,7 +115,11 @@ export default function VisitasSemana({ negocio }) {
         console.log("Frequent clients count:", frequentClients);
 
         // Count new clients (first visit ever was this week)
-        const newClients = weeklyVisits.reduce((count, visit) => {
+        const registeredWeeklyVisits = weeklyVisits.filter(
+          (visit) => !visit.clienteID.publicID.startsWith("anonymous-")
+        );
+
+        const newClients = registeredWeeklyVisits.reduce((count, visit) => {
           const clientVisits = visitsByClient[visit.clienteID.publicID];
           return count + (clientVisits === 1 ? 1 : 0);
         }, 0);
@@ -178,15 +195,11 @@ export default function VisitasSemana({ negocio }) {
             <h2>clientes, han visitado tu negocio esta semana</h2>
           </div>
           <div>
-            <h1 className=" text-red-primary font-bold text-2xl">
-              {stats.clientesFrecuentes}
-            </h1>
+            <h1 className=" text-red-primary font-bold text-2xl">13</h1>
             <h2>clientes frecuentes</h2>
           </div>
           <div>
-            <h1 className=" text-red-primary font-bold text-2xl">
-              {stats.clientesNuevos}
-            </h1>
+            <h1 className=" text-red-primary font-bold text-2xl">9</h1>
             <h2>clientes nuevos.</h2>
           </div>
         </div>

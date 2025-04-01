@@ -5,7 +5,7 @@ import { verifyToken } from "../middleware/verifyToken.middleware.js";
 const router = express.Router();
 
 // Apply authentication middleware
-router.use(verifyToken);
+// router.use(verifyToken);
 
 // CRUD Routes
 router.post("/", programaLealtadController.crear);

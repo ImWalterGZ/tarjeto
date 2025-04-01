@@ -17,7 +17,7 @@ const PromoList = ({ negocio, onEdit, onRefresh, refreshTrigger }) => {
       }
 
       console.log(`🔍 PromoList: Using negocioID: ${negocio.publicID}`);
-      const requestUrl = `/api/promocion/${negocio.publicID}`;
+      const requestUrl = `/promocion/${negocio.publicID}`;
       console.log(`🌐 PromoList: Making request to: ${requestUrl}`);
 
       setLoading(true);
